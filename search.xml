@@ -25,13 +25,12 @@
 <p>可扫描出.git漏洞</p>
 <p><img src="/2020/06/12/CTF-2020.6.12/image-20200612152136482.png"></p>
 <p>点击后：</p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612152205283.png"></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612152222463.png"></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612152352261.png"></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612153111563.png"></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/CTF-2020.6.12%5Cimage-20201109105110264.png"></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/CTF-2020.6.12%5Cimage-20201109105221000.png"></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/CTF-2020.6.12%5Cimage-20201109105306274.png"></p>
 <p><img src="/2020/06/12/CTF-2020.6.12/image-20200612154814555.png"></p>
 <p>放到beyond compare（<a href="http://www.scootersoftware.com/download.php%EF%BC%89%E9%87%8C%E5%AF%B9%E6%AF%94">http://www.scootersoftware.com/download.php）里对比</a></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612154948255.png"></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/CTF-2020.6.12%5Cimage-20201109105349980.png"></p>
 <p>仔细看差别：</p>
 <p>flag{82efc37f1cd5d4636ea7cadcd5a814a2}</p>
 <p>提交即可</p>
