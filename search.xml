@@ -184,48 +184,6 @@
       </tags>
   </entry>
   <entry>
-    <title>CTF-2020.6.12</title>
-    <url>/2020/06/12/CTF-2020.6.12/</url>
-    <content><![CDATA[<h4 id="git文件泄露导致源码泄露"><a href="#git文件泄露导致源码泄露" class="headerlink" title=".git文件泄露导致源码泄露"></a>.git文件泄露导致源码泄露</h4><p>首先，关于git：分布式版本控制系统（版本控制：记录每次文件的改动，并支持协作编辑）</p>
-<h5 id="0x1-一些用语解释："><a href="#0x1-一些用语解释：" class="headerlink" title="0x1 一些用语解释："></a>0x1 一些用语解释：</h5><a id="more"></a>
-
-<p>集中式：全部文件存在一个中央服务器中，需联网，修改时从中央服务器中取出修改完放回去。</p>
-<p>分布式：各个电脑里都有完整的版本库，修改后需推送，安全性高，可以有一个中央服务器用来方便大家交换修改的版本。</p>
-<p>版本库：仓库，目录，文件的修改删除git都可跟踪</p>
-<p>工作区和暂存区：工作区就是自身电脑可看到的目录，暂存区在版本库中，将工作区的文件添加到暂存区（git add），然后将暂存区的所有文件添加到master（git commit）。master也是分支，分支的作用是上传未写完的代码后不会让未写完的代码影响别人。</p>
-<h5 id="0x2-泄露原理："><a href="#0x2-泄露原理：" class="headerlink" title="0x2 泄露原理："></a>0x2 泄露原理：</h5><p>源码提交到远程托管网站后，从上面把源码pull到服务器时，忘记删除git文件。利用.git文件可以恢复网站的源码，源码里可能会有数据库信息。/使用git进行版本控制，对站点自动部署，配置不当会降.git文件夹直接部署到线上环境。</p>
-<p>详细解释：</p>
-<p>在一个目录中初始化后，会产生一个名叫.git的隐藏文件夹（版本库）</p>
-<p>当开发时采用以下流程时：</p>
-<p>1.初始化仓库 , 并将仓库托管在Coding或者Github上 , 便于远程协作/备份/部署<br>2.在本地进行网站开发 , 并定时提交commit , push到远程托管网站<br>3.当一个阶段的开发差不多的时候 , 需要远程登陆服务器 , 通过托管网站再将发行版网站pull到Web目录下（此时会将,git文件夹下载到服务器的web目录下）<br>4.网站正常运行</p>
-<p>攻击者可以利用web目录下载Git文件夹，然后就可以利用储存的版本控制信息，完全恢复网站后台的代码和目录结构以及获取数据库信息等。</p>
-<h5 id="0x3-利用："><a href="#0x3-利用：" class="headerlink" title="0x3 利用："></a>0x3 利用：</h5><p>1、githack等：同构泄露的.git文件夹下的文件，还原重建工程源代码</p>
-<p>2、爬虫爬取整个git目录</p>
-<h5 id="0x4-修复："><a href="#0x4-修复：" class="headerlink" title="0x4 修复："></a>0x4 修复：</h5><p>1、对.git目录的访问权限进行控制</p>
-<p>2、在每次Pull后删除.git文件夹</p>
-<h5 id="0x5-利用场景实践："><a href="#0x5-利用场景实践：" class="headerlink" title="0x5 利用场景实践："></a>0x5 利用场景实践：</h5><p>git_extract下载：<a href="https://github.com/lijiejie/GitHack">https://github.com/lijiejie/GitHack</a></p>
-<p>cmd命令：git_extract.py  <a href="http://xxxxx/.git/">http://xxxxx/.git/</a></p>
-<p>可扫描出.git漏洞</p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612152136482.png"></p>
-<p>点击后：</p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105110264.png"></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105221000.png"></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105306274.png"></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612154814555.png"></p>
-<p>放到beyond compare（<a href="http://www.scootersoftware.com/download.php%EF%BC%89%E9%87%8C%E5%AF%B9%E6%AF%94">http://www.scootersoftware.com/download.php）里对比</a></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105349980.png"></p>
-<p>仔细看差别：</p>
-<p>flag{82efc37f1cd5d4636ea7cadcd5a814a2}</p>
-<p>提交即可</p>
-]]></content>
-      <categories>
-        <category>ctf</category>
-      </categories>
-      <tags>
-        <tag>git</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>0x05Cve-2020-16898 复现</title>
     <url>/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/</url>
     <content><![CDATA[<h3 id="Cve-2020-16898-复现"><a href="#Cve-2020-16898-复现" class="headerlink" title="Cve-2020-16898 复现"></a>Cve-2020-16898 复现</h3><p>参考：</p>
@@ -290,6 +248,144 @@
       <tags>
         <tag>windows内核</tag>
         <tag>ipv6</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CTF-2020.6.12</title>
+    <url>/2020/06/12/CTF-2020.6.12/</url>
+    <content><![CDATA[<h4 id="git文件泄露导致源码泄露"><a href="#git文件泄露导致源码泄露" class="headerlink" title=".git文件泄露导致源码泄露"></a>.git文件泄露导致源码泄露</h4><p>首先，关于git：分布式版本控制系统（版本控制：记录每次文件的改动，并支持协作编辑）</p>
+<h5 id="0x1-一些用语解释："><a href="#0x1-一些用语解释：" class="headerlink" title="0x1 一些用语解释："></a>0x1 一些用语解释：</h5><a id="more"></a>
+
+<p>集中式：全部文件存在一个中央服务器中，需联网，修改时从中央服务器中取出修改完放回去。</p>
+<p>分布式：各个电脑里都有完整的版本库，修改后需推送，安全性高，可以有一个中央服务器用来方便大家交换修改的版本。</p>
+<p>版本库：仓库，目录，文件的修改删除git都可跟踪</p>
+<p>工作区和暂存区：工作区就是自身电脑可看到的目录，暂存区在版本库中，将工作区的文件添加到暂存区（git add），然后将暂存区的所有文件添加到master（git commit）。master也是分支，分支的作用是上传未写完的代码后不会让未写完的代码影响别人。</p>
+<h5 id="0x2-泄露原理："><a href="#0x2-泄露原理：" class="headerlink" title="0x2 泄露原理："></a>0x2 泄露原理：</h5><p>源码提交到远程托管网站后，从上面把源码pull到服务器时，忘记删除git文件。利用.git文件可以恢复网站的源码，源码里可能会有数据库信息。/使用git进行版本控制，对站点自动部署，配置不当会降.git文件夹直接部署到线上环境。</p>
+<p>详细解释：</p>
+<p>在一个目录中初始化后，会产生一个名叫.git的隐藏文件夹（版本库）</p>
+<p>当开发时采用以下流程时：</p>
+<p>1.初始化仓库 , 并将仓库托管在Coding或者Github上 , 便于远程协作/备份/部署<br>2.在本地进行网站开发 , 并定时提交commit , push到远程托管网站<br>3.当一个阶段的开发差不多的时候 , 需要远程登陆服务器 , 通过托管网站再将发行版网站pull到Web目录下（此时会将,git文件夹下载到服务器的web目录下）<br>4.网站正常运行</p>
+<p>攻击者可以利用web目录下载Git文件夹，然后就可以利用储存的版本控制信息，完全恢复网站后台的代码和目录结构以及获取数据库信息等。</p>
+<h5 id="0x3-利用："><a href="#0x3-利用：" class="headerlink" title="0x3 利用："></a>0x3 利用：</h5><p>1、githack等：同构泄露的.git文件夹下的文件，还原重建工程源代码</p>
+<p>2、爬虫爬取整个git目录</p>
+<h5 id="0x4-修复："><a href="#0x4-修复：" class="headerlink" title="0x4 修复："></a>0x4 修复：</h5><p>1、对.git目录的访问权限进行控制</p>
+<p>2、在每次Pull后删除.git文件夹</p>
+<h5 id="0x5-利用场景实践："><a href="#0x5-利用场景实践：" class="headerlink" title="0x5 利用场景实践："></a>0x5 利用场景实践：</h5><p>git_extract下载：<a href="https://github.com/lijiejie/GitHack">https://github.com/lijiejie/GitHack</a></p>
+<p>cmd命令：git_extract.py  <a href="http://xxxxx/.git/">http://xxxxx/.git/</a></p>
+<p>可扫描出.git漏洞</p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612152136482.png"></p>
+<p>点击后：</p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105110264.png"></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105221000.png"></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105306274.png"></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612154814555.png"></p>
+<p>放到beyond compare（<a href="http://www.scootersoftware.com/download.php%EF%BC%89%E9%87%8C%E5%AF%B9%E6%AF%94">http://www.scootersoftware.com/download.php）里对比</a></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105349980.png"></p>
+<p>仔细看差别：</p>
+<p>flag{82efc37f1cd5d4636ea7cadcd5a814a2}</p>
+<p>提交即可</p>
+]]></content>
+      <categories>
+        <category>ctf</category>
+      </categories>
+      <tags>
+        <tag>git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>0x06Cve-2020-1956、Cve-2020-13925复现</title>
+    <url>/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="Cve-2020-1956、Cve-2020-13925复现"><a href="#Cve-2020-1956、Cve-2020-13925复现" class="headerlink" title="Cve-2020-1956、Cve-2020-13925复现"></a>Cve-2020-1956、Cve-2020-13925复现</h4><p>参考：<a href="https://paper.seebug.org/1237/">https://paper.seebug.org/1237/</a></p>
+<p><a href="http://www.ijiandao.com/2b/baijia/373874.html">http://www.ijiandao.com/2b/baijia/373874.html</a></p>
+<p>这两个都是Kylin下的漏洞，放在一起复现了</p>
+<a id="more"></a>
+
+<p>环境：<strong>Kylin</strong> 官网文档 <a href="http://kylin.apache.org/cn/docs/install/kylin_docker.html">http://kylin.apache.org/cn/docs/install/kylin_docker.html</a></p>
+<h5 id="0x1-docker里下环境"><a href="#0x1-docker里下环境" class="headerlink" title="0x1 docker里下环境"></a>0x1 docker里下环境</h5><p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201109181510327.png" alt="image-20201109181510327"></p>
+<h5 id="0x2-运行docker"><a href="#0x2-运行docker" class="headerlink" title="0x2 运行docker"></a>0x2 运行docker</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">-m 8G \</span><br><span class="line">-p 7070:7070 \</span><br><span class="line">-p 8088:8088 \</span><br><span class="line">-p 50070:50070 \</span><br><span class="line">-p 8032:8032 \</span><br><span class="line">-p 8042:8042 \</span><br><span class="line">-p 16010:16010 \</span><br><span class="line">apachekylin&#x2F;apache-kylin-standalone:3.0.1</span><br></pre></td></tr></table></figure>
+
+<p>注意：login的页面要等一会儿才能出来（一开始一直没有页面还以为是哪里有问题查了一会儿…..</p>
+<h5 id="0x3-使用默认密码-admin-KYLIN-登录"><a href="#0x3-使用默认密码-admin-KYLIN-登录" class="headerlink" title="0x3 使用默认密码 admin/KYLIN 登录"></a>0x3 使用默认密码 <strong>admin/KYLIN</strong> 登录</h5><p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021111136838.png" alt="image-20201021111136838"></p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021111207181.png" alt="image-20201021111207181"></p>
+<h5 id="0x01-Cve-2020-1956"><a href="#0x01-Cve-2020-1956" class="headerlink" title="0x01 Cve-2020-1956:"></a>0x01 Cve-2020-1956:</h5><p>0x001 修改配置：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">kylin.tool.auuto-migrate-cube.enabled&#x3D;true</span><br><span class="line">kylin.tool.auto-migrate-cube.src-config&#x3D;&#x2F;home&#x2F;admin&#x2F;apache-kylin-3.0.1-bin-hbase1x&#x2F;conf&#x2F;kylin.propertie</span><br><span class="line">kylin.server.cluster-name&#x3D;kylin_metadata</span><br><span class="line">kylin.tool.auto-migrate-cube.dest-config&#x3D;&#x2F;tmp&#x2F;kylin.properties kylin_streaming_cube learn_kylin true true true true;touch &#x2F;tmp&#x2F;kami;echo</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021142624221.png" alt="image-20201021142624221"></p>
+<p>0x002 发包，可以看到返回200</p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021114530646.png" alt="image-20201021114530646"></p>
+<p>0x003 进入查看（docker exec -it <CONTAINER id> bash），可以看到我们写进配置的语句被执行了，生成文件成功</CONTAINER></p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021114830282.png" alt="image-20201021114830282"></p>
+<h5 id="0x02-Cve-2020-13925"><a href="#0x02-Cve-2020-13925" class="headerlink" title="0x02 Cve-2020-13925:"></a>0x02 Cve-2020-13925:</h5><p>0x001 选择一个项目，点击diagnosis，抓包</p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021143637495.png" alt="image-20201021143637495"></p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021143717266.png" alt="image-20201021143717266"></p>
+<p>0x002 改包，即可</p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021150700075.png" alt="image-20201021150700075"></p>
+<p>这里有一个额外的知识：burp的collaborator模块</p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>kylin</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>0x07cve-2020-13933复现</title>
+    <url>/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="cve-2020-13933：Apache-shiro-权限绕过漏洞复现"><a href="#cve-2020-13933：Apache-shiro-权限绕过漏洞复现" class="headerlink" title="cve-2020-13933：Apache shiro 权限绕过漏洞复现"></a>cve-2020-13933：Apache shiro 权限绕过漏洞复现</h4><p>这个复现非常简单，先用IDEA+shiro搭环境</p>
+<p>参考：<a href="https://www.cnblogs.com/ph4nt0mer/p/13535999.html">https://www.cnblogs.com/ph4nt0mer/p/13535999.html</a></p>
+<a id="more"></a>
+
+<p>然后运行，访问，抓包即可</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200923095122117.png" alt="image-20200923095122117"></p>
+<p>访问test，成功</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183129207.png" alt="image-20200922183129207"></p>
+<p>要越权访问test文件夹下的内容，跳转到登录界面</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183151071.png" alt="image-20200922183151071"></p>
+<p>进行%3b的操作，绕过登录访问到了页面内容</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183207361.png" alt="image-20200922183207361"></p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>apaches shiro</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>0x08cve-2020-15148 Yii2反序列化漏洞复现</title>
+    <url>/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="cve-2020-15148-Yii2反序列化漏洞复现"><a href="#cve-2020-15148-Yii2反序列化漏洞复现" class="headerlink" title="cve-2020-15148 Yii2反序列化漏洞复现"></a>cve-2020-15148 Yii2反序列化漏洞复现</h4><p>参考：</p>
+<p><a href="https://xz.aliyun.com/t/8307?page=5">https://xz.aliyun.com/t/8307?page=5</a></p>
+<p><a href="https://www.cnblogs.com/2rsh0u/p/13714923.html">https://www.cnblogs.com/2rsh0u/p/13714923.html</a></p>
+<a id="more"></a>
+
+<h5 id="0x1-安装Yii2"><a href="#0x1-安装Yii2" class="headerlink" title="0x1 安装Yii2"></a>0x1 安装Yii2</h5><p>到Github上下载了对应的漏洞版本(<a href="https://github.com/yiisoft/yii2/releases),%E6%AD%A4%E5%A4%84%E4%B8%8B%E8%BD%BD%E4%BA%86yii-basic-app-2.0.37.tgz">https://github.com/yiisoft/yii2/releases),此处下载了yii-basic-app-2.0.37.tgz</a></p>
+<p>打开文件，本来想看参考文章里的复现的，奈何win下的环境搞不好，刚好看到文件夹里有docker-compose文件，便去官方文档看了下docker的安装(<a href="https://www.yiichina.com/doc/guide/2.0/start-installation">https://www.yiichina.com/doc/guide/2.0/start-installation</a>)</p>
+<p>进入对应文件夹然后启动：docker-compose up</p>
+<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027150136028.png" alt="image-20201027150136028"></p>
+<p>然后找到了对应的web页面访问地址</p>
+<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027150317471.png" alt="image-20201027150317471"></p>
+<p>这样就搭建成功了</p>
+<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027133934882.png" alt="image-20201027133934882"></p>
+<p>注意：要写入config文件夹中的web.php中的cookieValidationKey字段的值，不然会报错</p>
+<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027152240894.png" alt="image-20201027152240894"></p>
+<h5 id="0x2-漏洞复现"><a href="#0x2-漏洞复现" class="headerlink" title="0x2 漏洞复现"></a>0x2 漏洞复现</h5><p>第一次复现PHP的漏洞，还是有很多懵的地方,一开始看到这个poc和别人的复现记录我都不知道如何操作</p>
+<p>poc：</p>
+<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027151142665.png" alt="image-20201027151142665"></p>
+<p>看到这个Php文件最后输出一个base64加密的字符串</p>
+<p><strong>可以放到菜鸟的php在线工具(或者其他的Php在线编辑器：<a href="https://tool.lu/coderunner/)%E8%BF%90%E8%A1%8C%EF%BC%8C%E5%A4%8D%E5%88%B6%E7%94%9F%E6%88%90%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8D%B3%E5%8F%AF">https://tool.lu/coderunner/)运行，复制生成的字符串即可</a></strong></p>
+<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027152049055.png" alt="image-20201027152049055"></p>
+<p>然后在controllers下创建一个反序列化的入口TestController.php</p>
+<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027152429860.png" alt="image-20201027152429860"></p>
+<p>然后抓包，改包，将字符串放进去，重新发送，即可看到POC内的攻击命令被运行了，命令可自己改</p>
+<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027144713425.png" alt="image-20201027144713425"></p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>yii2</tag>
       </tags>
   </entry>
 </search>
