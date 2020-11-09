@@ -227,7 +227,7 @@
   </entry>
   <entry>
     <title>0x05Cve-2020-16898 复现</title>
-    <url>/2020/09/12/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/</url>
+    <url>/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/</url>
     <content><![CDATA[<h3 id="Cve-2020-16898-复现"><a href="#Cve-2020-16898-复现" class="headerlink" title="Cve-2020-16898 复现"></a>Cve-2020-16898 复现</h3><p>参考：</p>
 <p><a href="https://blog.csdn.net/hsj_csdn/article/details/109138162">https://blog.csdn.net/hsj_csdn/article/details/109138162</a></p>
 <p><a href="https://www.secpulse.com/archives/143665.html">https://www.secpulse.com/archives/143665.html</a></p>
@@ -235,11 +235,11 @@
 <a id="more"></a>
 
 <h4 id="0x1-复现过程："><a href="#0x1-复现过程：" class="headerlink" title="0x1 复现过程："></a>0x1 复现过程：</h4><h5 id="0x01-准备靶机环境"><a href="#0x01-准备靶机环境" class="headerlink" title="0x01 准备靶机环境"></a>0x01 准备靶机环境</h5><p>下一个win10的镜像，然后开启vmware的IPV6功能（编辑-虚拟网络编辑器-NAT设置），查看靶机IPV6地址</p>
-<p><img src="/2020/09/12/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173742012.png" alt="image-20201109173742012"></p>
-<h5 id="0x02-攻击机运行脚本（攻击机需要能与靶机进行通信"><a href="#0x02-攻击机运行脚本（攻击机需要能与靶机进行通信" class="headerlink" title="0x02 攻击机运行脚本（攻击机需要能与靶机进行通信"></a>0x02 攻击机运行脚本（攻击机需要能与靶机进行通信</h5><p><img src="/2020/09/12/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173451963.png" alt="image-20201109173451963"></p>
-<h5 id="0x03-攻击成功，靶机蓝屏重启"><a href="#0x03-攻击成功，靶机蓝屏重启" class="headerlink" title="0x03 攻击成功，靶机蓝屏重启"></a>0x03 攻击成功，靶机蓝屏重启</h5><p><img src="/2020/09/12/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173816856.png" alt="image-20201109173816856"></p>
+<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173742012.png" alt="image-20201109173742012"></p>
+<h5 id="0x02-攻击机运行脚本（攻击机需要能与靶机进行通信"><a href="#0x02-攻击机运行脚本（攻击机需要能与靶机进行通信" class="headerlink" title="0x02 攻击机运行脚本（攻击机需要能与靶机进行通信"></a>0x02 攻击机运行脚本（攻击机需要能与靶机进行通信</h5><p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173451963.png" alt="image-20201109173451963"></p>
+<h5 id="0x03-攻击成功，靶机蓝屏重启"><a href="#0x03-攻击成功，靶机蓝屏重启" class="headerlink" title="0x03 攻击成功，靶机蓝屏重启"></a>0x03 攻击成功，靶机蓝屏重启</h5><p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173816856.png" alt="image-20201109173816856"></p>
 <h4 id="0x2-漏洞部分分析："><a href="#0x2-漏洞部分分析：" class="headerlink" title="0x2 漏洞部分分析："></a>0x2 漏洞部分分析：</h4><p>0x01 抓包，可以看到进行了多次DNS查询</p>
-<p><img src="/2020/09/12/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173845156.png" alt="image-20201109173845156"></p>
+<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173845156.png" alt="image-20201109173845156"></p>
 <h4 id="0x3-原理分析："><a href="#0x3-原理分析：" class="headerlink" title="0x3 原理分析："></a>0x3 原理分析：</h4><h6 id="相关知识"><a href="#相关知识" class="headerlink" title="相关知识"></a>相关知识</h6><p>1、Microsoft Windows中的TCP/IP功能在内核级别运行，并由驱动程序tcpip.sys提供。该驱动程序处理所有传入和传出的TCP/IP通信信息，包括解析从网络接口接收到的数据包，以及解释此数据并将其传递给更高级别的组件。</p>
 <p>2、RDNSS Option：一个用于向IPv6主机传送RDNSS信息的IPv6的RA option</p>
 <p>3、Recursive DNS Server (RDNSS)：递归DNS服务器，提供递归DNS解析服务的服务器，用于将域名转换为IP地址或解析成RFC1034和RFC1035中定义的PTR记录。</p>
@@ -253,7 +253,7 @@
 <p>5、<strong>函数返回前</strong>（retn前一点），把cookie取出与esp异或计算后，调用__security_check_cookie函数进行检查，与.data节里的种子进行比较，</p>
 <p>如果校验通过，则返回原函数继续执行；如果校验失败，则程序终止。</p>
 <p>6、通过RFC8106的标准中对RDNSS option结构的定义（<a href="https://tools.ietf.org/pdf/rfc8106.pdf%EF%BC%89">https://tools.ietf.org/pdf/rfc8106.pdf）</a></p>
-<p><img src="/2020/09/12/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173914793.png" alt="image-20201109173914793"></p>
+<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173914793.png" alt="image-20201109173914793"></p>
 <p>Type： 占8-bit，RDNSS 的类型为25</p>
 <p>Length：8-bit无符号整数，单位长度为8个字节，所以Type, Length, Reserved, Lifetime一共占8个字节，一个单位长度，而一个IPv6地址占16个字节，两个单位长度，所以Length的最小值为3，且为奇数。</p>
 <p>Reserved：保留字段</p>
@@ -269,20 +269,20 @@
 <p>分析出现的关键函数tcpip!Ipv6pHandleRouterAdvertisement()。</p>
 <p>3、使用IDA64反编译驱动程序tcpip.sys（win10 1909版本）</p>
 <p>找到函数tcpip!Ipv6pHandleRouterAdvertisement()</p>
-<p><img src="/2020/09/12/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173949807.png" alt="image-20201109173949807"></p>
+<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173949807.png" alt="image-20201109173949807"></p>
 <p>函数一开始就写出了GS机制：</p>
-<p><img src="/2020/09/12/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109174004821.png" alt="image-20201109174004821"></p>
+<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109174004821.png" alt="image-20201109174004821"></p>
 <p>查看调用的函数，发现Ipv6pUpdateRDNSS()</p>
-<p><img src="/2020/09/12/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109174021022.png" alt="image-20201109174021022"></p>
+<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109174021022.png" alt="image-20201109174021022"></p>
 <p>进入漏洞函数Ipv6pUpdateRDNSS()：</p>
-<p><img src="/2020/09/12/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109174048451.png" alt="image-20201109174048451"></p>
+<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109174048451.png" alt="image-20201109174048451"></p>
 <p>通过查询微软官方文档理解出现的几个函数</p>
 <p>我们可以理解下面的循环是，确认Address的数量，对每个Address进行处理，分配合适的内存。</p>
 <p>而漏洞原因就在于v41处未对length奇偶进行判断</p>
 <p>根据RFC8106的标准，Length字段的值应该满足最小为3的奇数的情况。那么当我们提供一个偶数Length值如4时，Ipv6pUpdateRDNSS()函数应该增加32字节（4*8）的缓冲区。但是此代码中，可以看到堆栈在内部以16字节为增量进行计数，当v41为1时，分配的缓冲区是v9的8字节加上v19的16字节，最终为24字节，就会导致缓冲区溢出。</p>
 <p><strong>注意</strong>：如果从NetBuffer请求的数据是连续的，则会将数据存放在NDIS提供的地址，这样无法造成溢出。所以需要从NetBuffer请求的数据不是连续的，才会将数据存放在Storage上。数据非连续的实现是通过fragmentation（碎片化）处理，将Router Advertisement包通过scapy的fragment6函数拆分成多个IPv6 fragments进行发送。</p>
 <p>查看复现中抓取的Router Advertisement流量包，可以看到其中length为偶数8</p>
-<p><img src="/2020/09/12/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109174105003.png" alt="image-20201109174105003"></p>
+<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109174105003.png" alt="image-20201109174105003"></p>
 ]]></content>
       <categories>
         <category>漏洞复现</category>
