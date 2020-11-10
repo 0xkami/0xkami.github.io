@@ -90,66 +90,6 @@
       </tags>
   </entry>
   <entry>
-    <title>0x03CVE-2020-14644 weblogic iiop反序列化漏洞分析</title>
-    <url>/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/</url>
-    <content><![CDATA[<h3 id="CVE-2020-14644-weblogic-iiop反序列化漏洞分析"><a href="#CVE-2020-14644-weblogic-iiop反序列化漏洞分析" class="headerlink" title="CVE-2020-14644 weblogic iiop反序列化漏洞分析"></a>CVE-2020-14644 weblogic iiop反序列化漏洞分析</h3><p>参考：</p>
-<p>0x1 <a href="https://my.oschina.net/u/4280983/blog/4477476">https://my.oschina.net/u/4280983/blog/4477476</a></p>
-<p>0x2 宽字节的推文</p>
-<a id="more"></a>
-
-<h4 id="0x1-漏洞介绍"><a href="#0x1-漏洞介绍" class="headerlink" title="0x1 漏洞介绍"></a>0x1 漏洞介绍</h4><h5 id="0x01-WebLogic组件"><a href="#0x01-WebLogic组件" class="headerlink" title="0x01 WebLogic组件"></a>0x01 WebLogic组件</h5><p>WebLogic是美国Oracle公司出品的一个application server，是一个基于JAVAEE架构的中间件，WebLogic是用于开发、集成、部署和管理大型分布式Web应用、网络应用和数据库应用的Java应用服务器，适用于云环境和传统环境的应用服务器组件。</p>
-<h5 id="0x02-漏洞简介"><a href="#0x02-漏洞简介" class="headerlink" title="0x02 漏洞简介"></a>0x02 漏洞简介</h5><p>Oracle官方在2020年7月份发布的最新安全补丁中披露了此漏洞。此漏洞CVSS评分9.8，<strong>受影响的版本是12.2.1.3.0、12.2.1.4.0和14.1.1.0.0</strong>。该漏洞允许未经身份验证的攻击者通过 IIOP , T3 进行网络访问，攻击者成功攻击此漏洞可能导致Oracle WebLogic Server被接管。</p>
-<h4 id="0x2-漏洞分析"><a href="#0x2-漏洞分析" class="headerlink" title="0x2 漏洞分析"></a>0x2 漏洞分析</h4><h5 id="0x01-相关知识"><a href="#0x01-相关知识" class="headerlink" title="0x01 相关知识"></a>0x01 相关知识</h5><h6 id="JDK的classloader类和defineClass方法"><a href="#JDK的classloader类和defineClass方法" class="headerlink" title="JDK的classloader类和defineClass方法"></a>JDK的classloader类和defineClass方法</h6><p>​    一个类在被使用之前，会经历class文件生成—&gt;加载—&gt;连接—&gt;初始化等阶段。其中加载阶段主要完成三件事：1、通过类的全限定名来获取定义次类的二进制字节流，2、将该二进制字节流定义的静态数据结构转换成方法区的运行时数据结构，3、在内存中生成一个代表该类的Class对象，供外部通过该对象来获取类的元数据信息。</p>
-<p>​    JDK中的ClassLoader类中有个方法是defineClass，可以根据类全限定名和类的字节数组，加载一个类并返回对应的Class对象到 JVM（Java Virtual Machine）中。</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110556771.png" alt="image-20201015110556771"></p>
-<p>如上图所示，如果参数’name’（类名）和’b’（类文件的二进制数据）可控，理论上我们可以加载任何类，我们可以通过该方法，构造符合class格式的bytes数组作为类去加载。（注意：1、一般情况下，通过defineClass加载的类不允许同名，2、一个类中的类名name和类字节数组b中的类名要对应）</p>
-<h6 id="javassist"><a href="#javassist" class="headerlink" title="javassist"></a>javassist</h6><p>​    javassist是一个开源的分析、编辑和创建Java字节码的类库。它提供了更高级的API，执行效率相对ASM较差，但无需掌握字节码指令的知识，对使用者要求较低。它直接使用java编码的形式，不需要了解虚拟机指令，就能动态改变类的结构，或者动态生成类。</p>
-<h5 id="0x02-漏洞代码分析"><a href="#0x02-漏洞代码分析" class="headerlink" title="0x02 漏洞代码分析"></a>0x02 漏洞代码分析</h5><p>该漏洞的原理是在反序列化时，通过使用defineClass方法，加载恶意类。</p>
-<p>关键类：com.tangosol.internal.util.invoke.RemoteConstructor</p>
-<p>在RemoteConstructor类中，构造实例的代码如下：</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014111222573.png" alt="image-20201014111222573"></p>
-<p>其中RemotableSupport类，可以理解为是coherence自定义的Classloader，在其中实现了defineClass，具有加载类的功能。查看其中的realize方法：</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110307308.png" alt="image-20201015110307308"></p>
-<p>先执行this.registerIfAbsent(constructor.getDefinition())方法</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110341915.png" alt="image-20201015110341915"></p>
-<p>RemotableSupport中定义了 Map 类型的 f_mapDefinitions 的变量充当缓存，每次调用realize时就会先在缓存中查找ClassDefinition。</p>
-<p>执行完成后，调用getRemotableClass方法，获取clz。查看ClassDefinition类</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014112030482.png" alt="image-20201014112030482"></p>
-<p>可以看到getRemotableClass返回m_clz,并且m_clz是用transient修饰的（transient的含义：将不需要序列化的属性前添加关键字transient，序列化对象的时候，这个属性就不会被序列化，最终变量为NULL）</p>
-<p>所以clz为NULL。于是在realize方法中，就会进入if分支，调用defineClass加载恶意类字节码。</p>
-<p>RemotableSupport 继承了ClassLoader，所以它的 defineClass 就是调用了父类的 defineClass来加载类。</p>
-<p>需要注意的是BinClassName变量的命名，使用的是ClassIdentity类中的getName方法</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110410957.png" alt="image-20201015110410957"></p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110448486.png" alt="image-20201015110448486"></p>
-<p>ClassIdentity类中的构造方法是将clazz作为参数，然后提取该类的一些特征信息，如Basename等。其中getName函数可以简化为：getName() = package + “/“ + baseName + “$” + version</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014105230694.png" alt="image-20201014105230694"></p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014105430256.png" alt="image-20201014105430256"></p>
-<p>所以 ClassIdentity 中的字节数组 byte[] 中的对应的 Class 的类名必须为 package + “.” + baseName + “$” + version，否则可能会加载失败。</p>
-<p>继续分析realize方法，加载类之后调用了createInstance方法</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014152406910.png" alt="image-20201014152406910"></p>
-<p>aoArgs作为参数进行实例化对象，所以将恶意代码写在构造方法中，实例化之后就会执行恶意代码。</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110636109.png" alt="image-20201015110636109"></p>
-<p> 所以只要构造一个带有包名类的恶意代码写进构造函数中，通过 javassist动态修改类名，将原类名加上 $ 和 version 值对应，通过iiop协议和反序列化发送给weblogic服务器，即可实现漏洞利用</p>
-<h4 id="0x3-漏洞复现"><a href="#0x3-漏洞复现" class="headerlink" title="0x3 漏洞复现"></a>0x3 漏洞复现</h4><h5 id="0x01-漏洞利用-弹计算器"><a href="#0x01-漏洞利用-弹计算器" class="headerlink" title="0x01 漏洞利用-弹计算器"></a>0x01 漏洞利用-弹计算器</h5><p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110723660.png" alt="image-20201015110723660"></p>
-<h5 id="0x02-漏洞利用-信息回显"><a href="#0x02-漏洞利用-信息回显" class="headerlink" title="0x02 漏洞利用-信息回显"></a>0x02 漏洞利用-信息回显</h5><p>1、开启weblogic服务器</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110854978.png" alt="image-20201015110854978"></p>
-<p>2、查看weblogic服务器的网络配置信息</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110937437.png" alt="image-20201015110937437"></p>
-<p>3、在攻击机上，编写特制的恶意类（写入weblogic服务器的Ip和weblogic服务的端口以及攻击命令），打包jar包，运行，就可以直接获取到weblogic服务器的信息</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201109171158094.png" alt="image-20201109171158094"></p>
-<h4 id="0x4-漏洞防护方案"><a href="#0x4-漏洞防护方案" class="headerlink" title="0x4 漏洞防护方案"></a>0x4 漏洞防护方案</h4><h5 id="0x01-官方方案："><a href="#0x01-官方方案：" class="headerlink" title="0x01 官方方案："></a>0x01 官方方案：</h5><p>官方已经针对此漏洞发布补丁，请受影响的用户参考以下链接安装补丁更新：</p>
-<p><a href="https://www.oracle.com/security-alerts/cpujul2020.html">https://www.oracle.com/security-alerts/cpujul2020.html</a></p>
-<h5 id="0x02-临时解决方案："><a href="#0x02-临时解决方案：" class="headerlink" title="0x02 临时解决方案："></a>0x02 临时解决方案：</h5><h6 id="关闭IIOP协议："><a href="#关闭IIOP协议：" class="headerlink" title="关闭IIOP协议："></a>关闭IIOP协议：</h6><p>在WebLogic控制台中，选择“服务”-&gt;”AdminServer”-&gt;”协议”，取消“启用IIOP”的勾选。并重启WebLogic项目，使配置生效。</p>
-<h6 id="控制T3服务："><a href="#控制T3服务：" class="headerlink" title="控制T3服务："></a>控制T3服务：</h6><p>在WebLogic界面中选择安全-筛选器，在下方出现的界面中找到“连接筛选器”，在里面输入：security.net.ConnectionFilterImpl，然后在连接筛选器规则中输入：127.0.0.1 * * allow t3 t3s，0.0.0.0/0 * * deny t3 t3s。最后保存并重启服务器即可生效。</p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>weblogic</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>0x04CVE-2020-24616复现</title>
     <url>/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/</url>
     <content><![CDATA[<h4 id="CVE-2020-24616复现"><a href="#CVE-2020-24616复现" class="headerlink" title="CVE-2020-24616复现"></a>CVE-2020-24616复现</h4><p>预警参考链接：<a href="https://s.tencent.com/research/bsafe/1102.html">https://s.tencent.com/research/bsafe/1102.html</a></p>
@@ -181,6 +121,29 @@
       <tags>
         <tag>jackson</tag>
         <tag>反序列化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>0x07cve-2020-13933复现</title>
+    <url>/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="cve-2020-13933：Apache-shiro-权限绕过漏洞复现"><a href="#cve-2020-13933：Apache-shiro-权限绕过漏洞复现" class="headerlink" title="cve-2020-13933：Apache shiro 权限绕过漏洞复现"></a>cve-2020-13933：Apache shiro 权限绕过漏洞复现</h4><p>这个复现非常简单，先用IDEA+shiro搭环境</p>
+<p>参考：<a href="https://www.cnblogs.com/ph4nt0mer/p/13535999.html">https://www.cnblogs.com/ph4nt0mer/p/13535999.html</a></p>
+<a id="more"></a>
+
+<p>然后运行，访问，抓包即可</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200923095122117.png" alt="image-20200923095122117"></p>
+<p>访问test，成功</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183129207.png" alt="image-20200922183129207"></p>
+<p>要越权访问test文件夹下的内容，跳转到登录界面</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183151071.png" alt="image-20200922183151071"></p>
+<p>进行%3b的操作，绕过登录访问到了页面内容</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183207361.png" alt="image-20200922183207361"></p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>apaches shiro</tag>
       </tags>
   </entry>
   <entry>
@@ -251,45 +214,99 @@
       </tags>
   </entry>
   <entry>
-    <title>CTF-2020.6.12</title>
-    <url>/2020/06/12/CTF-2020.6.12/</url>
-    <content><![CDATA[<h4 id="git文件泄露导致源码泄露"><a href="#git文件泄露导致源码泄露" class="headerlink" title=".git文件泄露导致源码泄露"></a>.git文件泄露导致源码泄露</h4><p>首先，关于git：分布式版本控制系统（版本控制：记录每次文件的改动，并支持协作编辑）</p>
-<h5 id="0x1-一些用语解释："><a href="#0x1-一些用语解释：" class="headerlink" title="0x1 一些用语解释："></a>0x1 一些用语解释：</h5><a id="more"></a>
+    <title>0x03CVE-2020-14644 weblogic iiop反序列化漏洞分析</title>
+    <url>/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/</url>
+    <content><![CDATA[<h3 id="CVE-2020-14644-weblogic-iiop反序列化漏洞分析"><a href="#CVE-2020-14644-weblogic-iiop反序列化漏洞分析" class="headerlink" title="CVE-2020-14644 weblogic iiop反序列化漏洞分析"></a>CVE-2020-14644 weblogic iiop反序列化漏洞分析</h3><p>参考：</p>
+<p>0x1 <a href="https://my.oschina.net/u/4280983/blog/4477476">https://my.oschina.net/u/4280983/blog/4477476</a></p>
+<p>0x2 宽字节的推文</p>
+<a id="more"></a>
 
-<p>集中式：全部文件存在一个中央服务器中，需联网，修改时从中央服务器中取出修改完放回去。</p>
-<p>分布式：各个电脑里都有完整的版本库，修改后需推送，安全性高，可以有一个中央服务器用来方便大家交换修改的版本。</p>
-<p>版本库：仓库，目录，文件的修改删除git都可跟踪</p>
-<p>工作区和暂存区：工作区就是自身电脑可看到的目录，暂存区在版本库中，将工作区的文件添加到暂存区（git add），然后将暂存区的所有文件添加到master（git commit）。master也是分支，分支的作用是上传未写完的代码后不会让未写完的代码影响别人。</p>
-<h5 id="0x2-泄露原理："><a href="#0x2-泄露原理：" class="headerlink" title="0x2 泄露原理："></a>0x2 泄露原理：</h5><p>源码提交到远程托管网站后，从上面把源码pull到服务器时，忘记删除git文件。利用.git文件可以恢复网站的源码，源码里可能会有数据库信息。/使用git进行版本控制，对站点自动部署，配置不当会降.git文件夹直接部署到线上环境。</p>
-<p>详细解释：</p>
-<p>在一个目录中初始化后，会产生一个名叫.git的隐藏文件夹（版本库）</p>
-<p>当开发时采用以下流程时：</p>
-<p>1.初始化仓库 , 并将仓库托管在Coding或者Github上 , 便于远程协作/备份/部署<br>2.在本地进行网站开发 , 并定时提交commit , push到远程托管网站<br>3.当一个阶段的开发差不多的时候 , 需要远程登陆服务器 , 通过托管网站再将发行版网站pull到Web目录下（此时会将,git文件夹下载到服务器的web目录下）<br>4.网站正常运行</p>
-<p>攻击者可以利用web目录下载Git文件夹，然后就可以利用储存的版本控制信息，完全恢复网站后台的代码和目录结构以及获取数据库信息等。</p>
-<h5 id="0x3-利用："><a href="#0x3-利用：" class="headerlink" title="0x3 利用："></a>0x3 利用：</h5><p>1、githack等：同构泄露的.git文件夹下的文件，还原重建工程源代码</p>
-<p>2、爬虫爬取整个git目录</p>
-<h5 id="0x4-修复："><a href="#0x4-修复：" class="headerlink" title="0x4 修复："></a>0x4 修复：</h5><p>1、对.git目录的访问权限进行控制</p>
-<p>2、在每次Pull后删除.git文件夹</p>
-<h5 id="0x5-利用场景实践："><a href="#0x5-利用场景实践：" class="headerlink" title="0x5 利用场景实践："></a>0x5 利用场景实践：</h5><p>git_extract下载：<a href="https://github.com/lijiejie/GitHack">https://github.com/lijiejie/GitHack</a></p>
-<p>cmd命令：git_extract.py  <a href="http://xxxxx/.git/">http://xxxxx/.git/</a></p>
-<p>可扫描出.git漏洞</p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612152136482.png"></p>
-<p>点击后：</p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105110264.png"></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105221000.png"></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105306274.png"></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612154814555.png"></p>
-<p>放到beyond compare（<a href="http://www.scootersoftware.com/download.php%EF%BC%89%E9%87%8C%E5%AF%B9%E6%AF%94">http://www.scootersoftware.com/download.php）里对比</a></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105349980.png"></p>
-<p>仔细看差别：</p>
-<p>flag{82efc37f1cd5d4636ea7cadcd5a814a2}</p>
-<p>提交即可</p>
+<h4 id="0x1-漏洞介绍"><a href="#0x1-漏洞介绍" class="headerlink" title="0x1 漏洞介绍"></a>0x1 漏洞介绍</h4><h5 id="0x01-WebLogic组件"><a href="#0x01-WebLogic组件" class="headerlink" title="0x01 WebLogic组件"></a>0x01 WebLogic组件</h5><p>WebLogic是美国Oracle公司出品的一个application server，是一个基于JAVAEE架构的中间件，WebLogic是用于开发、集成、部署和管理大型分布式Web应用、网络应用和数据库应用的Java应用服务器，适用于云环境和传统环境的应用服务器组件。</p>
+<h5 id="0x02-漏洞简介"><a href="#0x02-漏洞简介" class="headerlink" title="0x02 漏洞简介"></a>0x02 漏洞简介</h5><p>Oracle官方在2020年7月份发布的最新安全补丁中披露了此漏洞。此漏洞CVSS评分9.8，<strong>受影响的版本是12.2.1.3.0、12.2.1.4.0和14.1.1.0.0</strong>。该漏洞允许未经身份验证的攻击者通过 IIOP , T3 进行网络访问，攻击者成功攻击此漏洞可能导致Oracle WebLogic Server被接管。</p>
+<h4 id="0x2-漏洞分析"><a href="#0x2-漏洞分析" class="headerlink" title="0x2 漏洞分析"></a>0x2 漏洞分析</h4><h5 id="0x01-相关知识"><a href="#0x01-相关知识" class="headerlink" title="0x01 相关知识"></a>0x01 相关知识</h5><h6 id="JDK的classloader类和defineClass方法"><a href="#JDK的classloader类和defineClass方法" class="headerlink" title="JDK的classloader类和defineClass方法"></a>JDK的classloader类和defineClass方法</h6><p>​    一个类在被使用之前，会经历class文件生成—&gt;加载—&gt;连接—&gt;初始化等阶段。其中加载阶段主要完成三件事：1、通过类的全限定名来获取定义次类的二进制字节流，2、将该二进制字节流定义的静态数据结构转换成方法区的运行时数据结构，3、在内存中生成一个代表该类的Class对象，供外部通过该对象来获取类的元数据信息。</p>
+<p>​    JDK中的ClassLoader类中有个方法是defineClass，可以根据类全限定名和类的字节数组，加载一个类并返回对应的Class对象到 JVM（Java Virtual Machine）中。</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110556771.png" alt="image-20201015110556771"></p>
+<p>如上图所示，如果参数’name’（类名）和’b’（类文件的二进制数据）可控，理论上我们可以加载任何类，我们可以通过该方法，构造符合class格式的bytes数组作为类去加载。（注意：1、一般情况下，通过defineClass加载的类不允许同名，2、一个类中的类名name和类字节数组b中的类名要对应）</p>
+<h6 id="javassist"><a href="#javassist" class="headerlink" title="javassist"></a>javassist</h6><p>​    javassist是一个开源的分析、编辑和创建Java字节码的类库。它提供了更高级的API，执行效率相对ASM较差，但无需掌握字节码指令的知识，对使用者要求较低。它直接使用java编码的形式，不需要了解虚拟机指令，就能动态改变类的结构，或者动态生成类。</p>
+<h5 id="0x02-漏洞代码分析"><a href="#0x02-漏洞代码分析" class="headerlink" title="0x02 漏洞代码分析"></a>0x02 漏洞代码分析</h5><p>该漏洞的原理是在反序列化时，通过使用defineClass方法，加载恶意类。</p>
+<p>关键类：com.tangosol.internal.util.invoke.RemoteConstructor</p>
+<p>在RemoteConstructor类中，构造实例的代码如下：</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014111222573.png" alt="image-20201014111222573"></p>
+<p>其中RemotableSupport类，可以理解为是coherence自定义的Classloader，在其中实现了defineClass，具有加载类的功能。查看其中的realize方法：</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110307308.png" alt="image-20201015110307308"></p>
+<p>先执行this.registerIfAbsent(constructor.getDefinition())方法</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110341915.png" alt="image-20201015110341915"></p>
+<p>RemotableSupport中定义了 Map 类型的 f_mapDefinitions 的变量充当缓存，每次调用realize时就会先在缓存中查找ClassDefinition。</p>
+<p>执行完成后，调用getRemotableClass方法，获取clz。查看ClassDefinition类</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014112030482.png" alt="image-20201014112030482"></p>
+<p>可以看到getRemotableClass返回m_clz,并且m_clz是用transient修饰的（transient的含义：将不需要序列化的属性前添加关键字transient，序列化对象的时候，这个属性就不会被序列化，最终变量为NULL）</p>
+<p>所以clz为NULL。于是在realize方法中，就会进入if分支，调用defineClass加载恶意类字节码。</p>
+<p>RemotableSupport 继承了ClassLoader，所以它的 defineClass 就是调用了父类的 defineClass来加载类。</p>
+<p>需要注意的是BinClassName变量的命名，使用的是ClassIdentity类中的getName方法</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110410957.png" alt="image-20201015110410957"></p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110448486.png" alt="image-20201015110448486"></p>
+<p>ClassIdentity类中的构造方法是将clazz作为参数，然后提取该类的一些特征信息，如Basename等。其中getName函数可以简化为：getName() = package + “/“ + baseName + “$” + version</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014105230694.png" alt="image-20201014105230694"></p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014105430256.png" alt="image-20201014105430256"></p>
+<p>所以 ClassIdentity 中的字节数组 byte[] 中的对应的 Class 的类名必须为 package + “.” + baseName + “$” + version，否则可能会加载失败。</p>
+<p>继续分析realize方法，加载类之后调用了createInstance方法</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014152406910.png" alt="image-20201014152406910"></p>
+<p>aoArgs作为参数进行实例化对象，所以将恶意代码写在构造方法中，实例化之后就会执行恶意代码。</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110636109.png" alt="image-20201015110636109"></p>
+<p> 所以只要构造一个带有包名类的恶意代码写进构造函数中，通过 javassist动态修改类名，将原类名加上 $ 和 version 值对应，通过iiop协议和反序列化发送给weblogic服务器，即可实现漏洞利用</p>
+<h4 id="0x3-漏洞复现"><a href="#0x3-漏洞复现" class="headerlink" title="0x3 漏洞复现"></a>0x3 漏洞复现</h4><h5 id="0x01-漏洞利用-弹计算器"><a href="#0x01-漏洞利用-弹计算器" class="headerlink" title="0x01 漏洞利用-弹计算器"></a>0x01 漏洞利用-弹计算器</h5><p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110723660.png" alt="image-20201015110723660"></p>
+<h5 id="0x02-漏洞利用-信息回显"><a href="#0x02-漏洞利用-信息回显" class="headerlink" title="0x02 漏洞利用-信息回显"></a>0x02 漏洞利用-信息回显</h5><p>1、开启weblogic服务器</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110854978.png" alt="image-20201015110854978"></p>
+<p>2、查看weblogic服务器的网络配置信息</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110937437.png" alt="image-20201015110937437"></p>
+<p>3、在攻击机上，编写特制的恶意类（写入weblogic服务器的Ip和weblogic服务的端口以及攻击命令），打包jar包，运行，就可以直接获取到weblogic服务器的信息</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201109171158094.png" alt="image-20201109171158094"></p>
+<h4 id="0x4-漏洞防护方案"><a href="#0x4-漏洞防护方案" class="headerlink" title="0x4 漏洞防护方案"></a>0x4 漏洞防护方案</h4><h5 id="0x01-官方方案："><a href="#0x01-官方方案：" class="headerlink" title="0x01 官方方案："></a>0x01 官方方案：</h5><p>官方已经针对此漏洞发布补丁，请受影响的用户参考以下链接安装补丁更新：</p>
+<p><a href="https://www.oracle.com/security-alerts/cpujul2020.html">https://www.oracle.com/security-alerts/cpujul2020.html</a></p>
+<h5 id="0x02-临时解决方案："><a href="#0x02-临时解决方案：" class="headerlink" title="0x02 临时解决方案："></a>0x02 临时解决方案：</h5><h6 id="关闭IIOP协议："><a href="#关闭IIOP协议：" class="headerlink" title="关闭IIOP协议："></a>关闭IIOP协议：</h6><p>在WebLogic控制台中，选择“服务”-&gt;”AdminServer”-&gt;”协议”，取消“启用IIOP”的勾选。并重启WebLogic项目，使配置生效。</p>
+<h6 id="控制T3服务："><a href="#控制T3服务：" class="headerlink" title="控制T3服务："></a>控制T3服务：</h6><p>在WebLogic界面中选择安全-筛选器，在下方出现的界面中找到“连接筛选器”，在里面输入：security.net.ConnectionFilterImpl，然后在连接筛选器规则中输入：127.0.0.1 * * allow t3 t3s，0.0.0.0/0 * * deny t3 t3s。最后保存并重启服务器即可生效。</p>
 ]]></content>
       <categories>
-        <category>ctf</category>
+        <category>漏洞复现</category>
       </categories>
       <tags>
-        <tag>git</tag>
+        <tag>weblogic</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>0x08cve-2020-15148 Yii2反序列化漏洞复现</title>
+    <url>/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="cve-2020-15148-Yii2反序列化漏洞复现"><a href="#cve-2020-15148-Yii2反序列化漏洞复现" class="headerlink" title="cve-2020-15148 Yii2反序列化漏洞复现"></a>cve-2020-15148 Yii2反序列化漏洞复现</h4><p>参考：</p>
+<p><a href="https://xz.aliyun.com/t/8307?page=5">https://xz.aliyun.com/t/8307?page=5</a></p>
+<p><a href="https://www.cnblogs.com/2rsh0u/p/13714923.html">https://www.cnblogs.com/2rsh0u/p/13714923.html</a></p>
+<a id="more"></a>
+
+<h5 id="0x1-安装Yii2"><a href="#0x1-安装Yii2" class="headerlink" title="0x1 安装Yii2"></a>0x1 安装Yii2</h5><p>到Github上下载了对应的漏洞版本(<a href="https://github.com/yiisoft/yii2/releases),%E6%AD%A4%E5%A4%84%E4%B8%8B%E8%BD%BD%E4%BA%86yii-basic-app-2.0.37.tgz">https://github.com/yiisoft/yii2/releases),此处下载了yii-basic-app-2.0.37.tgz</a></p>
+<p>打开文件，本来想看参考文章里的复现的，奈何win下的环境搞不好，刚好看到文件夹里有docker-compose文件，便去官方文档看了下docker的安装(<a href="https://www.yiichina.com/doc/guide/2.0/start-installation">https://www.yiichina.com/doc/guide/2.0/start-installation</a>)</p>
+<p>进入对应文件夹然后启动：docker-compose up</p>
+<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027150136028.png" alt="image-20201027150136028"></p>
+<p>然后找到了对应的web页面访问地址</p>
+<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027150317471.png" alt="image-20201027150317471"></p>
+<p>这样就搭建成功了</p>
+<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027133934882.png" alt="image-20201027133934882"></p>
+<p>注意：要写入config文件夹中的web.php中的cookieValidationKey字段的值，不然会报错</p>
+<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027152240894.png" alt="image-20201027152240894"></p>
+<h5 id="0x2-漏洞复现"><a href="#0x2-漏洞复现" class="headerlink" title="0x2 漏洞复现"></a>0x2 漏洞复现</h5><p>第一次复现PHP的漏洞，还是有很多懵的地方,一开始看到这个poc和别人的复现记录我都不知道如何操作</p>
+<p>poc：</p>
+<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027151142665.png" alt="image-20201027151142665"></p>
+<p>看到这个Php文件最后输出一个base64加密的字符串</p>
+<p><strong>可以放到菜鸟的php在线工具(或者其他的Php在线编辑器：<a href="https://tool.lu/coderunner/)%E8%BF%90%E8%A1%8C%EF%BC%8C%E5%A4%8D%E5%88%B6%E7%94%9F%E6%88%90%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8D%B3%E5%8F%AF">https://tool.lu/coderunner/)运行，复制生成的字符串即可</a></strong></p>
+<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027152049055.png" alt="image-20201027152049055"></p>
+<p>然后在controllers下创建一个反序列化的入口TestController.php</p>
+<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027152429860.png" alt="image-20201027152429860"></p>
+<p>然后抓包，改包，将字符串放进去，重新发送，即可看到POC内的攻击命令被运行了，命令可自己改</p>
+<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027144713425.png" alt="image-20201027144713425"></p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>yii2</tag>
       </tags>
   </entry>
   <entry>
@@ -330,62 +347,132 @@
       </tags>
   </entry>
   <entry>
-    <title>0x07cve-2020-13933复现</title>
-    <url>/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h4 id="cve-2020-13933：Apache-shiro-权限绕过漏洞复现"><a href="#cve-2020-13933：Apache-shiro-权限绕过漏洞复现" class="headerlink" title="cve-2020-13933：Apache shiro 权限绕过漏洞复现"></a>cve-2020-13933：Apache shiro 权限绕过漏洞复现</h4><p>这个复现非常简单，先用IDEA+shiro搭环境</p>
-<p>参考：<a href="https://www.cnblogs.com/ph4nt0mer/p/13535999.html">https://www.cnblogs.com/ph4nt0mer/p/13535999.html</a></p>
+    <title>0x09CVE-2020-11113复现</title>
+    <url>/2020/10/30/0x09CVE-2020-11113%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="CVE-2020-11113复现"><a href="#CVE-2020-11113复现" class="headerlink" title="CVE-2020-11113复现"></a>CVE-2020-11113复现</h4><p>复现参考：<a href="https://blog.csdn.net/mukami0621/article/details/108447493">https://blog.csdn.net/mukami0621/article/details/108447493</a></p>
+<p>这两个漏洞复现方式很像…</p>
 <a id="more"></a>
 
-<p>然后运行，访问，抓包即可</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200923095122117.png" alt="image-20200923095122117"></p>
-<p>访问test，成功</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183129207.png" alt="image-20200922183129207"></p>
-<p>要越权访问test文件夹下的内容，跳转到登录界面</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183151071.png" alt="image-20200922183151071"></p>
-<p>进行%3b的操作，绕过登录访问到了页面内容</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183207361.png" alt="image-20200922183207361"></p>
+<p>POC:<a href="https://github.com/Al1ex/CVE-2020-11113">https://github.com/Al1ex/CVE-2020-11113</a></p>
+<p>项目里已经搭好了环境，其实应该按之前复现过的24616流程，稍微改改POC内容即可</p>
+<p>复现成功结果：</p>
+<p><img src="/2020/10/30/0x09CVE-2020-11113%E5%A4%8D%E7%8E%B0/image-20201102140016594.png" alt="image-20201102140016594"></p>
+<p>出现的问题：</p>
+<p>1、有一个包无法下载</p>
+<p>解决：<a href="https://mvnrepository.com,自行下载导入(虽然官网的验证蛮烦的/">https://mvnrepository.com，自行下载导入（虽然官网的验证蛮烦的</a></p>
+<p>2、和24616不一样，恶意类发送了但是不知道为啥计算器弹不出来…</p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>0x0ACVE-2020-8617复现</title>
+    <url>/2020/11/10/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="CVE-2020-8617复现"><a href="#CVE-2020-8617复现" class="headerlink" title="CVE-2020-8617复现"></a>CVE-2020-8617复现</h4><p>参考：<a href="https://github.com/knqyf263/CVE-2020-8617">https://github.com/knqyf263/CVE-2020-8617</a></p>
+<a id="more"></a>
+
+<p>0x1 下载docker镜像后运行（服务器环境）</p>
+<p><img src="/2020/11/10/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201110095624465.png" alt="image-20201110095624465"></p>
+<p><img src="/2020/11/10/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103142215582.png" alt="image-20201103142215582"></p>
+<p>0x2 安装pipenv</p>
+<p><img src="/2020/11/10/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201110095701235.png" alt="image-20201110095701235"></p>
+<p>0x3 因为已经有pipfile.lock文件，所以运行脚本会自动安装依赖，可以看到运行脚本之后服务器就崩溃了</p>
+<p><img src="/2020/11/10/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103143139388.png" alt="image-20201103143139388"></p>
+<p>0x4 流量包情况</p>
+<p><img src="/2020/11/10/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103145742284.png" alt="image-20201103145742284"></p>
 ]]></content>
       <categories>
         <category>漏洞复现</category>
       </categories>
       <tags>
-        <tag>apaches shiro</tag>
+        <tag>pipenv</tag>
       </tags>
   </entry>
   <entry>
-    <title>0x08cve-2020-15148 Yii2反序列化漏洞复现</title>
-    <url>/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h4 id="cve-2020-15148-Yii2反序列化漏洞复现"><a href="#cve-2020-15148-Yii2反序列化漏洞复现" class="headerlink" title="cve-2020-15148 Yii2反序列化漏洞复现"></a>cve-2020-15148 Yii2反序列化漏洞复现</h4><p>参考：</p>
-<p><a href="https://xz.aliyun.com/t/8307?page=5">https://xz.aliyun.com/t/8307?page=5</a></p>
-<p><a href="https://www.cnblogs.com/2rsh0u/p/13714923.html">https://www.cnblogs.com/2rsh0u/p/13714923.html</a></p>
+    <title>0x0BCve-2020-7361 禅道远程代码执行漏洞复现</title>
+    <url>/2020/11/05/0x0BCve-2020-7361-%E7%A6%85%E9%81%93%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="0x0B-Cve-2020-7361-禅道远程代码执行漏洞复现"><a href="#0x0B-Cve-2020-7361-禅道远程代码执行漏洞复现" class="headerlink" title="0x0B Cve-2020-7361 禅道远程代码执行漏洞复现"></a>0x0B Cve-2020-7361 禅道远程代码执行漏洞复现</h4><p>poc：<a href="https://github.com/rapid7/metasploit-framework/pull/13828">https://github.com/rapid7/metasploit-framework/pull/13828</a></p>
 <a id="more"></a>
 
-<h5 id="0x1-安装Yii2"><a href="#0x1-安装Yii2" class="headerlink" title="0x1 安装Yii2"></a>0x1 安装Yii2</h5><p>到Github上下载了对应的漏洞版本(<a href="https://github.com/yiisoft/yii2/releases),%E6%AD%A4%E5%A4%84%E4%B8%8B%E8%BD%BD%E4%BA%86yii-basic-app-2.0.37.tgz">https://github.com/yiisoft/yii2/releases),此处下载了yii-basic-app-2.0.37.tgz</a></p>
-<p>打开文件，本来想看参考文章里的复现的，奈何win下的环境搞不好，刚好看到文件夹里有docker-compose文件，便去官方文档看了下docker的安装(<a href="https://www.yiichina.com/doc/guide/2.0/start-installation">https://www.yiichina.com/doc/guide/2.0/start-installation</a>)</p>
-<p>进入对应文件夹然后启动：docker-compose up</p>
-<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027150136028.png" alt="image-20201027150136028"></p>
-<p>然后找到了对应的web页面访问地址</p>
-<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027150317471.png" alt="image-20201027150317471"></p>
-<p>这样就搭建成功了</p>
-<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027133934882.png" alt="image-20201027133934882"></p>
-<p>注意：要写入config文件夹中的web.php中的cookieValidationKey字段的值，不然会报错</p>
-<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027152240894.png" alt="image-20201027152240894"></p>
-<h5 id="0x2-漏洞复现"><a href="#0x2-漏洞复现" class="headerlink" title="0x2 漏洞复现"></a>0x2 漏洞复现</h5><p>第一次复现PHP的漏洞，还是有很多懵的地方,一开始看到这个poc和别人的复现记录我都不知道如何操作</p>
-<p>poc：</p>
-<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027151142665.png" alt="image-20201027151142665"></p>
-<p>看到这个Php文件最后输出一个base64加密的字符串</p>
-<p><strong>可以放到菜鸟的php在线工具(或者其他的Php在线编辑器：<a href="https://tool.lu/coderunner/)%E8%BF%90%E8%A1%8C%EF%BC%8C%E5%A4%8D%E5%88%B6%E7%94%9F%E6%88%90%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8D%B3%E5%8F%AF">https://tool.lu/coderunner/)运行，复制生成的字符串即可</a></strong></p>
-<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027152049055.png" alt="image-20201027152049055"></p>
-<p>然后在controllers下创建一个反序列化的入口TestController.php</p>
-<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027152429860.png" alt="image-20201027152429860"></p>
-<p>然后抓包，改包，将字符串放进去，重新发送，即可看到POC内的攻击命令被运行了，命令可自己改</p>
-<p><img src="/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201027144713425.png" alt="image-20201027144713425"></p>
+<h5 id="0x1-准备攻击机环境"><a href="#0x1-准备攻击机环境" class="headerlink" title="0x1 准备攻击机环境"></a>0x1 准备攻击机环境</h5><p>看到这个POC，发现是加入到metasploit模块里</p>
+<p>打开kali，学习了一下<strong>metasploit加入自定义模块</strong></p>
+<p>​    准备好后缀为rb的文件-&gt;usr-&gt;share-&gt;metasploit-framework-&gt;modules-&gt;exploits</p>
+<p>​    在里面可以自己创一个新的文件夹，也可以直接放到任意一个文件夹下</p>
+<p>​    然后在终端里：msfconsole打开-&gt;reload_all即可导入模块</p>
+<h5 id="0x2-准备靶机环境"><a href="#0x2-准备靶机环境" class="headerlink" title="0x2 准备靶机环境"></a>0x2 准备靶机环境</h5><p>到禅道官网下载对应版本的一键安装包：<a href="https://www.zentao.net/download.html">https://www.zentao.net/download.html</a></p>
+<p>我这里下载的是8.8.1的版本，放在了D盘</p>
+<p>然后在win10的环境下安装，运行（一定要解压缩在磁盘的根目录下</p>
+<p>修改了端口为8099，因为80被占用了</p>
+<p><img src="/2020/11/05/0x0BCve-2020-7361-%E7%A6%85%E9%81%93%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201105135400652.png" alt="image-20201105135400652"></p>
+<p>点击访问之后需要修改下数据库密码，然后用admin/123456默认密码登入页面，修改密码为zentao123即可</p>
+<p>靶机环境就准备好了</p>
+<h5 id="0x3-漏洞复现"><a href="#0x3-漏洞复现" class="headerlink" title="0x3 漏洞复现"></a>0x3 漏洞复现</h5><p>查看攻击机的IP（LHOST）和靶机的IP（RHOST）并记录，同时确保攻击机和靶机能通信，即攻击机可以用http://靶机IP/pro/login.html访问到禅道的页面</p>
+<p>在msf对各个参数进行设定，LHOST，RHOST，PASSWORD，RPORT</p>
+<p><img src="/2020/11/05/0x0BCve-2020-7361-%E7%A6%85%E9%81%93%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201105140022697.png" alt="image-20201105140022697"></p>
+<p>然后run，就可以看到打成功了，可以得到目标靶机的信息，利用meterpreter可以上传文件下载文件等等，常用命令：<a href="https://blog.csdn.net/qq_34841823/article/details/54926500">https://blog.csdn.net/qq_34841823/article/details/54926500</a></p>
+<p><img src="/2020/11/05/0x0BCve-2020-7361-%E7%A6%85%E9%81%93%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201105140344931.png" alt="image-20201105140344931"></p>
+<p>抓取的重点流量包：</p>
+<p><img src="/2020/11/05/0x0BCve-2020-7361-%E7%A6%85%E9%81%93%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20201105142158502.png" alt="image-20201105142158502"></p>
+<h5 id="出现的问题："><a href="#出现的问题：" class="headerlink" title="出现的问题："></a>出现的问题：</h5><h5 id="0x01-攻击机和靶机在同一网段，能Ping通，但是无法访问对应页面"><a href="#0x01-攻击机和靶机在同一网段，能Ping通，但是无法访问对应页面" class="headerlink" title="0x01 攻击机和靶机在同一网段，能Ping通，但是无法访问对应页面"></a>0x01 攻击机和靶机在同一网段，能Ping通，但是无法访问对应页面</h5><p>解决方法：</p>
+<p>是8099端口未开放的问题，在防火墙规则里添加一条自定义的入站规则即可，开放8099的权限</p>
+<h5 id="0x02-POC无法打成功，原因未知，一直卡在sending-stage阶段，msf是4的版本"><a href="#0x02-POC无法打成功，原因未知，一直卡在sending-stage阶段，msf是4的版本" class="headerlink" title="0x02 POC无法打成功，原因未知，一直卡在sending stage阶段，msf是4的版本"></a>0x02 POC无法打成功，原因未知，一直卡在sending stage阶段，msf是4的版本</h5><p>解决方法：</p>
+<p>重新装了一个kali2018，并且用官方更新源更新了msf到了msf6，发现zentao这个漏洞的模块已经写入了，直接利用就打成功了（计算机真是个玄学</p>
+<p>​    msf更新后无法启动成功：gem install bundler:2.1.4（根据提示的版本更新</p>
+<p>​    新装的Kali需要做的操作：</p>
+<p>​        0x001 修改分配的运行内存，默认可能是512M，这样会很卡，修改后分配了2G</p>
+<p>​        0x002 修改/etc/apt/source.list，添加更新源，官方或者其他的</p>
+<p>​        0x003 修改/etc/network/interfaces ，添加语句 auto eth0和iface eth0 inet dhcp，然后重启网络/etc/init.d/networking restart</p>
+<p>​        0x004 修改/etc/resolv.conf，添加语句nameserver 8.8.8.8等</p>
 ]]></content>
       <categories>
         <category>漏洞复现</category>
       </categories>
       <tags>
-        <tag>yii2</tag>
+        <tag>kali</tag>
+        <tag>metasploit</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CTF-2020.6.12</title>
+    <url>/2020/06/12/CTF-2020.6.12/</url>
+    <content><![CDATA[<h4 id="git文件泄露导致源码泄露"><a href="#git文件泄露导致源码泄露" class="headerlink" title=".git文件泄露导致源码泄露"></a>.git文件泄露导致源码泄露</h4><p>首先，关于git：分布式版本控制系统（版本控制：记录每次文件的改动，并支持协作编辑）</p>
+<h5 id="0x1-一些用语解释："><a href="#0x1-一些用语解释：" class="headerlink" title="0x1 一些用语解释："></a>0x1 一些用语解释：</h5><a id="more"></a>
+
+<p>集中式：全部文件存在一个中央服务器中，需联网，修改时从中央服务器中取出修改完放回去。</p>
+<p>分布式：各个电脑里都有完整的版本库，修改后需推送，安全性高，可以有一个中央服务器用来方便大家交换修改的版本。</p>
+<p>版本库：仓库，目录，文件的修改删除git都可跟踪</p>
+<p>工作区和暂存区：工作区就是自身电脑可看到的目录，暂存区在版本库中，将工作区的文件添加到暂存区（git add），然后将暂存区的所有文件添加到master（git commit）。master也是分支，分支的作用是上传未写完的代码后不会让未写完的代码影响别人。</p>
+<h5 id="0x2-泄露原理："><a href="#0x2-泄露原理：" class="headerlink" title="0x2 泄露原理："></a>0x2 泄露原理：</h5><p>源码提交到远程托管网站后，从上面把源码pull到服务器时，忘记删除git文件。利用.git文件可以恢复网站的源码，源码里可能会有数据库信息。/使用git进行版本控制，对站点自动部署，配置不当会降.git文件夹直接部署到线上环境。</p>
+<p>详细解释：</p>
+<p>在一个目录中初始化后，会产生一个名叫.git的隐藏文件夹（版本库）</p>
+<p>当开发时采用以下流程时：</p>
+<p>1.初始化仓库 , 并将仓库托管在Coding或者Github上 , 便于远程协作/备份/部署<br>2.在本地进行网站开发 , 并定时提交commit , push到远程托管网站<br>3.当一个阶段的开发差不多的时候 , 需要远程登陆服务器 , 通过托管网站再将发行版网站pull到Web目录下（此时会将,git文件夹下载到服务器的web目录下）<br>4.网站正常运行</p>
+<p>攻击者可以利用web目录下载Git文件夹，然后就可以利用储存的版本控制信息，完全恢复网站后台的代码和目录结构以及获取数据库信息等。</p>
+<h5 id="0x3-利用："><a href="#0x3-利用：" class="headerlink" title="0x3 利用："></a>0x3 利用：</h5><p>1、githack等：同构泄露的.git文件夹下的文件，还原重建工程源代码</p>
+<p>2、爬虫爬取整个git目录</p>
+<h5 id="0x4-修复："><a href="#0x4-修复：" class="headerlink" title="0x4 修复："></a>0x4 修复：</h5><p>1、对.git目录的访问权限进行控制</p>
+<p>2、在每次Pull后删除.git文件夹</p>
+<h5 id="0x5-利用场景实践："><a href="#0x5-利用场景实践：" class="headerlink" title="0x5 利用场景实践："></a>0x5 利用场景实践：</h5><p>git_extract下载：<a href="https://github.com/lijiejie/GitHack">https://github.com/lijiejie/GitHack</a></p>
+<p>cmd命令：git_extract.py  <a href="http://xxxxx/.git/">http://xxxxx/.git/</a></p>
+<p>可扫描出.git漏洞</p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612152136482.png"></p>
+<p>点击后：</p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105110264.png"></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105221000.png"></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105306274.png"></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612154814555.png"></p>
+<p>放到beyond compare（<a href="http://www.scootersoftware.com/download.php%EF%BC%89%E9%87%8C%E5%AF%B9%E6%AF%94">http://www.scootersoftware.com/download.php）里对比</a></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105349980.png"></p>
+<p>仔细看差别：</p>
+<p>flag{82efc37f1cd5d4636ea7cadcd5a814a2}</p>
+<p>提交即可</p>
+]]></content>
+      <categories>
+        <category>ctf</category>
+      </categories>
+      <tags>
+        <tag>git</tag>
       </tags>
   </entry>
 </search>
