@@ -588,6 +588,16 @@
 <p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110161059343.png" alt="image-20201110161059343"></p>
 <p>编写脚本如下即可，然后转一下大小写</p>
 <p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110165109839.png" alt="image-20201110165109839"></p>
+<h5 id="0x04-hackme（-amp-0xff）"><a href="#0x04-hackme（-amp-0xff）" class="headerlink" title="0x04 hackme（&amp;0xff）"></a>0x04 hackme（&amp;0xff）</h5><p>ida分析，找到主函数，分析一下就是，输入字符串，长度为22位，然后抽取其中的10位进行检验（可以看到数组byte_6B4270是22位的），检验方法就是v9和输入的字符串进行异或后要和固定的数组内容相同</p>
+<p><strong>注意：循环10次不代表字符串只有10位</strong></p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110182250771.png" alt="image-20201110182250771"></p>
+<p>查看byte_6B4270的内容</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110182511109.png" alt="image-20201110182511109"></p>
+<p>可以编写脚本如下：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201111111154246.png" alt="image-20201111111154246"></p>
+<p>要注意的是，v1[i]的值很大，需要和0xff相与，0xff最大值是255，由于整数值超过了255，所以用来控制</p>
+<h5 id="0x05-ReverseMe"><a href="#0x05-ReverseMe" class="headerlink" title="0x05 ReverseMe"></a>0x05 ReverseMe</h5><p>ida分析：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201111143110520.png" alt="image-20201111143110520"></p>
 ]]></content>
       <categories>
         <category>ctf</category>
@@ -940,6 +950,83 @@
       </categories>
       <tags>
         <tag>加密与解密</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>0x0Ccve-2019-10669</title>
+    <url>/2020/11/11/0x0Ccve-2019-10669/</url>
+    <content><![CDATA[<h4 id="CVE-2019-10669LibreNMS-命令注入漏洞"><a href="#CVE-2019-10669LibreNMS-命令注入漏洞" class="headerlink" title="CVE-2019-10669LibreNMS 命令注入漏洞"></a>CVE-2019-10669LibreNMS 命令注入漏洞</h4><p>参考：<a href="https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md">https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md</a></p>
+<a id="more"></a>
+
+<h5 id="0x1-漏洞复现"><a href="#0x1-漏洞复现" class="headerlink" title="0x1 漏洞复现"></a>0x1 漏洞复现</h5><p>这个漏洞的环境也是蛮麻烦的</p>
+<p>看到poc发现是集成的msf模块，然后到我的msf里一查，发现已经有了</p>
+<p>攻击环境就准备好了</p>
+<p>靶机环境：</p>
+<p>本来想下软件装，装了好几次不成功</p>
+<p>参考：<a href="https://cloud.tencent.com/developer/article/1518046">https://cloud.tencent.com/developer/article/1518046</a></p>
+<p>先下一个librenms的ubuntu版直接虚拟机跑</p>
+<p>然后根据参考改一下网卡的配置，在主机上访问对应的ip地址和端口就能访问web界面了</p>
+<p>此时在kali里跑msf，始终打不成功，看报错是没找到对应的collectd插件</p>
+<p>需要在ubuntu换源更新下载安装一条龙</p>
+<p>装好了之后根据官方配置（太简略，并不能成功（<a href="https://docs.librenms.org/Support/Configuration/#collectd">https://docs.librenms.org/Support/Configuration/#collectd</a></p>
+<p>最后找到github上一个配置才成功，此时页面上出现了collectd插件</p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100410102.png" alt="image-20201112100410102"></p>
+<p>也能打成功了</p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100430763.png" alt="image-20201112100430763"></p>
+<h5 id="0x2-漏洞原理"><a href="#0x2-漏洞原理" class="headerlink" title="0x2 漏洞原理"></a>0x2 漏洞原理</h5><p>漏洞点：html/includes/graphs/device/collectd.inc.php</p>
+<p>其中用户提供的参数from和to是用mysqli_escape_real_string函数（mres）过滤的，但是这个函数不能转义多个命令行语法字符，我们就可以注入命令到变量$rrd_cmd中，通过passthru()执行</p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/DED6A2E31D73FFB660CEFBF548FD1BD6.png" alt="DED6A2E31D73FFB660CEFBF548FD1BD6"></p>
+<p>passthru — 执行外部程序并且显示原始输出</p>
+<p>passthru ( string $command [, int &amp;$return_var ] ) : void </p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/B99C52DBA71F8893ED2EBA7059B778F5.jpg" alt="B99C52DBA71F8893ED2EBA7059B778F5"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205158282.png" alt="image-20201112205158282"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205315869.png" alt="image-20201112205315869"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412.jpg" alt="3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205357269.png" alt="image-20201112205357269"></p>
+<p>escapeshellarg — 把字符串转码为可以在 shell 命令里使用的参数，escapeshellarg() 将给字符串增加一个单引号并且能引用或者转码任何已经存在的单引号，这样以确保能够直接将一个字符串传入 shell 函数，并且还是确保安全的。 </p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>librenms</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>0x0Dcve-2019-13956</title>
+    <url>/2020/11/12/0x0Dcve-2019-13956/</url>
+    <content><![CDATA[<h4 id="CVE-2019-13956Discuz-ML远程代码执行"><a href="#CVE-2019-13956Discuz-ML远程代码执行" class="headerlink" title="CVE-2019-13956Discuz! ML远程代码执行"></a>CVE-2019-13956Discuz! ML远程代码执行</h4><p>参考：<a href="https://www.cnblogs.com/yuzly/p/11386755.html">https://www.cnblogs.com/yuzly/p/11386755.html</a></p>
+<a id="more"></a>
+
+<h5 id="0x1-复现过程"><a href="#0x1-复现过程" class="headerlink" title="0x1 复现过程"></a>0x1 复现过程</h5><p>这个漏洞复现起来还是很容易的，软件也是免费开源的，搭起来就没什么问题</p>
+<p>先去下载了v3.3的版本：<a href="https://sourceforge.net/p/discuz-ml/code/ci/v.3.3/tarball?path=">https://sourceforge.net/p/discuz-ml/code/ci/v.3.3/tarball?path=</a></p>
+<p>然后开PHPstudy往里一放即可到网页上Install</p>
+<p>点击链接抓包改包</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x0Dcve-2019-13956/image-20201112150139079.png" alt="image-20201112150139079"></p>
+<p>可以看到缓存里的内容被更改了</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x0Dcve-2019-13956/image-20201112150217140.png" alt="image-20201112150217140"></p>
+<p>上传shell</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x0Dcve-2019-13956/image-20201112150159180.png" alt="image-20201112150159180"></p>
+<h5 id="0x2-漏洞原理"><a href="#0x2-漏洞原理" class="headerlink" title="0x2 漏洞原理"></a>0x2 漏洞原理</h5><p>在/upload/source/module/portal/portal_index.php文件中</p>
+<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112155957305.png" alt="image-20201112155957305"></p>
+<p>使用template函数处理’diy:portal/index’,然后使用include_once包含</p>
+<p>include_once：</p>
+<p>可以用于在脚本执行期间同一个文件有可能被包含超过一次的情况下，想确保它只被包含一次以避免函数重定义，变量重新赋值等问题。 </p>
+<p>跟进template函数：</p>
+<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112160428730.png" alt="image-20201112160428730"></p>
+<p>可以看到返回的是一个拼接值,以及相关的两个变量DISCUZ_LANG和DISCUZ_ROOT</p>
+<p>找到它们的定义，DISCUZ_ROOT是个固定的</p>
+<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112162712111.png" alt="image-20201112162712111"></p>
+<p>DISCUZ_LANG和$lng有关</p>
+<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112162520552.png" alt="image-20201112162520552"></p>
+<p>我们可以看到$lng和cookie中的languages有关，那我们就可以控制这个变量然后改包了</p>
+<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112162914790.png" alt="image-20201112162914790"></p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>discuz</tag>
       </tags>
   </entry>
 </search>
