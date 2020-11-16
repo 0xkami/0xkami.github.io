@@ -598,6 +598,41 @@
 <p>要注意的是，v1[i]的值很大，需要和0xff相与，0xff最大值是255，由于整数值超过了255，所以用来控制</p>
 <h5 id="0x05-ReverseMe"><a href="#0x05-ReverseMe" class="headerlink" title="0x05 ReverseMe"></a>0x05 ReverseMe</h5><p>ida分析：</p>
 <p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201111143110520.png" alt="image-20201111143110520"></p>
+<h5 id="0x06-easyre1"><a href="#0x06-easyre1" class="headerlink" title="0x06 easyre1"></a>0x06 easyre1</h5><p>打开ida就能看到，提交即可</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201113115339027.png" alt="image-20201113115339027"></p>
+<h5 id="0x07"><a href="#0x07" class="headerlink" title="0x07"></a>0x07</h5><p><img src="/Users/kami/Desktop/hexo/source/_posts/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201113174747214.png" alt="image-20201113174747214"></p>
+<h5 id="0x08-easyhook（hook）"><a href="#0x08-easyhook（hook）" class="headerlink" title="0x08 easyhook（hook）"></a>0x08 easyhook（hook）</h5><p>主函数，关键函数为sub_401220和sub_401240，然后创建了一个文件</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116134415789.png" alt="image-20201116134415789"></p>
+<p>运行一下，发现输入的字符串被改变了：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116141148468.png" alt="image-20201116141148468"></p>
+<p>动态调试一下，发现确实在这里写入的输入字符串被改变了</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116141519684.png" alt="image-20201116141519684"></p>
+<p>401220:点进4010D0看看</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116134620725.png" alt="image-20201116134620725"></p>
+<p>4010D0:</p>
+<p>Virtualprotectex修改了指定进程，hprocess和lpaddress是要更改的进程的句柄和页面区域的基地址的指针，5是访问保护属性已更改的区域的大小，以字节为单位。</p>
+<p>Writeprocessmemory写入了指定数据，byte_40C9BC是指向缓冲区的指针，该缓冲区包含要在指定进程的地址空间中写入的数据。5是写入的数据大小</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116134806821.png" alt="image-20201116134806821"></p>
+<p>返回401220看看是怎么修改的</p>
+<p>byte_40C9BC是0xE9，但是这只有一个字节，所以后四个字节就是40C9BD的内容，40C9BD和401080有关</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116142056410.png" alt="image-20201116142056410"></p>
+<p>401080:调用了sub_401000,lpbuffer指向包含要写入文件或设备的数据的缓冲区的指针。同时，真正flag的判定条件numer==1也是这里决定的</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116142205966.png" alt="image-20201116142205966"></p>
+<p>401000:可以看到对a1进行的操作，编写脚本即可</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116142459347.png" alt="image-20201116142459347"></p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116154606478.png" alt="image-20201116154606478"></p>
+<p>401240:并没有什么作用</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116134559636.png" alt="image-20201116134559636"></p>
+<h5 id="0x09-secret-string-400（js）"><a href="#0x09-secret-string-400（js）" class="headerlink" title="0x09 secret-string-400（js）"></a>0x09 secret-string-400（js）</h5><p>打开看是一个html和一个js文件，之前没接触过</p>
+<p>打开html，是一个验证输入页面，随便输入一个字符串，会弹出nope</p>
+<p>搜索了下怎么调试js，开始尝试在代码各处里加入console.log，然后f12查看输出情况</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116171456917.png" alt="image-20201116171456917"></p>
+<p>然后页面中出现了隐藏的代码：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116170210757.png" alt="image-20201116170210757"></p>
+<p>根据这个代码写出脚本即可：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116171607888.png" alt="image-20201116171607888"></p>
+<h5 id="0x0A-easymaze"><a href="#0x0A-easymaze" class="headerlink" title="0x0A easymaze"></a>0x0A easymaze</h5><p><img src="/Users/kami/Desktop/hexo/source/_posts/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116172904202.png" alt="image-20201116172904202"></p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116172501428.png" alt="image-20201116172501428"></p>
 ]]></content>
       <categories>
         <category>ctf</category>
