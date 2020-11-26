@@ -1162,6 +1162,8 @@
     <title>恶意代码分析实战笔记--更新中</title>
     <url>/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/</url>
     <content><![CDATA[<h3 id="恶意代码分析实战笔记–更新中"><a href="#恶意代码分析实战笔记–更新中" class="headerlink" title="恶意代码分析实战笔记–更新中"></a>恶意代码分析实战笔记–更新中</h3><p>所有分析文件下载：<a href="https://github.com/mikesiko/PracticalMalwareAnalysis-Labs">https://github.com/mikesiko/PracticalMalwareAnalysis-Labs</a></p>
+<a id="more"></a>
+
 <h4 id="0x1-恶意代码类型"><a href="#0x1-恶意代码类型" class="headerlink" title="0x1 恶意代码类型"></a>0x1 恶意代码类型</h4><p>后门，僵尸网络，下载器，间谍软件，启动器，内核套件，勒索软件，发送垃圾邮件，蠕虫或病毒</p>
 <h4 id="0x2-分析方法"><a href="#0x2-分析方法" class="headerlink" title="0x2 分析方法"></a>0x2 分析方法</h4><h5 id="0x21-静态分析"><a href="#0x21-静态分析" class="headerlink" title="0x21 静态分析"></a>0x21 静态分析</h5><h6 id="反病毒引擎扫描："><a href="#反病毒引擎扫描：" class="headerlink" title="反病毒引擎扫描："></a>反病毒引擎扫描：</h6><p><strong>virustotal</strong>:<a href="http://www.virustotal.com/">http://www.virustotal.com</a></p>
 <h6 id="哈希："><a href="#哈希：" class="headerlink" title="哈希："></a>哈希：</h6><p>恶意代码的指纹，常用md5算法和sha1，可以通过搜索哈希值去看是否已经被识别分析过</p>
