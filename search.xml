@@ -1,6 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>0x02CVE-2020-1472漏洞复现</title>
+    <url>/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="CVE-2020-1472漏洞复现"><a href="#CVE-2020-1472漏洞复现" class="headerlink" title="CVE-2020-1472漏洞复现"></a>CVE-2020-1472漏洞复现</h4><p>用了大半天时间，开局一张图，复现全靠蒙：</p>
+<p>参考宽字节安全的推文：<a href="https://mp.weixin.qq.com/s/MSLbzg2hCoTSVTtEIxxpNQ">https://mp.weixin.qq.com/s/MSLbzg2hCoTSVTtEIxxpNQ</a></p>
+<p><a href="https://asciinema.org/a/359607">https://asciinema.org/a/359607</a></p>
+<a id="more"></a>
+
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915162012996.png" alt="image-20200915162012996"></p>
+<h5 id="0x1-搭建一个windows的域环境"><a href="#0x1-搭建一个windows的域环境" class="headerlink" title="0x1 搭建一个windows的域环境"></a>0x1 搭建一个windows的域环境</h5><p>搭建参考：<a href="https://blog.csdn.net/wwl012345/article/details/88934571">https://blog.csdn.net/wwl012345/article/details/88934571</a></p>
+<p>发现电脑里有一个win2008r2的虚拟机，就用这个了</p>
+<p>更改IP和DNS</p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161742282.png" alt="image-20200915161742282"></p>
+<p>添加角色</p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161849769.png" alt="image-20200915161849769"></p>
+<p>根据提示，运行dcpromo.exe添加DNS服务器</p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161801701.png" alt="image-20200915161801701"></p>
+<p>记录域名</p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161902861.png" alt="image-20200915161902861"></p>
+<p>此时，域环境已经搭建完成</p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161930572.png" alt="image-20200915161930572"></p>
+<p>以防万一我还看了下服务里netlogon有没有开</p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161950769.png" alt="image-20200915161950769"></p>
+<h5 id="0x2-使用kali运行poc脚本进行攻击"><a href="#0x2-使用kali运行poc脚本进行攻击" class="headerlink" title="0x2 使用kali运行poc脚本进行攻击"></a>0x2 使用kali运行poc脚本进行攻击</h5><p>先装一个kali虚拟机，好久没装了中间还出现了点小问题</p>
+<p>装完Kali之后，更改下ip和dns服务器，新建一个配置1</p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180721906.png" alt="image-20200915180721906"></p>
+<p>然后安装impacket,参考：<a href="https://www.freebuf.com/sectool/175208.html">https://www.freebuf.com/sectool/175208.html</a></p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180851531.png" alt="image-20200915180851531"></p>
+<p>装好之后拷入poc脚本</p>
+<p>之后是导入各种模块和无限的debug…..修改了下脚本</p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180942451.png" alt="image-20200915180942451"></p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180900178.png" alt="image-20200915180900178"></p>
+<p>运行脚本，复现成功：</p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180918659.png" alt="image-20200915180918659"></p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>netlogon</tag>
+        <tag>域</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>0x01ichunqiu逆向刷题</title>
     <url>/2020/10/09/0x01ichunqiu%E9%80%86%E5%90%91%E5%88%B7%E9%A2%98/</url>
     <content><![CDATA[<h4 id="ichunqiu逆向刷题"><a href="#ichunqiu逆向刷题" class="headerlink" title="ichunqiu逆向刷题"></a>ichunqiu逆向刷题</h4><a id="more"></a>
@@ -134,49 +177,6 @@
         <tag>PE文件头修复</tag>
         <tag>.pyc文件</tag>
         <tag>smali2java</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>0x02CVE-2020-1472漏洞复现</title>
-    <url>/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h4 id="CVE-2020-1472漏洞复现"><a href="#CVE-2020-1472漏洞复现" class="headerlink" title="CVE-2020-1472漏洞复现"></a>CVE-2020-1472漏洞复现</h4><p>用了大半天时间，开局一张图，复现全靠蒙：</p>
-<p>参考宽字节安全的推文：<a href="https://mp.weixin.qq.com/s/MSLbzg2hCoTSVTtEIxxpNQ">https://mp.weixin.qq.com/s/MSLbzg2hCoTSVTtEIxxpNQ</a></p>
-<p><a href="https://asciinema.org/a/359607">https://asciinema.org/a/359607</a></p>
-<a id="more"></a>
-
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915162012996.png" alt="image-20200915162012996"></p>
-<h5 id="0x1-搭建一个windows的域环境"><a href="#0x1-搭建一个windows的域环境" class="headerlink" title="0x1 搭建一个windows的域环境"></a>0x1 搭建一个windows的域环境</h5><p>搭建参考：<a href="https://blog.csdn.net/wwl012345/article/details/88934571">https://blog.csdn.net/wwl012345/article/details/88934571</a></p>
-<p>发现电脑里有一个win2008r2的虚拟机，就用这个了</p>
-<p>更改IP和DNS</p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161742282.png" alt="image-20200915161742282"></p>
-<p>添加角色</p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161849769.png" alt="image-20200915161849769"></p>
-<p>根据提示，运行dcpromo.exe添加DNS服务器</p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161801701.png" alt="image-20200915161801701"></p>
-<p>记录域名</p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161902861.png" alt="image-20200915161902861"></p>
-<p>此时，域环境已经搭建完成</p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161930572.png" alt="image-20200915161930572"></p>
-<p>以防万一我还看了下服务里netlogon有没有开</p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161950769.png" alt="image-20200915161950769"></p>
-<h5 id="0x2-使用kali运行poc脚本进行攻击"><a href="#0x2-使用kali运行poc脚本进行攻击" class="headerlink" title="0x2 使用kali运行poc脚本进行攻击"></a>0x2 使用kali运行poc脚本进行攻击</h5><p>先装一个kali虚拟机，好久没装了中间还出现了点小问题</p>
-<p>装完Kali之后，更改下ip和dns服务器，新建一个配置1</p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180721906.png" alt="image-20200915180721906"></p>
-<p>然后安装impacket,参考：<a href="https://www.freebuf.com/sectool/175208.html">https://www.freebuf.com/sectool/175208.html</a></p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180851531.png" alt="image-20200915180851531"></p>
-<p>装好之后拷入poc脚本</p>
-<p>之后是导入各种模块和无限的debug…..修改了下脚本</p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180942451.png" alt="image-20200915180942451"></p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180900178.png" alt="image-20200915180900178"></p>
-<p>运行脚本，复现成功：</p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180918659.png" alt="image-20200915180918659"></p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>netlogon</tag>
-        <tag>域</tag>
       </tags>
   </entry>
   <entry>
@@ -521,6 +521,73 @@
       </categories>
   </entry>
   <entry>
+    <title>0x05Cve-2020-16898 复现</title>
+    <url>/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h3 id="Cve-2020-16898-复现"><a href="#Cve-2020-16898-复现" class="headerlink" title="Cve-2020-16898 复现"></a>Cve-2020-16898 复现</h3><p>参考：</p>
+<p><a href="https://blog.csdn.net/hsj_csdn/article/details/109138162">https://blog.csdn.net/hsj_csdn/article/details/109138162</a></p>
+<p><a href="https://www.secpulse.com/archives/143665.html">https://www.secpulse.com/archives/143665.html</a></p>
+<p><a href="https://cert.360.cn/report/detail?id=771d8ddc2d703071d5761b6a2b139793">https://cert.360.cn/report/detail?id=771d8ddc2d703071d5761b6a2b139793</a></p>
+<a id="more"></a>
+
+<h4 id="0x1-复现过程："><a href="#0x1-复现过程：" class="headerlink" title="0x1 复现过程："></a>0x1 复现过程：</h4><h5 id="0x01-准备靶机环境"><a href="#0x01-准备靶机环境" class="headerlink" title="0x01 准备靶机环境"></a>0x01 准备靶机环境</h5><p>下一个win10的镜像，然后开启vmware的IPV6功能（编辑-虚拟网络编辑器-NAT设置），查看靶机IPV6地址</p>
+<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173742012.png" alt="image-20201109173742012"></p>
+<h5 id="0x02-攻击机运行脚本（攻击机需要能与靶机进行通信"><a href="#0x02-攻击机运行脚本（攻击机需要能与靶机进行通信" class="headerlink" title="0x02 攻击机运行脚本（攻击机需要能与靶机进行通信"></a>0x02 攻击机运行脚本（攻击机需要能与靶机进行通信</h5><p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173451963.png" alt="image-20201109173451963"></p>
+<h5 id="0x03-攻击成功，靶机蓝屏重启"><a href="#0x03-攻击成功，靶机蓝屏重启" class="headerlink" title="0x03 攻击成功，靶机蓝屏重启"></a>0x03 攻击成功，靶机蓝屏重启</h5><p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173816856.png" alt="image-20201109173816856"></p>
+<h4 id="0x2-漏洞部分分析："><a href="#0x2-漏洞部分分析：" class="headerlink" title="0x2 漏洞部分分析："></a>0x2 漏洞部分分析：</h4><p>0x01 抓包，可以看到进行了多次DNS查询</p>
+<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173845156.png" alt="image-20201109173845156"></p>
+<h4 id="0x3-原理分析："><a href="#0x3-原理分析：" class="headerlink" title="0x3 原理分析："></a>0x3 原理分析：</h4><h6 id="相关知识"><a href="#相关知识" class="headerlink" title="相关知识"></a>相关知识</h6><p>1、Microsoft Windows中的TCP/IP功能在内核级别运行，并由驱动程序tcpip.sys提供。该驱动程序处理所有传入和传出的TCP/IP通信信息，包括解析从网络接口接收到的数据包，以及解释此数据并将其传递给更高级别的组件。</p>
+<p>2、RDNSS Option：一个用于向IPv6主机传送RDNSS信息的IPv6的RA option</p>
+<p>3、Recursive DNS Server (RDNSS)：递归DNS服务器，提供递归DNS解析服务的服务器，用于将域名转换为IP地址或解析成RFC1034和RFC1035中定义的PTR记录。</p>
+<p>4、IPv6 Router Advertisment (RA) options，也称为DNS RA  options，允许IPv6的路由器向IPv6的主机广播DNS Recursive Server  Address(DNS递归路由器地址)列表和DNS Search  List（DNS搜索列表），其主要用途为在IPv6的主机上进行DNS名称解析以及域后缀的处理。该信息使用现有ND message(例如RA)作为载体。IPv6主机可以通过RA消息配置一个或多个RDNSS的IPv6地址。当主机接收到RA消息中的DNS的options时，其处理过程如下：1、首先检查Lengh字段的合法性：是否大于等于最小值3，以及是否满足(Length - 1) % 2 == 0；2、对于RDNSS option，还会检查Address字段是否为一个单播地址；3、如果以上验证通过，则主机应按顺序将选项的值复制到DNS存储库和解析器存储库中。 否则，主机必须丢弃这些选项。</p>
+<p>5、GS机制：</p>
+<p>GS机制分三个步骤：计算随机种子 –&gt; canary写入栈帧 –&gt; GS校验</p>
+<p>1、程序启动时，读取**.data<strong>的第一个</strong>DWORD**作为基数，然后和各种元素（时间戳，进程ID，线程ID，计数器等等）进行XOR加密</p>
+<p>2、然后将加密后的种子再次写入**.data<strong>的第一个</strong>DWORD**</p>
+<p>3、函数在执行前，把加密后的种子取出，与当前<strong>esp</strong>进行异或计算，结果存入EBP的前面</p>
+<p>4、函数主体正常执行。</p>
+<p>5、<strong>函数返回前</strong>（retn前一点），把cookie取出与esp异或计算后，调用__security_check_cookie函数进行检查，与.data节里的种子进行比较，</p>
+<p>如果校验通过，则返回原函数继续执行；如果校验失败，则程序终止。</p>
+<p>6、通过RFC8106的标准中对RDNSS option结构的定义（<a href="https://tools.ietf.org/pdf/rfc8106.pdf%EF%BC%89">https://tools.ietf.org/pdf/rfc8106.pdf）</a></p>
+<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173914793.png" alt="image-20201109173914793"></p>
+<p>Type： 占8-bit，RDNSS 的类型为25</p>
+<p>Length：8-bit无符号整数，单位长度为8个字节，所以Type, Length, Reserved, Lifetime一共占8个字节，一个单位长度，而一个IPv6地址占16个字节，两个单位长度，所以Length的最小值为3，且为奇数。</p>
+<p>Reserved：保留字段</p>
+<p>Lifetime：32-bit无符号整数，存活周期。</p>
+<p>Addresses of IPv6 Recursive DNS Servers：保存RNDSS的IPv6地址，每个占16个字节，地址的数量会影响Length字段，number=(Length - 1) / 2。每增加一个地址，Length加2。</p>
+<h6 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h6><p>由于Windows TCP/IP堆栈在处理选项类型为25(0x19，递归DNS服务器选项)，当伪造长度字段值为偶数的ICMPv6的路由广播数据包发送给目标主机时，Windows TCP/IP 在检查包过程中会根据Length来获取每个包的偏移，遍历解析，导致对 Addresses of IPv6 Recursive DNS  Servers 和下一个 RDNSS 选项的边界解析错误，从而绕过验证，将攻击者伪造的option包进行解析，造成栈溢出，从而导致系统崩溃。</p>
+<h6 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h6><p>1、从靶机中导出蓝屏日志文件dmp（在windows\minidump中），使用windbg来分析</p>
+<p>遇到的问题：不能正常加载符号表</p>
+<p>解决：因为时效问题，搜索了很多方法都无效，最终使用科学上网自动加载符号表解决</p>
+<p>2、kv语句查看（Kv，命令用来显示当前线程的堆栈，显示FPO和调用约定）</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173936731.png" alt="image-20201109173936731"></p>
+<p>可以看到GS机制的Security Cookie校验失败，也就是说该值被覆盖掉了。</p>
+<p>分析出现的关键函数tcpip!Ipv6pHandleRouterAdvertisement()。</p>
+<p>3、使用IDA64反编译驱动程序tcpip.sys（win10 1909版本）</p>
+<p>找到函数tcpip!Ipv6pHandleRouterAdvertisement()</p>
+<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173949807.png" alt="image-20201109173949807"></p>
+<p>函数一开始就写出了GS机制：</p>
+<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109174004821.png" alt="image-20201109174004821"></p>
+<p>查看调用的函数，发现Ipv6pUpdateRDNSS()</p>
+<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109174021022.png" alt="image-20201109174021022"></p>
+<p>进入漏洞函数Ipv6pUpdateRDNSS()：</p>
+<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109174048451.png" alt="image-20201109174048451"></p>
+<p>通过查询微软官方文档理解出现的几个函数</p>
+<p>我们可以理解下面的循环是，确认Address的数量，对每个Address进行处理，分配合适的内存。</p>
+<p>而漏洞原因就在于v41处未对length奇偶进行判断</p>
+<p>根据RFC8106的标准，Length字段的值应该满足最小为3的奇数的情况。那么当我们提供一个偶数Length值如4时，Ipv6pUpdateRDNSS()函数应该增加32字节（4*8）的缓冲区。但是此代码中，可以看到堆栈在内部以16字节为增量进行计数，当v41为1时，分配的缓冲区是v9的8字节加上v19的16字节，最终为24字节，就会导致缓冲区溢出。</p>
+<p><strong>注意</strong>：如果从NetBuffer请求的数据是连续的，则会将数据存放在NDIS提供的地址，这样无法造成溢出。所以需要从NetBuffer请求的数据不是连续的，才会将数据存放在Storage上。数据非连续的实现是通过fragmentation（碎片化）处理，将Router Advertisement包通过scapy的fragment6函数拆分成多个IPv6 fragments进行发送。</p>
+<p>查看复现中抓取的Router Advertisement流量包，可以看到其中length为偶数8</p>
+<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109174105003.png" alt="image-20201109174105003"></p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>windows内核</tag>
+        <tag>ipv6</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>0x04CVE-2020-24616复现</title>
     <url>/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/</url>
     <content><![CDATA[<h4 id="CVE-2020-24616复现"><a href="#CVE-2020-24616复现" class="headerlink" title="CVE-2020-24616复现"></a>CVE-2020-24616复现</h4><p>预警参考链接：<a href="https://s.tencent.com/research/bsafe/1102.html">https://s.tencent.com/research/bsafe/1102.html</a></p>
@@ -555,7 +622,7 @@
       </tags>
   </entry>
   <entry>
-    <title>0x04Xctf进阶刷题-2-更新中</title>
+    <title>0x04Xctf进阶刷题-2</title>
     <url>/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/</url>
     <content><![CDATA[<p>XCTF进阶刷题-2</p>
 <a id="more"></a>
@@ -733,71 +800,25 @@
       </categories>
   </entry>
   <entry>
-    <title>0x05Cve-2020-16898 复现</title>
-    <url>/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h3 id="Cve-2020-16898-复现"><a href="#Cve-2020-16898-复现" class="headerlink" title="Cve-2020-16898 复现"></a>Cve-2020-16898 复现</h3><p>参考：</p>
-<p><a href="https://blog.csdn.net/hsj_csdn/article/details/109138162">https://blog.csdn.net/hsj_csdn/article/details/109138162</a></p>
-<p><a href="https://www.secpulse.com/archives/143665.html">https://www.secpulse.com/archives/143665.html</a></p>
-<p><a href="https://cert.360.cn/report/detail?id=771d8ddc2d703071d5761b6a2b139793">https://cert.360.cn/report/detail?id=771d8ddc2d703071d5761b6a2b139793</a></p>
-<a id="more"></a>
+    <title>0x05Xctf进阶刷题-3 --更新中</title>
+    <url>/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/</url>
+    <content><![CDATA[<a id="more"></a>
 
-<h4 id="0x1-复现过程："><a href="#0x1-复现过程：" class="headerlink" title="0x1 复现过程："></a>0x1 复现过程：</h4><h5 id="0x01-准备靶机环境"><a href="#0x01-准备靶机环境" class="headerlink" title="0x01 准备靶机环境"></a>0x01 准备靶机环境</h5><p>下一个win10的镜像，然后开启vmware的IPV6功能（编辑-虚拟网络编辑器-NAT设置），查看靶机IPV6地址</p>
-<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173742012.png" alt="image-20201109173742012"></p>
-<h5 id="0x02-攻击机运行脚本（攻击机需要能与靶机进行通信"><a href="#0x02-攻击机运行脚本（攻击机需要能与靶机进行通信" class="headerlink" title="0x02 攻击机运行脚本（攻击机需要能与靶机进行通信"></a>0x02 攻击机运行脚本（攻击机需要能与靶机进行通信</h5><p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173451963.png" alt="image-20201109173451963"></p>
-<h5 id="0x03-攻击成功，靶机蓝屏重启"><a href="#0x03-攻击成功，靶机蓝屏重启" class="headerlink" title="0x03 攻击成功，靶机蓝屏重启"></a>0x03 攻击成功，靶机蓝屏重启</h5><p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173816856.png" alt="image-20201109173816856"></p>
-<h4 id="0x2-漏洞部分分析："><a href="#0x2-漏洞部分分析：" class="headerlink" title="0x2 漏洞部分分析："></a>0x2 漏洞部分分析：</h4><p>0x01 抓包，可以看到进行了多次DNS查询</p>
-<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173845156.png" alt="image-20201109173845156"></p>
-<h4 id="0x3-原理分析："><a href="#0x3-原理分析：" class="headerlink" title="0x3 原理分析："></a>0x3 原理分析：</h4><h6 id="相关知识"><a href="#相关知识" class="headerlink" title="相关知识"></a>相关知识</h6><p>1、Microsoft Windows中的TCP/IP功能在内核级别运行，并由驱动程序tcpip.sys提供。该驱动程序处理所有传入和传出的TCP/IP通信信息，包括解析从网络接口接收到的数据包，以及解释此数据并将其传递给更高级别的组件。</p>
-<p>2、RDNSS Option：一个用于向IPv6主机传送RDNSS信息的IPv6的RA option</p>
-<p>3、Recursive DNS Server (RDNSS)：递归DNS服务器，提供递归DNS解析服务的服务器，用于将域名转换为IP地址或解析成RFC1034和RFC1035中定义的PTR记录。</p>
-<p>4、IPv6 Router Advertisment (RA) options，也称为DNS RA  options，允许IPv6的路由器向IPv6的主机广播DNS Recursive Server  Address(DNS递归路由器地址)列表和DNS Search  List（DNS搜索列表），其主要用途为在IPv6的主机上进行DNS名称解析以及域后缀的处理。该信息使用现有ND message(例如RA)作为载体。IPv6主机可以通过RA消息配置一个或多个RDNSS的IPv6地址。当主机接收到RA消息中的DNS的options时，其处理过程如下：1、首先检查Lengh字段的合法性：是否大于等于最小值3，以及是否满足(Length - 1) % 2 == 0；2、对于RDNSS option，还会检查Address字段是否为一个单播地址；3、如果以上验证通过，则主机应按顺序将选项的值复制到DNS存储库和解析器存储库中。 否则，主机必须丢弃这些选项。</p>
-<p>5、GS机制：</p>
-<p>GS机制分三个步骤：计算随机种子 –&gt; canary写入栈帧 –&gt; GS校验</p>
-<p>1、程序启动时，读取**.data<strong>的第一个</strong>DWORD**作为基数，然后和各种元素（时间戳，进程ID，线程ID，计数器等等）进行XOR加密</p>
-<p>2、然后将加密后的种子再次写入**.data<strong>的第一个</strong>DWORD**</p>
-<p>3、函数在执行前，把加密后的种子取出，与当前<strong>esp</strong>进行异或计算，结果存入EBP的前面</p>
-<p>4、函数主体正常执行。</p>
-<p>5、<strong>函数返回前</strong>（retn前一点），把cookie取出与esp异或计算后，调用__security_check_cookie函数进行检查，与.data节里的种子进行比较，</p>
-<p>如果校验通过，则返回原函数继续执行；如果校验失败，则程序终止。</p>
-<p>6、通过RFC8106的标准中对RDNSS option结构的定义（<a href="https://tools.ietf.org/pdf/rfc8106.pdf%EF%BC%89">https://tools.ietf.org/pdf/rfc8106.pdf）</a></p>
-<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173914793.png" alt="image-20201109173914793"></p>
-<p>Type： 占8-bit，RDNSS 的类型为25</p>
-<p>Length：8-bit无符号整数，单位长度为8个字节，所以Type, Length, Reserved, Lifetime一共占8个字节，一个单位长度，而一个IPv6地址占16个字节，两个单位长度，所以Length的最小值为3，且为奇数。</p>
-<p>Reserved：保留字段</p>
-<p>Lifetime：32-bit无符号整数，存活周期。</p>
-<p>Addresses of IPv6 Recursive DNS Servers：保存RNDSS的IPv6地址，每个占16个字节，地址的数量会影响Length字段，number=(Length - 1) / 2。每增加一个地址，Length加2。</p>
-<h6 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h6><p>由于Windows TCP/IP堆栈在处理选项类型为25(0x19，递归DNS服务器选项)，当伪造长度字段值为偶数的ICMPv6的路由广播数据包发送给目标主机时，Windows TCP/IP 在检查包过程中会根据Length来获取每个包的偏移，遍历解析，导致对 Addresses of IPv6 Recursive DNS  Servers 和下一个 RDNSS 选项的边界解析错误，从而绕过验证，将攻击者伪造的option包进行解析，造成栈溢出，从而导致系统崩溃。</p>
-<h6 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h6><p>1、从靶机中导出蓝屏日志文件dmp（在windows\minidump中），使用windbg来分析</p>
-<p>遇到的问题：不能正常加载符号表</p>
-<p>解决：因为时效问题，搜索了很多方法都无效，最终使用科学上网自动加载符号表解决</p>
-<p>2、kv语句查看（Kv，命令用来显示当前线程的堆栈，显示FPO和调用约定）</p>
-<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173936731.png" alt="image-20201109173936731"></p>
-<p>可以看到GS机制的Security Cookie校验失败，也就是说该值被覆盖掉了。</p>
-<p>分析出现的关键函数tcpip!Ipv6pHandleRouterAdvertisement()。</p>
-<p>3、使用IDA64反编译驱动程序tcpip.sys（win10 1909版本）</p>
-<p>找到函数tcpip!Ipv6pHandleRouterAdvertisement()</p>
-<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109173949807.png" alt="image-20201109173949807"></p>
-<p>函数一开始就写出了GS机制：</p>
-<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109174004821.png" alt="image-20201109174004821"></p>
-<p>查看调用的函数，发现Ipv6pUpdateRDNSS()</p>
-<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109174021022.png" alt="image-20201109174021022"></p>
-<p>进入漏洞函数Ipv6pUpdateRDNSS()：</p>
-<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109174048451.png" alt="image-20201109174048451"></p>
-<p>通过查询微软官方文档理解出现的几个函数</p>
-<p>我们可以理解下面的循环是，确认Address的数量，对每个Address进行处理，分配合适的内存。</p>
-<p>而漏洞原因就在于v41处未对length奇偶进行判断</p>
-<p>根据RFC8106的标准，Length字段的值应该满足最小为3的奇数的情况。那么当我们提供一个偶数Length值如4时，Ipv6pUpdateRDNSS()函数应该增加32字节（4*8）的缓冲区。但是此代码中，可以看到堆栈在内部以16字节为增量进行计数，当v41为1时，分配的缓冲区是v9的8字节加上v19的16字节，最终为24字节，就会导致缓冲区溢出。</p>
-<p><strong>注意</strong>：如果从NetBuffer请求的数据是连续的，则会将数据存放在NDIS提供的地址，这样无法造成溢出。所以需要从NetBuffer请求的数据不是连续的，才会将数据存放在Storage上。数据非连续的实现是通过fragmentation（碎片化）处理，将Router Advertisement包通过scapy的fragment6函数拆分成多个IPv6 fragments进行发送。</p>
-<p>查看复现中抓取的Router Advertisement流量包，可以看到其中length为偶数8</p>
-<p><img src="/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/image-20201109174105003.png" alt="image-20201109174105003"></p>
+<h5 id="0x01-easyre-153（sigchld）"><a href="#0x01-easyre-153（sigchld）" class="headerlink" title="0x01 easyre-153（sigchld）"></a>0x01 easyre-153（sigchld）</h5><p>ida分析主函数，了解了sigchild后，猜测if(!v5)这里应该是属于子进程，动态调试看看</p>
+<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144348053.png" alt="image-20201126144348053"></p>
+<p>运行后会接收到信号值tid</p>
+<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144442776.png" alt="image-20201126144442776"></p>
+<p>v6 = v5就是对比esp+24h和esp+20h，输入tid值后发现还是不对，对比后尝试输入tid+2即可（不知道原因</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144950878.png" alt="image-20201126144950878"></p>
+<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144850862.png" alt="image-20201126144850862"></p>
+<p>然后就会继续运行，看到flag_is_not_here我愣住了，还以为理解错了</p>
+<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126141821555.png" alt="image-20201126141821555"></p>
+<p>去看看lol函数，发现是对buf做一些操作，buf就是69800那一串数字，可以动态看看最后生成的字符串，就是rhelheg，即flag</p>
+<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126143402449.png" alt="image-20201126143402449"></p>
 ]]></content>
       <categories>
-        <category>漏洞复现</category>
+        <category>ctf</category>
       </categories>
-      <tags>
-        <tag>windows内核</tag>
-        <tag>ipv6</tag>
-      </tags>
   </entry>
   <entry>
     <title>0x06Cve-2020-1956、Cve-2020-13925复现</title>
@@ -939,46 +960,6 @@
       </tags>
   </entry>
   <entry>
-    <title>0x0Ccve-2019-10669</title>
-    <url>/2020/11/11/0x0Ccve-2019-10669/</url>
-    <content><![CDATA[<h4 id="CVE-2019-10669LibreNMS-命令注入漏洞"><a href="#CVE-2019-10669LibreNMS-命令注入漏洞" class="headerlink" title="CVE-2019-10669LibreNMS 命令注入漏洞"></a>CVE-2019-10669LibreNMS 命令注入漏洞</h4><p>参考：<a href="https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md">https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md</a></p>
-<a id="more"></a>
-
-<h5 id="0x1-漏洞复现"><a href="#0x1-漏洞复现" class="headerlink" title="0x1 漏洞复现"></a>0x1 漏洞复现</h5><p>这个漏洞的环境也是蛮麻烦的</p>
-<p>看到poc发现是集成的msf模块，然后到我的msf里一查，发现已经有了</p>
-<p>攻击环境就准备好了</p>
-<p>靶机环境：</p>
-<p>本来想下软件装，装了好几次不成功</p>
-<p>参考：<a href="https://cloud.tencent.com/developer/article/1518046">https://cloud.tencent.com/developer/article/1518046</a></p>
-<p>先下一个librenms的ubuntu版直接虚拟机跑</p>
-<p>然后根据参考改一下网卡的配置，在主机上访问对应的ip地址和端口就能访问web界面了</p>
-<p>此时在kali里跑msf，始终打不成功，看报错是没找到对应的collectd插件</p>
-<p>需要在ubuntu换源更新下载安装一条龙</p>
-<p>装好了之后根据官方配置（太简略，并不能成功（<a href="https://docs.librenms.org/Support/Configuration/#collectd">https://docs.librenms.org/Support/Configuration/#collectd</a></p>
-<p>最后找到github上一个配置才成功，此时页面上出现了collectd插件</p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100410102.png" alt="image-20201112100410102"></p>
-<p>也能打成功了</p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100430763.png" alt="image-20201112100430763"></p>
-<h5 id="0x2-漏洞原理"><a href="#0x2-漏洞原理" class="headerlink" title="0x2 漏洞原理"></a>0x2 漏洞原理</h5><p>漏洞点：html/includes/graphs/device/collectd.inc.php</p>
-<p>其中用户提供的参数from和to是用mysqli_escape_real_string函数（mres）过滤的，但是这个函数不能转义多个命令行语法字符，我们就可以注入命令到变量$rrd_cmd中，通过passthru()执行</p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/DED6A2E31D73FFB660CEFBF548FD1BD6.png" alt="DED6A2E31D73FFB660CEFBF548FD1BD6"></p>
-<p>passthru — 执行外部程序并且显示原始输出</p>
-<p>passthru ( string $command [, int &amp;$return_var ] ) : void </p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/B99C52DBA71F8893ED2EBA7059B778F5.jpg" alt="B99C52DBA71F8893ED2EBA7059B778F5"></p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205158282.png" alt="image-20201112205158282"></p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205315869.png" alt="image-20201112205315869"></p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412.jpg" alt="3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412"></p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205357269.png" alt="image-20201112205357269"></p>
-<p>escapeshellarg — 把字符串转码为可以在 shell 命令里使用的参数，escapeshellarg() 将给字符串增加一个单引号并且能引用或者转码任何已经存在的单引号，这样以确保能够直接将一个字符串传入 shell 函数，并且还是确保安全的。 </p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>librenms</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>0x0BCve-2020-7361 禅道远程代码执行漏洞复现</title>
     <url>/2020/11/05/0x0BCve-2020-7361-%E7%A6%85%E9%81%93%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</url>
     <content><![CDATA[<h4 id="0x0B-Cve-2020-7361-禅道远程代码执行漏洞复现"><a href="#0x0B-Cve-2020-7361-禅道远程代码执行漏洞复现" class="headerlink" title="0x0B Cve-2020-7361 禅道远程代码执行漏洞复现"></a>0x0B Cve-2020-7361 禅道远程代码执行漏洞复现</h4><p>poc：<a href="https://github.com/rapid7/metasploit-framework/pull/13828">https://github.com/rapid7/metasploit-framework/pull/13828</a></p>
@@ -1057,6 +1038,46 @@
       </categories>
       <tags>
         <tag>discuz</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>0x0Ccve-2019-10669</title>
+    <url>/2020/11/11/0x0Ccve-2019-10669/</url>
+    <content><![CDATA[<h4 id="CVE-2019-10669LibreNMS-命令注入漏洞"><a href="#CVE-2019-10669LibreNMS-命令注入漏洞" class="headerlink" title="CVE-2019-10669LibreNMS 命令注入漏洞"></a>CVE-2019-10669LibreNMS 命令注入漏洞</h4><p>参考：<a href="https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md">https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md</a></p>
+<a id="more"></a>
+
+<h5 id="0x1-漏洞复现"><a href="#0x1-漏洞复现" class="headerlink" title="0x1 漏洞复现"></a>0x1 漏洞复现</h5><p>这个漏洞的环境也是蛮麻烦的</p>
+<p>看到poc发现是集成的msf模块，然后到我的msf里一查，发现已经有了</p>
+<p>攻击环境就准备好了</p>
+<p>靶机环境：</p>
+<p>本来想下软件装，装了好几次不成功</p>
+<p>参考：<a href="https://cloud.tencent.com/developer/article/1518046">https://cloud.tencent.com/developer/article/1518046</a></p>
+<p>先下一个librenms的ubuntu版直接虚拟机跑</p>
+<p>然后根据参考改一下网卡的配置，在主机上访问对应的ip地址和端口就能访问web界面了</p>
+<p>此时在kali里跑msf，始终打不成功，看报错是没找到对应的collectd插件</p>
+<p>需要在ubuntu换源更新下载安装一条龙</p>
+<p>装好了之后根据官方配置（太简略，并不能成功（<a href="https://docs.librenms.org/Support/Configuration/#collectd">https://docs.librenms.org/Support/Configuration/#collectd</a></p>
+<p>最后找到github上一个配置才成功，此时页面上出现了collectd插件</p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100410102.png" alt="image-20201112100410102"></p>
+<p>也能打成功了</p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100430763.png" alt="image-20201112100430763"></p>
+<h5 id="0x2-漏洞原理"><a href="#0x2-漏洞原理" class="headerlink" title="0x2 漏洞原理"></a>0x2 漏洞原理</h5><p>漏洞点：html/includes/graphs/device/collectd.inc.php</p>
+<p>其中用户提供的参数from和to是用mysqli_escape_real_string函数（mres）过滤的，但是这个函数不能转义多个命令行语法字符，我们就可以注入命令到变量$rrd_cmd中，通过passthru()执行</p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/DED6A2E31D73FFB660CEFBF548FD1BD6.png" alt="DED6A2E31D73FFB660CEFBF548FD1BD6"></p>
+<p>passthru — 执行外部程序并且显示原始输出</p>
+<p>passthru ( string $command [, int &amp;$return_var ] ) : void </p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/B99C52DBA71F8893ED2EBA7059B778F5.jpg" alt="B99C52DBA71F8893ED2EBA7059B778F5"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205158282.png" alt="image-20201112205158282"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205315869.png" alt="image-20201112205315869"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412.jpg" alt="3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205357269.png" alt="image-20201112205357269"></p>
+<p>escapeshellarg — 把字符串转码为可以在 shell 命令里使用的参数，escapeshellarg() 将给字符串增加一个单引号并且能引用或者转码任何已经存在的单引号，这样以确保能够直接将一个字符串传入 shell 函数，并且还是确保安全的。 </p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>librenms</tag>
       </tags>
   </entry>
   <entry>
@@ -1160,7 +1181,7 @@
   </entry>
   <entry>
     <title>恶意代码分析实战笔记--更新中</title>
-    <url>/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/</url>
+    <url>/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/</url>
     <content><![CDATA[<h3 id="恶意代码分析实战笔记–更新中"><a href="#恶意代码分析实战笔记–更新中" class="headerlink" title="恶意代码分析实战笔记–更新中"></a>恶意代码分析实战笔记–更新中</h3><p>所有分析文件下载：<a href="https://github.com/mikesiko/PracticalMalwareAnalysis-Labs">https://github.com/mikesiko/PracticalMalwareAnalysis-Labs</a></p>
 <a id="more"></a>
 
@@ -1170,56 +1191,75 @@
 <p>可以用<strong>md5deep</strong>来生成一个程序的哈希值/或者<strong>winmd5</strong></p>
 <h6 id="Strings"><a href="#Strings" class="headerlink" title="Strings:"></a>Strings:</h6><p>可以用<strong>strings</strong>来简单查看程序中含有的字符串，但是并非完全可靠，主要是要从错误信息中获取有效信息，如错误信息中提示了说缺少邮件类型的dll,我们就可以猜测到这个程序可能是利用了邮件系统</p>
 <h6 id="混淆与加壳"><a href="#混淆与加壳" class="headerlink" title="混淆与加壳"></a>混淆与加壳</h6><p>加壳是混淆的一种</p>
-<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123095412066.png" alt="image-20201123095412066"></p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123095412066.png" alt="image-20201123095412066"></p>
 <p>可以用<strong>peid</strong>之类的工具来检测和脱壳</p>
 <h6 id="pe文件头："><a href="#pe文件头：" class="headerlink" title="pe文件头："></a>pe文件头：</h6><p>pe文件头里的信息</p>
-<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123101809636.png" alt="image-20201123101809636"></p>
-<p><img src="/Users/kami/Desktop/hexo/source/_posts/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123101503221.png" alt="image-20201123101503221"></p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123101809636.png" alt="image-20201123101809636"></p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123101503221.png" alt="image-20201123101503221"></p>
 <p>resourcehacker可以查看资源节(.rsrc)</p>
 <h6 id="链接库和函数："><a href="#链接库和函数：" class="headerlink" title="链接库和函数："></a>链接库和函数：</h6><p>ida中可以看到导入表</p>
 <p><strong>dependence</strong> <strong>walker</strong>工具可以列出程序的动态链接函数</p>
 <p>常见dll：</p>
-<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123095848393.png" alt="image-20201123095848393"></p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123095848393.png" alt="image-20201123095848393"></p>
 <p>导入函数可以去微软官方文档查</p>
-<h5 id="本章实践：【】内为官方答案补充"><a href="#本章实践：【】内为官方答案补充" class="headerlink" title="本章实践：【】内为官方答案补充"></a>本章实践：【】内为官方答案补充</h5><h6 id="0x211："><a href="#0x211：" class="headerlink" title="0x211："></a>0x211：</h6><p>将文件上传到网站后，发现已经有很多引擎匹配到了，在details里可以看到详细情况</p>
+<h5 id="第一章实践：【】内为官方答案补充"><a href="#第一章实践：【】内为官方答案补充" class="headerlink" title="第一章实践：【】内为官方答案补充"></a>第一章实践：【】内为官方答案补充</h5><h6 id="0x211："><a href="#0x211：" class="headerlink" title="0x211："></a>0x211：</h6><p>将文件上传到网站后，发现已经有很多引擎匹配到了，在details里可以看到详细情况</p>
 <p>可以看到编译时间是2010-12-19【可以看一下exe和dll文件的日期，相差在一分钟之内】</p>
-<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123103846810.png" alt="image-20201123103846810"></p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123103846810.png" alt="image-20201123103846810"></p>
 <p>用exeinfo看这两个文件，都没有加壳</p>
 <p>可以用<strong>detectiteasy</strong>查看1.exe的输入表，看到创建文件和复制文件（createfilea/copyfilea）以及搜索一个目录下的所有函数（findnextfila/findfirstfile）的导入函数，我们可以猜测这个程序可能会创建一个文件然后复制到某个文件夹下。1.dll的输入表里可以看到创建进程和睡眠的导入函数【ws2_32.dll是提供了联网服务】</p>
-<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123112803267.png" alt="image-20201123112803267"></p>
-<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123113248321.png" alt="image-20201123113248321"></p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123112803267.png" alt="image-20201123112803267"></p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123113248321.png" alt="image-20201123113248321"></p>
 <p>运行程序后程序闪退，开启<strong>wireshark</strong>抓包没有抓到，所以并没有通过网络，同文件夹下并无明显文件变化【.dll文件中隐藏了一个ip地址】</p>
 <p>打开ida分析，应该是用lab01这个dll替换了kernel32.dll【应该可以在文件夹下看到kerne132.dll，但是有系统限制（win10没有】</p>
-<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123114322202.png" alt="image-20201123114322202"></p>
-<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123155740170.png" alt="image-20201123155740170"></p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123114322202.png" alt="image-20201123114322202"></p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123155740170.png" alt="image-20201123155740170"></p>
 <p>【可以猜测.dll是后门文件，.exe是用来安装和运行.dll文件的】</p>
 <h6 id="0x212："><a href="#0x212：" class="headerlink" title="0x212："></a>0x212：</h6><p>将文件上传到网站后，有很多引擎匹配到</p>
 <p>可以看到有加了upx的壳</p>
-<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123145915934.png" alt="image-20201123145915934"></p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123145915934.png" alt="image-20201123145915934"></p>
 <p>找了upx脱壳软件，重新看原文件就没有壳了</p>
-<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123150625482.png" alt="image-20201123150625482"></p>
-<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123150719541.png" alt="image-20201123150719541"></p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123150625482.png" alt="image-20201123150625482"></p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123150719541.png" alt="image-20201123150719541"></p>
 <p>接下来看看导入函数，kernel32中有可以猜测使用CreateWaitableTimer函数创建可等待的计时器对象，然后使用SetWaitableTimer函数设置计时器以及WaitForSingleObject函数来确定何时向计时器发出信号。</p>
-<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123151014222.png" alt="image-20201123151014222"></p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123151014222.png" alt="image-20201123151014222"></p>
 <p>【winner中有可以猜测是打开网站的internetopenurl函数】</p>
-<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123160439581.png" alt="image-20201123160439581"></p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123160439581.png" alt="image-20201123160439581"></p>
 <p>【advapi32中有可以猜测是创建服务的createservicea函数】</p>
-<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123160530351.png" alt="image-20201123160530351"></p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123160530351.png" alt="image-20201123160530351"></p>
 <p>【使用strings可以猜测是创建了一个叫malservice的服务，会访问malwareanalysibook这个网站】</p>
-<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123161324560.png" alt="image-20201123161324560"></p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123161324560.png" alt="image-20201123161324560"></p>
 <h6 id="0x213："><a href="#0x213：" class="headerlink" title="0x213："></a>0x213：</h6><p>将文件上传到网站后，有很多引擎匹配到</p>
 <p>看看有没有加壳，通过scan/t按钮可以看到是fsg1.0壳，工具比较少，应该要手动脱壳</p>
-<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123151306021.png" alt="image-20201123151306021"></p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123151306021.png" alt="image-20201123151306021"></p>
 <h6 id="0x214"><a href="#0x214" class="headerlink" title="0x214:"></a>0x214:</h6><p>将文件上传到网站后，有很多引擎匹配到</p>
 <p>没有加壳，可以看到有movefile,findresourcea等函数，还有writefile和createfilea，猜测是写文件和复制资源</p>
-<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123152755628.png" alt="image-20201123152755628"></p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123152755628.png" alt="image-20201123152755628"></p>
 <p>【advapi32.dll可以猜测程序会做一些和权限相关的工作，从字符串可以猜测从这个网站下载恶意程序，位置就是在system32下】</p>
-<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123161610357.png" alt="image-20201123161610357"></p>
-<p><img src="/Users/kami/Desktop/hexo/source/_posts/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123161758555.png" alt="image-20201123161758555"></p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123161610357.png" alt="image-20201123161610357"></p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123161758555.png" alt="image-20201123161758555"></p>
 <p>用resourcehacker看看资源，不是很理解【这是另一个pe可执行文件，可以保存下来然后再次分析这个文件（可以将可执行文件保存为资源）】</p>
-<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123153940389.png" alt="image-20201123153940389"></p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123153940389.png" alt="image-20201123153940389"></p>
 <p>【将它save as bin文件，然后再放到die里打开，可以看到urldownloadtofile，可以猜测这是一个下载器】</p>
-<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0-%E6%9B%B4%E6%96%B0%E4%B8%AD/image-20201123162708369.png" alt="image-20201123162708369"></p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201123162708369.png" alt="image-20201123162708369"></p>
+<h5 id="0x22-动态分析"><a href="#0x22-动态分析" class="headerlink" title="0x22 动态分析"></a>0x22 动态分析</h5><h6 id="沙箱："><a href="#沙箱：" class="headerlink" title="沙箱："></a>沙箱：</h6><p>在安全的环境中运行不可信任的机制，沙箱包含一个虚拟环境，通过某种方法模拟网络服务</p>
+<p>恶意代码分析的沙箱：Norman和gfi</p>
+<h6 id="dll运行："><a href="#dll运行：" class="headerlink" title="dll运行："></a>dll运行：</h6><p>恶意的dll文件通常在dllmain执行代码，无论dll什么时候被加载，dllmain函数总会被执行。</p>
+<p><strong>cmd</strong>:rundll32.exe dllname,export arguments</p>
+<p>export值必须是一个dll文件导出函数表中的函数名或者序号（前面加‘#’）</p>
+<p>例如：runnel32.exe test.dll, install</p>
+<p><strong>也可以通过修改</strong>PE头部，并改变扩展名</p>
+<p>修改PE头部，从IMAGE_FILE_HEADER的特征域里擦除IMAGE_FILE_DLL(0x2000)标记。这样不会执行任何输入函数，但是会调用dllmain方法，也可能造成恶意代码崩溃或终止</p>
+<p><strong>安装成服务</strong>：</p>
+<p>例如：cmd&gt;rundll32 ipr32x.dll,installservice servicename</p>
+<p>然后用net start命令就可以执行</p>
+<h6 id="进程监视："><a href="#进程监视：" class="headerlink" title="进程监视："></a>进程监视：</h6><p>process monitor/process explorer:监控注册表、文件系统、网络、进程和线程行为</p>
+<p>regshot：比较前后两次注册表快照</p>
+<h6 id="模拟网络："><a href="#模拟网络：" class="headerlink" title="模拟网络："></a>模拟网络：</h6><p>ApateDns:查看恶意代码是否会发出dns请求，修改dns配置</p>
+<p>netcat：监听</p>
+<p>Inetsim：linux下模拟常见网络服务，记录所有的连入请求和链接</p>
+<h6 id="数据包监听："><a href="#数据包监听：" class="headerlink" title="数据包监听："></a>数据包监听：</h6><p>Wireshark</p>
+<h6 id="动态整体流程："><a href="#动态整体流程：" class="headerlink" title="动态整体流程："></a>动态整体流程：</h6><p>运行进程监视器和进程浏览器-&gt;regshot注册表快照-&gt;inetsim+apatedns设置虚拟网络-&gt;wireshark看抓包</p>
+<p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201126162144572.png" alt="image-20201126162144572"></p>
 ]]></content>
       <categories>
         <category>笔记</category>
