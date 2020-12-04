@@ -1260,6 +1260,26 @@
 <h6 id="数据包监听："><a href="#数据包监听：" class="headerlink" title="数据包监听："></a>数据包监听：</h6><p>Wireshark</p>
 <h6 id="动态整体流程："><a href="#动态整体流程：" class="headerlink" title="动态整体流程："></a>动态整体流程：</h6><p>运行进程监视器和进程浏览器-&gt;regshot注册表快照-&gt;inetsim+apatedns设置虚拟网络-&gt;wireshark看抓包</p>
 <p><img src="/2020/11/23/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201126162144572.png" alt="image-20201126162144572"></p>
+<h5 id="0x23-静态分析进阶"><a href="#0x23-静态分析进阶" class="headerlink" title="0x23 静态分析进阶"></a>0x23 静态分析进阶</h5><p>计算机：硬件-&gt;微指令-&gt;机器码-&gt;低级语言（汇编）-&gt;高级语言-&gt;解释型语言</p>
+<p>冯诺伊曼体系：cpu（寄存器，控制单元，算数逻辑单元（ALU）），内存，输入输出</p>
+<h6 id="内存："><a href="#内存：" class="headerlink" title="内存："></a>内存：</h6><p>包含堆（动态内存），栈，代码，数据</p>
+<h6 id="寄存器："><a href="#寄存器：" class="headerlink" title="寄存器："></a>寄存器：</h6><p><img src="/Users/kami/Desktop/hexo/source/_posts/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201201163409806.png" alt="image-20201201163409806"></p>
+<p>用AH之类的可以取EAX中的值</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201201163513378.png" alt="image-20201201163513378"></p>
+<p>乘法和除法只能用EAX和EDX</p>
+<h6 id="标志寄存器："><a href="#标志寄存器：" class="headerlink" title="标志寄存器："></a>标志寄存器：</h6><p>ZF：运算结果等于0，ZF被置位</p>
+<p>CF：运算结果相对于目标操作数太大或太小</p>
+<p>SF：运算结果为负或者算术运算结果最高位值为1</p>
+<p>TF：用于调试</p>
+<h6 id="lea和mov："><a href="#lea和mov：" class="headerlink" title="lea和mov："></a>lea和mov：</h6><p>lea是获取地址的值，mov是获取存在该地址的数据的值</p>
+<h6 id="栈："><a href="#栈：" class="headerlink" title="栈："></a>栈：</h6><p>存储函数的内存、局部变量、流控制结构等，短期存储，主要用途是管理函数调用之间的数据交换，后入先出</p>
+<p>ESP是栈指针，相关指令：push, pop,call,leave,enter,ret</p>
+<p>EBP是栈基址寄存器，程序的定位器，在一个函数中会保持不变，用来确定局部变量和参数的位置</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/image-20201201174659216.png" alt="image-20201201174659216"></p>
+<h6 id="函数调用约定："><a href="#函数调用约定：" class="headerlink" title="函数调用约定："></a>函数调用约定：</h6><p>决定函数调用发生的方式，包含参数被放在栈上或寄存器中的次序，以及是由调用者还是被调函数负责在函数执行完成时清理栈</p>
+<p>cdecl:参数从右到左压入栈，函数完成时由调用者清理栈，返回值保存在EAX</p>
+<p>stdcall:同上，被调函数清理栈</p>
+<p>fastcall:前一些参数（典型是前两个）会被传到寄存器中，备用寄存器是EDX和ECX</p>
 ]]></content>
       <categories>
         <category>笔记</category>
@@ -1267,5 +1287,41 @@
       <tags>
         <tag>恶意代码</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>0x06buuctfWP-1</title>
+    <url>/2020/11/30/0x06buuctfWP-1/</url>
+    <content><![CDATA[<a id="more"></a>
+
+<h5 id="0x01-2019红帽杯easyre"><a href="#0x01-2019红帽杯easyre" class="headerlink" title="0x01 2019红帽杯easyre"></a>0x01 2019红帽杯easyre</h5><p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06buuctfWP-1/image-20201201085705304.png" alt="image-20201201085705304"></p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06buuctfWP-1/image-20201201085742513.png" alt="image-20201201085742513"></p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06buuctfWP-1/image-20201130171506491.png" alt="image-20201130171506491"></p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06buuctfWP-1/image-20201201085616273.png" alt="image-20201201085616273"></p>
+<h5 id="0x02-相册"><a href="#0x02-相册" class="headerlink" title="0x02 相册"></a>0x02 相册</h5><p>感觉这题目稍微简单了点</p>
+<p>看java文件，C2似乎会有一些定义，看看C2</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06buuctfWP-1/image-20201201092820389.png" alt="image-20201201092820389"></p>
+<p>猜测这个就是要发送的邮箱，经过base64解密 <img src="/Users/kami/Desktop/hexo/source/_posts/0x06buuctfWP-1/image-20201201092854869.png" alt="image-20201201092854869"></p>
+<p>定义在so文件里了</p>
+<img src="/Users/kami/Desktop/hexo/source/_posts/0x06buuctfWP-1/image-20201201092915874.png" alt="image-20201201092915874" style="zoom:50%;">
+
+<p>打开so文件看到一些字符串，放到base64解一下试试</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06buuctfWP-1/image-20201201092934423.png" alt="image-20201201092934423"></p>
+<p>提交了即可</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06buuctfWP-1/image-20201201093307175.png" alt="image-20201201093307175"></p>
+<h5 id="0x03-Universe-final-answer"><a href="#0x03-Universe-final-answer" class="headerlink" title="0x03 Universe_final_answer"></a>0x03 Universe_final_answer</h5><p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06buuctfWP-1/image-20201201105908201.png" alt="image-20201201105908201"></p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06buuctfWP-1/image-20201201105920622.png" alt="image-20201201105920622"></p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06buuctfWP-1/image-20201201105853132.png" alt="image-20201201105853132"></p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06buuctfWP-1/image-20201201105757817.png" alt="image-20201201105757817"></p>
+<h5 id="0x04"><a href="#0x04" class="headerlink" title="0x04"></a>0x04</h5><img src="/Users/kami/Desktop/hexo/source/_posts/0x06buuctfWP-1/image-20201201154823295.png" alt="image-20201201154823295" style="zoom:50%;">
+
+<img src="/Users/kami/Desktop/hexo/source/_posts/0x06buuctfWP-1/image-20201201154838647.png" alt="image-20201201154838647" style="zoom:50%;">
+
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06buuctfWP-1/image-20201201145640995.png" alt="image-20201201145640995"></p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06buuctfWP-1/image-20201201150351743.png" alt="image-20201201150351743"></p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06buuctfWP-1/image-20201201154732373.png" alt="image-20201201154732373"></p>
+]]></content>
+      <categories>
+        <category>ctf</category>
+      </categories>
   </entry>
 </search>
