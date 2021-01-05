@@ -772,7 +772,8 @@
   <entry>
     <title>0x05Xctf进阶刷题-3 --更新中</title>
     <url>/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/</url>
-    <content><![CDATA[<a id="more"></a>
+    <content><![CDATA[<p>XCTF进阶刷题-3</p>
+<a id="more"></a>
 
 <h5 id="0x01-easyre-153（sigchld）"><a href="#0x01-easyre-153（sigchld）" class="headerlink" title="0x01 easyre-153（sigchld）"></a>0x01 easyre-153（sigchld）</h5><p>ida分析主函数，了解了sigchild后，猜测if(!v5)这里应该是属于子进程，动态调试看看</p>
 <p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144348053.png" alt="image-20201126144348053"></p>
@@ -793,7 +794,8 @@
   <entry>
     <title>0x06buuctfWP-1</title>
     <url>/2020/11/30/0x06buuctfWP-1/</url>
-    <content><![CDATA[<a id="more"></a>
+    <content><![CDATA[<p>buuctf刷题</p>
+<a id="more"></a>
 
 <h5 id="0x01-2019红帽杯easyre"><a href="#0x01-2019红帽杯easyre" class="headerlink" title="0x01 2019红帽杯easyre"></a>0x01 2019红帽杯easyre</h5><p><img src="/2020/11/30/0x06buuctfWP-1/image-20201201085705304.png" alt="image-20201201085705304"></p>
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20201201085742513.png" alt="image-20201201085742513"></p>
