@@ -1398,4 +1398,42 @@
         <tag>恶意代码</tag>
       </tags>
   </entry>
+  <entry>
+    <title>0x01python-spider-exploit-db</title>
+    <url>/2020/12/03/0x01python-spider-exploit-db/</url>
+    <content><![CDATA[<p>在一次寻找大批量的久远漏洞的poc的时候，我这个python小白决定顺手写个exploit-db的爬虫</p>
+<a id="more"></a>
+
+<p>这类爬虫的项目其实还是有蛮多可以参考的</p>
+<p>我的主要需求：已知cve号，搜索是否有poc并返回poc页面</p>
+<p>先进行一次搜索流程</p>
+<p>在输入框输入cve号，页面就会显示出链接</p>
+<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105144411007.png" alt="image-20210105144411007"></p>
+<p>点击后，这个就是我们需要的poc的url：<a href="https://www.exploit-db.com/exploits/49068">https://www.exploit-db.com/exploits/49068</a></p>
+<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105144437086.png" alt="image-20210105144437086"></p>
+<p>多尝试几个就可以知道poc的url就是<a href="https://www.exploit-db.com/exploits/+%E6%9F%90%E6%95%B0%E5%AD%97%EF%BC%8C%E9%82%A3%E4%B9%88%E8%BF%99%E4%B8%AA%E6%9F%90%E6%95%B0%E5%AD%97%E5%B0%B1%E6%98%AF%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81%E8%BF%94%E5%9B%9E%E7%9A%84">https://www.exploit-db.com/exploits/+某数字，那么这个某数字就是我们需要返回的</a></p>
+<p>抓包，得到请求包，找到对应的cve号输入的位置search[value]，修改为我们可以输入的参数</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">url &#x3D; &#39;https:&#x2F;&#x2F;www.exploit-db.com&#x2F;?draw&#x3D;2&amp;columns[0][data]&#x3D;date_published&amp;columns[0][name]&#x3D;date_published&amp;columns[0][searchable]&#x3D;true&amp;columns[0][orderable]&#x3D;true&amp;columns[0][search][value]&#x3D;&amp;columns[0][search][regex]&#x3D;false&amp;columns[1][data]&#x3D;download&amp;columns[1][name]&#x3D;download&amp;columns[1][searchable]&#x3D;false&amp;columns[1][orderable]&#x3D;false&amp;columns[1][search][value]&#x3D;&amp;columns[1][search][regex]&#x3D;false&amp;columns[2][data]&#x3D;application_md5&amp;columns[2][name]&#x3D;application_md5&amp;columns[2][searchable]&#x3D;true&amp;columns[2][orderable]&#x3D;false&amp;columns[2][search][value]&#x3D;&amp;columns[2][search][regex]&#x3D;false&amp;columns[3][data]&#x3D;verified&amp;columns[3][name]&#x3D;verified&amp;columns[3][searchable]&#x3D;true&amp;columns[3][orderable]&#x3D;false&amp;columns[3][search][value]&#x3D;&amp;columns[3][search][regex]&#x3D;false&amp;columns[4][data]&#x3D;description&amp;columns[4][name]&#x3D;description&amp;columns[4][searchable]&#x3D;true&amp;columns[4][orderable]&#x3D;false&amp;columns[4][search][value]&#x3D;&amp;columns[4][search][regex]&#x3D;false&amp;columns[5][data]&#x3D;type_id&amp;columns[5][name]&#x3D;type_id&amp;columns[5][searchable]&#x3D;true&amp;columns[5][orderable]&#x3D;false&amp;columns[5][search][value]&#x3D;&amp;columns[5][search][regex]&#x3D;false&amp;columns[6][data]&#x3D;platform_id&amp;columns[6][name]&#x3D;platform_id&amp;columns[6][searchable]&#x3D;true&amp;columns[6][orderable]&#x3D;false&amp;columns[6][search][value]&#x3D;&amp;columns[6][search][regex]&#x3D;false&amp;columns[7][data]&#x3D;author_id&amp;columns[7][name]&#x3D;author_id&amp;columns[7][searchable]&#x3D;false&amp;columns[7][orderable]&#x3D;false&amp;columns[7][search][value]&#x3D;&amp;columns[7][search][regex]&#x3D;false&amp;columns[8][data]&#x3D;code&amp;columns[8][name]&#x3D;code.code&amp;columns[8][searchable]&#x3D;true&amp;columns[8][orderable]&#x3D;true&amp;columns[8][search][value]&#x3D;&amp;columns[8][search][regex]&#x3D;false&amp;columns[9][data]&#x3D;id&amp;columns[9][name]&#x3D;id&amp;columns[9][searchable]&#x3D;false&amp;columns[9][orderable]&#x3D;true&amp;columns[9][search][value]&#x3D;&amp;columns[9][search][regex]&#x3D;false&amp;order[0][column]&#x3D;9&amp;order[0][dir]&#x3D;desc&amp;start&#x3D;0&amp;length&#x3D;15&amp;search[value]&#x3D;%s&amp;search[regex]&#x3D;false&amp;author&#x3D;&amp;port&#x3D;&amp;type&#x3D;&amp;tag&#x3D;&amp;platform&#x3D;&amp;_&#x3D;1606893892234&#39;%s</span><br></pre></td></tr></table></figure>
+
+<p>刚开始直接获取的是返回的页面的html，但是没有相关数字的信息，一度以为自己写错了，毕竟这算是我第二次写爬虫。后来查看页面源代码，确实没有相关的信息，跑去问gps(前端，才知道是拿了接口返回的数据，塞到网页里</p>
+<p>f12后发现在json数据包里</p>
+<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105145116203.png" alt="image-20210105145116203"></p>
+<p>于是开始研究怎么获取json包的数据</p>
+<p>重点函数：spider_request.json()</p>
+<p>但是一开始使用这个函数一直报错，提示没有返回json，确认了下请求头也没有错误</p>
+<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105150842464.png" alt="image-20210105150842464"></p>
+<p>改了很久，最后将header改为这样就可以了</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">header &#x3D; &#123;</span><br><span class="line">    &#39;Accept&#39;: &#39;application&#x2F;json, text&#x2F;javascript, *&#x2F;*; q&#x3D;0.01&#39;,</span><br><span class="line">    &#39;Sec-Fetch-Mode&#39;: &#39;cors&#39;,</span><br><span class="line">    &#39;User-Agent&#39;: random.choice(ua_list),</span><br><span class="line">    &#39;X-Requested-With&#39;: &#39;XMLHttpRequest&#39;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行效果：</p>
+<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105151415897.png" alt="image-20210105151415897"></p>
+<p>项目地址：<a href="https://github.com/0xkami/expolit-db-spider">https://github.com/0xkami/expolit-db-spider</a></p>
+]]></content>
+      <categories>
+        <category>python</category>
+      </categories>
+      <tags>
+        <tag>exploit-db</tag>
+      </tags>
+  </entry>
 </search>
