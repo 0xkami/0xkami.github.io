@@ -951,10 +951,33 @@
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20201201145640995.png" alt="image-20201201145640995"></p>
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20201201150351743.png" alt="image-20201201150351743"></p>
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20201201154732373.png" alt="image-20201201154732373"></p>
-<h5 id="0x05-新年快乐-2021-1-5"><a href="#0x05-新年快乐-2021-1-5" class="headerlink" title="0x05 新年快乐 2021.1.5"></a>0x05 新年快乐 2021.1.5</h5><p>好久没做题了，最近在重刷408的一些知识来着…</p>
+<h5 id="0x05-新年快乐-2021-1-5-容易题"><a href="#0x05-新年快乐-2021-1-5-容易题" class="headerlink" title="0x05 新年快乐 2021.1.5 容易题"></a>0x05 新年快乐 2021.1.5 容易题</h5><p>好久没做题了，最近在重刷408的一些知识来着…</p>
 <p>upx脱壳</p>
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20210105142217660.png" alt="image-20210105142217660"></p>
 <p>啊这，flag就很明显是HappyNewYear!了</p>
+<h5 id="0x06-MRCTF2020-Transform1-容易题"><a href="#0x06-MRCTF2020-Transform1-容易题" class="headerlink" title="0x06 [MRCTF2020]Transform1 容易题"></a>0x06 [MRCTF2020]Transform1 容易题</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#define LOWORD(l)           ((WORD)(((DWORD_PTR)(l)) &amp; 0xffff))</span><br><span class="line">#define HIWORD(l)           ((WORD)((((DWORD_PTR)(l)) &gt;&gt; 16) &amp; 0xffff))</span><br><span class="line">#define LOBYTE(w)           ((BYTE)(((DWORD_PTR)(w)) &amp; 0xff))</span><br><span class="line">#define HIBYTE(w)           ((BYTE)((((DWORD_PTR)(w)) &gt;&gt; 8) &amp; 0xff))</span><br></pre></td></tr></table></figure>
+
+<p>无壳，主函数如下：</p>
+<p><img src="/2020/11/30/0x06buuctfWP-1/image-20210111101152811.png" alt="image-20210111101152811"></p>
+<p>流程：输入的字符串存储到v6，然后根据dword_40f040[i]的顺序将v6的值赋给byte_414040，然后和dword_40f040[i]的低8位做异或，得到的值和byte_40f0e0相同即可</p>
+<p><img src="/2020/11/30/0x06buuctfWP-1/image-20210111101618314.png" alt="image-20210111101618314"></p>
+<h5 id="0x07-ACTF新生赛2020-SoulLike-（python爆破-pwn-re）"><a href="#0x07-ACTF新生赛2020-SoulLike-（python爆破-pwn-re）" class="headerlink" title="0x07 [ACTF新生赛2020]SoulLike （python爆破 pwn/re）"></a>0x07 [ACTF新生赛2020]SoulLike （python爆破 pwn/re）</h5><p>无壳</p>
+<p>主函数，前五位可知是actf{，最后一位是}，中间我们输入的字符经过了sub_55D038那个函数的判定</p>
+<p><img src="/2020/11/30/0x06buuctfWP-1/image-20210112173435652.png" alt="image-20210112173435652"></p>
+<p>进入这个函数，特别长，3000行，反编译需要久一点，可以看出我们输入的字符经过一大堆异或操作，最后和规定的字符对比，同时不符合的话会返回错误信息，可以知道错误在第几位，因此可以选择爆破</p>
+<p><img src="/2020/11/30/0x06buuctfWP-1/image-20210112173225058.png" alt="image-20210112173225058"></p>
+<p>学习python爆破</p>
+<p>利用pwn和re正则</p>
+<p>re：</p>
+<p><a href="https://www.cnblogs.com/python-xkj/archive/2018/06/26/9231624.html">https://www.cnblogs.com/python-xkj/archive/2018/06/26/9231624.html</a></p>
+<p><img src="/2020/11/30/0x06buuctfWP-1/image-20210112173704852.png" alt="image-20210112173704852"></p>
+<p>pwn库：</p>
+<p><a href="https://github.com/Gallopsled/pwntools-tutorial/blob/master/tubes.md#receiving-data">https://github.com/Gallopsled/pwntools-tutorial/blob/master/tubes.md#receiving-data</a></p>
+<p><a href="http://docs.pwntools.com/en/latest/">http://docs.pwntools.com/en/latest/</a></p>
+<p>基本输入输出：</p>
+<p><img src="/2020/11/30/0x06buuctfWP-1/image-20210112173902013.png" alt="image-20210112173902013"></p>
+<p>运行脚本即可得到flag</p>
+<p><img src="/2020/11/30/0x06buuctfWP-1/image-20210112172937305.png" alt="image-20210112172937305"></p>
 ]]></content>
       <categories>
         <category>ctf</category>
