@@ -53,8 +53,12 @@
 <meta property="og:image" content="http://example.com/2020/11/30/0x06buuctfWP-1/image-20210112173704852.png">
 <meta property="og:image" content="http://example.com/2020/11/30/0x06buuctfWP-1/image-20210112173902013.png">
 <meta property="og:image" content="http://example.com/2020/11/30/0x06buuctfWP-1/image-20210112172937305.png">
+<meta property="og:image" content="http://example.com/2020/11/30/0x06buuctfWP-1/image-20210113170627702.png">
+<meta property="og:image" content="http://example.com/2020/11/30/0x06buuctfWP-1/image-20210113170709008.png">
+<meta property="og:image" content="http://example.com/2020/11/30/0x06buuctfWP-1/image-20210113171010243.png">
+<meta property="og:image" content="http://example.com/2020/11/30/0x06buuctfWP-1/image-20210113171034487.png">
 <meta property="article:published_time" content="2020-11-30T09:14:59.000Z">
-<meta property="article:modified_time" content="2021-01-12T09:40:31.851Z">
+<meta property="article:modified_time" content="2021-01-13T09:12:16.742Z">
 <meta property="article:author" content="0xkami">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/2020/11/30/0x06buuctfWP-1/image-20201201085705304.png">
@@ -250,7 +254,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-01-12 17:40:31" itemprop="dateModified" datetime="2021-01-12T17:40:31+08:00">2021-01-12</time>
+                <time title="修改时间：2021-01-13 17:12:16" itemprop="dateModified" datetime="2021-01-13T17:12:16+08:00">2021-01-13</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -302,17 +306,17 @@
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20201201145640995.png" alt="image-20201201145640995"></p>
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20201201150351743.png" alt="image-20201201150351743"></p>
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20201201154732373.png" alt="image-20201201154732373"></p>
-<h5 id="0x05-新年快乐-2021-1-5-容易题"><a href="#0x05-新年快乐-2021-1-5-容易题" class="headerlink" title="0x05 新年快乐 2021.1.5 容易题"></a>0x05 新年快乐 2021.1.5 容易题</h5><p>好久没做题了，最近在重刷408的一些知识来着…</p>
+<h5 id="0x05-新年快乐-2021-1-5"><a href="#0x05-新年快乐-2021-1-5" class="headerlink" title="0x05 新年快乐 2021.1.5"></a>0x05 新年快乐 2021.1.5</h5><p>好久没做题了，最近在重刷408的一些知识来着…</p>
 <p>upx脱壳</p>
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20210105142217660.png" alt="image-20210105142217660"></p>
 <p>啊这，flag就很明显是HappyNewYear!了</p>
-<h5 id="0x06-MRCTF2020-Transform1-容易题"><a href="#0x06-MRCTF2020-Transform1-容易题" class="headerlink" title="0x06 [MRCTF2020]Transform1 容易题"></a>0x06 [MRCTF2020]Transform1 容易题</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#define LOWORD(l)           ((WORD)(((DWORD_PTR)(l)) &amp; 0xffff))</span><br><span class="line">#define HIWORD(l)           ((WORD)((((DWORD_PTR)(l)) &gt;&gt; 16) &amp; 0xffff))</span><br><span class="line">#define LOBYTE(w)           ((BYTE)(((DWORD_PTR)(w)) &amp; 0xff))</span><br><span class="line">#define HIBYTE(w)           ((BYTE)((((DWORD_PTR)(w)) &gt;&gt; 8) &amp; 0xff))</span><br></pre></td></tr></table></figure>
+<h5 id="0x06-MRCTF2020-Transform1"><a href="#0x06-MRCTF2020-Transform1" class="headerlink" title="0x06 [MRCTF2020]Transform1"></a>0x06 [MRCTF2020]Transform1</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#define LOWORD(l)           ((WORD)(((DWORD_PTR)(l)) &amp; 0xffff))</span><br><span class="line">#define HIWORD(l)           ((WORD)((((DWORD_PTR)(l)) &gt;&gt; 16) &amp; 0xffff))</span><br><span class="line">#define LOBYTE(w)           ((BYTE)(((DWORD_PTR)(w)) &amp; 0xff))</span><br><span class="line">#define HIBYTE(w)           ((BYTE)((((DWORD_PTR)(w)) &gt;&gt; 8) &amp; 0xff))</span><br></pre></td></tr></table></figure>
 
 <p>无壳，主函数如下：</p>
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20210111101152811.png" alt="image-20210111101152811"></p>
 <p>流程：输入的字符串存储到v6，然后根据dword_40f040[i]的顺序将v6的值赋给byte_414040，然后和dword_40f040[i]的低8位做异或，得到的值和byte_40f0e0相同即可</p>
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20210111101618314.png" alt="image-20210111101618314"></p>
-<h5 id="0x07-ACTF新生赛2020-SoulLike-（python爆破-pwn-re）"><a href="#0x07-ACTF新生赛2020-SoulLike-（python爆破-pwn-re）" class="headerlink" title="0x07 [ACTF新生赛2020]SoulLike （python爆破 pwn/re）"></a>0x07 [ACTF新生赛2020]SoulLike （python爆破 pwn/re）</h5><p>无壳</p>
+<h5 id="0x07-ACTF新生赛2020-SoulLike-（python爆破-pwn-re）2021-1-12"><a href="#0x07-ACTF新生赛2020-SoulLike-（python爆破-pwn-re）2021-1-12" class="headerlink" title="0x07 [ACTF新生赛2020]SoulLike （python爆破 pwn/re）2021.1.12"></a>0x07 [ACTF新生赛2020]SoulLike （python爆破 pwn/re）2021.1.12</h5><p>无壳</p>
 <p>主函数，前五位可知是actf{，最后一位是}，中间我们输入的字符经过了sub_55D038那个函数的判定</p>
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20210112173435652.png" alt="image-20210112173435652"></p>
 <p>进入这个函数，特别长，3000行，反编译需要久一点，可以看出我们输入的字符经过一大堆异或操作，最后和规定的字符对比，同时不符合的话会返回错误信息，可以知道错误在第几位，因此可以选择爆破</p>
@@ -329,6 +333,18 @@
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20210112173902013.png" alt="image-20210112173902013"></p>
 <p>运行脚本即可得到flag</p>
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20210112172937305.png" alt="image-20210112172937305"></p>
+<h5 id="0x08-MRCTF2020-PixelShooter（unity-安卓）2021-1-13"><a href="#0x08-MRCTF2020-PixelShooter（unity-安卓）2021-1-13" class="headerlink" title="0x08 [MRCTF2020]PixelShooter（unity/安卓）2021.1.13"></a>0x08 [MRCTF2020]PixelShooter（unity/安卓）2021.1.13</h5><p>下载下来是一个apk，运行了下发现是个游戏</p>
+<p><img src="/2020/11/30/0x06buuctfWP-1/image-20210113170627702.png" alt="image-20210113170627702"></p>
+<p>看来flag就是要打到一定的分数</p>
+<p>用apktool反编译，找了下关键语句，发现并没有，陷入僵局</p>
+<p><img src="/2020/11/30/0x06buuctfWP-1/image-20210113170709008.png" alt="image-20210113170709008"></p>
+<p>搜索了下unity相关信息：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44058342/article/details/87940908">https://blog.csdn.net/weixin_44058342/article/details/87940908</a></p>
+<p>原来unity的数据一般存在别的地方</p>
+<p>用apktoolbox对apk进行反编译，提取出 game/assets/bin/data/Managed/Assembly-CSarp.dll，使用 ILSpy 打开即可看到dll，然后搜索flag关键词，找到对应点</p>
+<p><img src="/2020/11/30/0x06buuctfWP-1/image-20210113171010243.png" alt="image-20210113171010243"></p>
+<p>然后就能找到flag了</p>
+<p><img src="/2020/11/30/0x06buuctfWP-1/image-20210113171034487.png" alt="image-20210113171034487"></p>
+<p>是个简单题了</p>
 
     </div>
 
@@ -409,7 +425,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#0x01-2019%E7%BA%A2%E5%B8%BD%E6%9D%AFeasyre"><span class="nav-text">0x01 2019红帽杯easyre</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x02-%E7%9B%B8%E5%86%8C"><span class="nav-text">0x02 相册</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x03-Universe-final-answer"><span class="nav-text">0x03 Universe_final_answer</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x04"><span class="nav-text">0x04</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x05-%E6%96%B0%E5%B9%B4%E5%BF%AB%E4%B9%90-2021-1-5-%E5%AE%B9%E6%98%93%E9%A2%98"><span class="nav-text">0x05 新年快乐 2021.1.5 容易题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x06-MRCTF2020-Transform1-%E5%AE%B9%E6%98%93%E9%A2%98"><span class="nav-text">0x06 [MRCTF2020]Transform1 容易题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x07-ACTF%E6%96%B0%E7%94%9F%E8%B5%9B2020-SoulLike-%EF%BC%88python%E7%88%86%E7%A0%B4-pwn-re%EF%BC%89"><span class="nav-text">0x07 [ACTF新生赛2020]SoulLike （python爆破 pwn&#x2F;re）</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#0x01-2019%E7%BA%A2%E5%B8%BD%E6%9D%AFeasyre"><span class="nav-text">0x01 2019红帽杯easyre</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x02-%E7%9B%B8%E5%86%8C"><span class="nav-text">0x02 相册</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x03-Universe-final-answer"><span class="nav-text">0x03 Universe_final_answer</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x04"><span class="nav-text">0x04</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x05-%E6%96%B0%E5%B9%B4%E5%BF%AB%E4%B9%90-2021-1-5"><span class="nav-text">0x05 新年快乐 2021.1.5</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x06-MRCTF2020-Transform1"><span class="nav-text">0x06 [MRCTF2020]Transform1</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x07-ACTF%E6%96%B0%E7%94%9F%E8%B5%9B2020-SoulLike-%EF%BC%88python%E7%88%86%E7%A0%B4-pwn-re%EF%BC%892021-1-12"><span class="nav-text">0x07 [ACTF新生赛2020]SoulLike （python爆破 pwn&#x2F;re）2021.1.12</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x08-MRCTF2020-PixelShooter%EF%BC%88unity-%E5%AE%89%E5%8D%93%EF%BC%892021-1-13"><span class="nav-text">0x08 [MRCTF2020]PixelShooter（unity&#x2F;安卓）2021.1.13</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

