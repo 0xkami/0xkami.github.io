@@ -984,7 +984,32 @@
 <p><img src="/2021/01/18/0x06buuctfWP-1/image-20210118160832519.png" alt="image-20210118160832519"></p>
 <p>编写脚本：可以得知flag为text的内容，对text进行了两次加密操作最后输出的是text3</p>
 <p><img src="/2021/01/18/0x06buuctfWP-1/image-20210118155516823.png" alt="image-20210118155516823"></p>
-<p>还有一种就是可以在程序上下断点，直接跑，但是我虚拟机上没有.net服务所以跑不了…….</p>
+<p>还有一种就是可以在程序上下断点，直接跑，但是我虚拟机上没有.net3服务所以跑不了…….</p>
+<h5 id="0x0A-FlareOn5-Ultimate-Minesweeper-2021-1-19"><a href="#0x0A-FlareOn5-Ultimate-Minesweeper-2021-1-19" class="headerlink" title="0x0A [FlareOn5]Ultimate Minesweeper 2021.1.19"></a>0x0A [FlareOn5]Ultimate Minesweeper 2021.1.19</h5><p>打开，发现又是个.net的文件，运行后发现是个扫雷游戏</p>
+<p>dnspy反编译一下</p>
+<p>主函数：</p>
+<p><img src="/2021/01/18/0x06buuctfWP-1/image-20210119110433175.png" alt="image-20210119110433175"></p>
+<p>找到了判定的函数：</p>
+<p><img src="/2021/01/18/0x06buuctfWP-1/image-20210119110525343.png" alt="image-20210119110525343"></p>
+<p>看到一个getkey函数，猜测就是生成flag的函数，给了一个数组和一些操作</p>
+<p><img src="/2021/01/18/0x06buuctfWP-1/image-20210119110615575.png" alt="image-20210119110615575"></p>
+<p>按照逻辑编了下脚本，跑出来发现不对</p>
+<p><img src="/2021/01/18/0x06buuctfWP-1/image-20210119110834746.png" alt="image-20210119110834746"></p>
+<p>然后下断点，看生成的array2的值，然后尝试转换成ascii码，还是不对</p>
+<p>那就调试从判定的地方直接跳到成功界面好了，还是不行</p>
+<p><img src="/2021/01/18/0x06buuctfWP-1/image-20210119111206877.png" alt="image-20210119111206877"></p>
+<p>此时转换思路，干脆从生成的时候看看哪三个格子不是雷，直接通关好了</p>
+<p>开始找初始生成函数：</p>
+<p>Initialize函数生成初始界面</p>
+<p>minefield生成了30*30</p>
+<p>allocatememory里面有一个garbage collect</p>
+<p><img src="/2021/01/18/0x06buuctfWP-1/image-20210119111455340.png" alt="image-20210119111455340"></p>
+<p>跟进去看是存储是否存在雷的判定值</p>
+<p><img src="/2021/01/18/0x06buuctfWP-1/image-20210119111427423.png" alt="image-20210119111427423"></p>
+<p>下断点，查看garbagecollect的值，在一堆true当中找到3个false的对应坐标记录，然后尝试一下纵横的区别即可（调试两次发现生成的位置的值是固定的</p>
+<p><img src="/2021/01/18/0x06buuctfWP-1/image-20210119111932177.png" alt="image-20210119111932177"></p>
+<p>通关即可得到flag</p>
+<p><img src="/2021/01/18/0x06buuctfWP-1/image-20210119110300267.png" alt="image-20210119110300267"></p>
 ]]></content>
       <categories>
         <category>ctf</category>
@@ -1095,9 +1120,9 @@
   <entry>
     <title>0x0Ccve-2019-10669</title>
     <url>/2020/11/11/0x0Ccve-2019-10669/</url>
-    <content><![CDATA[<h4 id="CVE-2019-10669LibreNMS-命令注入漏洞"><a href="#CVE-2019-10669LibreNMS-命令注入漏洞" class="headerlink" title="CVE-2019-10669LibreNMS 命令注入漏洞"></a>CVE-2019-10669LibreNMS 命令注入漏洞</h4><p>参考：<a href="https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md">https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md</a></p>
-<a id="more"></a>
+    <content><![CDATA[<h4 id="CVE-2019-10669LibreNMS-命令注入漏洞"><a href="#CVE-2019-10669LibreNMS-命令注入漏洞" class="headerlink" title="CVE-2019-10669LibreNMS 命令注入漏洞"></a>CVE-2019-10669LibreNMS 命令注入漏洞</h4><a id="more"></a>
 
+<p>参考：<a href="https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md">https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md</a></p>
 <h5 id="0x1-漏洞复现"><a href="#0x1-漏洞复现" class="headerlink" title="0x1 漏洞复现"></a>0x1 漏洞复现</h5><p>这个漏洞的环境也是蛮麻烦的</p>
 <p>看到poc发现是集成的msf模块，然后到我的msf里一查，发现已经有了</p>
 <p>攻击环境就准备好了</p>
@@ -1258,10 +1283,10 @@
   <entry>
     <title>s2-061漏洞复现及分析文档</title>
     <url>/2020/12/11/s2-061%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%8F%8A%E5%88%86%E6%9E%90%E6%96%87%E6%A1%A3/</url>
-    <content><![CDATA[<h4 id="s2-061漏洞复现及分析文档"><a href="#s2-061漏洞复现及分析文档" class="headerlink" title="s2-061漏洞复现及分析文档"></a>s2-061漏洞复现及分析文档</h4><h5 id="0x0-漏洞情况"><a href="#0x0-漏洞情况" class="headerlink" title="0x0 漏洞情况"></a>0x0 漏洞情况</h5><h6 id="0x01漏洞描述"><a href="#0x01漏洞描述" class="headerlink" title="0x01漏洞描述"></a>0x01漏洞描述</h6><p>Apache Struts2框架是一个用于开发Java EE网络应用程序的Web框架。Apache Struts于2020年12月08日披露 S2-061 Struts 远程代码执行漏洞（CVE-2020-17530）。S2-061是对S2-059沙盒进行的绕过。攻击者可构造特殊的OGNL表达式，造成远程代码执行。</p>
-<h6 id="0x02影响版本"><a href="#0x02影响版本" class="headerlink" title="0x02影响版本"></a>0x02影响版本</h6><p>Struts 2.0.0 - Struts 2.5.25</p>
-<a id="more"></a>
+    <content><![CDATA[<h4 id="s2-061漏洞复现及分析文档"><a href="#s2-061漏洞复现及分析文档" class="headerlink" title="s2-061漏洞复现及分析文档"></a>s2-061漏洞复现及分析文档</h4><a id="more"></a>
 
+<h5 id="0x0-漏洞情况"><a href="#0x0-漏洞情况" class="headerlink" title="0x0 漏洞情况"></a>0x0 漏洞情况</h5><h6 id="0x01漏洞描述"><a href="#0x01漏洞描述" class="headerlink" title="0x01漏洞描述"></a>0x01漏洞描述</h6><p>Apache Struts2框架是一个用于开发Java EE网络应用程序的Web框架。Apache Struts于2020年12月08日披露 S2-061 Struts 远程代码执行漏洞（CVE-2020-17530）。S2-061是对S2-059沙盒进行的绕过。攻击者可构造特殊的OGNL表达式，造成远程代码执行。</p>
+<h6 id="0x02影响版本"><a href="#0x02影响版本" class="headerlink" title="0x02影响版本"></a>0x02影响版本</h6><p>Struts 2.0.0 - Struts 2.5.25</p>
 <h5 id="0x1-前置知识"><a href="#0x1-前置知识" class="headerlink" title="0x1 前置知识"></a>0x1 前置知识</h5><h6 id="0x11-Struts2标签解析"><a href="#0x11-Struts2标签解析" class="headerlink" title="0x11:Struts2标签解析"></a>0x11:Struts2标签解析</h6><p>Struts2 会对某些标签属性(比如 id) 的属性值进行二次表达式解析，因此当这些标签属性中使用了 %{x} 且 x 的值我们可控时，我们再传入一个 %{payload} 即可造成OGNL表达式执行。</p>
 <h6 id="0x12-OGNL语言"><a href="#0x12-OGNL语言" class="headerlink" title="0x12:OGNL语言"></a>0x12:OGNL语言</h6><p>OGNL（Object-Graph Navigation  Language）–对象图导航语言。Struts2框架使用它作为默认的表达式语言，用于获取与设置Java对象的表达式语言，还附加一些例如集合投影、过滤、Lambda表达式的功能。</p>
 <p>OGNL中有两个常用的类：</p>
@@ -1327,10 +1352,10 @@
     <title>seeyonOA-ajax未授权访问及任意文件上传漏洞</title>
     <url>/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/</url>
     <content><![CDATA[<p>参考：</p>
-<p>1、<a href="http://wiki.peiqi.tech/PeiQi_Wiki/OA%E4%BA%A7%E5%93%81%E6%BC%8F%E6%B4%9E/%E8%87%B4%E8%BF%9COA/%E8%87%B4%E8%BF%9COA%20ajax.do%E7%99%BB%E5%BD%95%E7%BB%95%E8%BF%87%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0.html">http://wiki.peiqi.tech/PeiQi_Wiki/OA%E4%BA%A7%E5%93%81%E6%BC%8F%E6%B4%9E/%E8%87%B4%E8%BF%9COA/%E8%87%B4%E8%BF%9COA%20ajax.do%E7%99%BB%E5%BD%95%E7%BB%95%E8%BF%87%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0.html</a></p>
-<p>2、宽字节：<a href="https://mp.weixin.qq.com/s/bHKDSF7HWsAgQi9rTagBQA">https://mp.weixin.qq.com/s/bHKDSF7HWsAgQi9rTagBQA</a></p>
 <a id="more"></a>
 
+<p>1、<a href="http://wiki.peiqi.tech/PeiQi_Wiki/OA%E4%BA%A7%E5%93%81%E6%BC%8F%E6%B4%9E/%E8%87%B4%E8%BF%9COA/%E8%87%B4%E8%BF%9COA%20ajax.do%E7%99%BB%E5%BD%95%E7%BB%95%E8%BF%87%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0.html">http://wiki.peiqi.tech/PeiQi_Wiki/OA%E4%BA%A7%E5%93%81%E6%BC%8F%E6%B4%9E/%E8%87%B4%E8%BF%9COA/%E8%87%B4%E8%BF%9COA%20ajax.do%E7%99%BB%E5%BD%95%E7%BB%95%E8%BF%87%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0.html</a></p>
+<p>2、宽字节：<a href="https://mp.weixin.qq.com/s/bHKDSF7HWsAgQi9rTagBQA">https://mp.weixin.qq.com/s/bHKDSF7HWsAgQi9rTagBQA</a></p>
 <h5 id="0x1-原理："><a href="#0x1-原理：" class="headerlink" title="0x1 原理："></a>0x1 原理：</h5><p>OA旧版本某些接口存在未授权访问，以及部分函数存在过滤不足，攻击者通过构造恶意请求，可在无需登录的情况下上传恶意脚本文件，从而控制服务器。</p>
 <p>CTPHandlerInterceptor先判断是否为ajax请求，生成ignoreUrl。User.isIgnoreUrl可以根据ignoreUrl判断是否需要重定向到用户登录页面。所以我们只要使用特定的ignoreUrl就可以绕过登录，访问被保护的接口，比如文件上传接口。</p>
 <h5 id="0x2-复现："><a href="#0x2-复现：" class="headerlink" title="0x2 复现："></a>0x2 复现：</h5><p>poc:</p>
