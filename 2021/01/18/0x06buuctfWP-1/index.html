@@ -75,8 +75,17 @@
 <meta property="og:image" content="http://example.com/2021/01/18/0x06buuctfWP-1/image-20210119111427423.png">
 <meta property="og:image" content="http://example.com/2021/01/18/0x06buuctfWP-1/image-20210119111932177.png">
 <meta property="og:image" content="http://example.com/2021/01/18/0x06buuctfWP-1/image-20210119110300267.png">
+<meta property="og:image" content="http://example.com/2021/01/18/0x06buuctfWP-1/image-20210119180742285.png">
+<meta property="og:image" content="http://example.com/2021/01/18/0x06buuctfWP-1/image-20210119180823199.png">
+<meta property="og:image" content="http://example.com/2021/01/18/0x06buuctfWP-1/image-20210119181207625.png">
+<meta property="og:image" content="http://example.com/2021/01/18/0x06buuctfWP-1/image-20210119181252726.png">
+<meta property="og:image" content="http://example.com/2021/01/18/0x06buuctfWP-1/image-20210119181546277.png">
+<meta property="og:image" content="http://example.com/2021/01/18/0x06buuctfWP-1/image-20210119181647509.png">
+<meta property="og:image" content="http://example.com/2021/01/18/0x06buuctfWP-1/image-20210119181453477.png">
+<meta property="og:image" content="http://example.com/2021/01/18/0x06buuctfWP-1/image-20210119180607388.png">
+<meta property="og:image" content="http://example.com/2021/01/18/0x06buuctfWP-1/image-20210120114006207.png">
 <meta property="article:published_time" content="2021-01-18T09:14:59.000Z">
-<meta property="article:modified_time" content="2021-01-19T06:07:45.907Z">
+<meta property="article:modified_time" content="2021-01-20T03:40:36.173Z">
 <meta property="article:author" content="0xkami">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/2021/01/18/0x06buuctfWP-1/image-20201201085705304.png">
@@ -272,7 +281,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-01-19 14:07:45" itemprop="dateModified" datetime="2021-01-19T14:07:45+08:00">2021-01-19</time>
+                <time title="修改时间：2021-01-20 11:40:36" itemprop="dateModified" datetime="2021-01-20T11:40:36+08:00">2021-01-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -406,6 +415,31 @@
 <p><img src="/2021/01/18/0x06buuctfWP-1/image-20210119111932177.png" alt="image-20210119111932177"></p>
 <p>通关即可得到flag</p>
 <p><img src="/2021/01/18/0x06buuctfWP-1/image-20210119110300267.png" alt="image-20210119110300267"></p>
+<h5 id="0x0B-GKCTF2020-Chelly’s-identity-2021-1-19"><a href="#0x0B-GKCTF2020-Chelly’s-identity-2021-1-19" class="headerlink" title="0x0B [GKCTF2020]Chelly’s identity 2021.1.19"></a>0x0B [GKCTF2020]Chelly’s identity 2021.1.19</h5><p>这是我目前见过最恶心的题目，函数一个套一个都不知道是什么功能….全靠猜</p>
+<p>放到ida里看看字符串</p>
+<p><img src="/2021/01/18/0x06buuctfWP-1/image-20210119180742285.png" alt="image-20210119180742285"></p>
+<p>找到对应主函数位置：</p>
+<p><img src="/2021/01/18/0x06buuctfWP-1/image-20210119180823199.png" alt="image-20210119180823199"></p>
+<p>输入的字符串存到v35，定义了一个16位的v34空数组</p>
+<p>可以猜测是把v35给了v34，然后对v34进行4111BD函数操作和411721函数操作，然后用411852函数做判断</p>
+<p>进入4111BD函数看看：</p>
+<p><img src="/2021/01/18/0x06buuctfWP-1/image-20210119181207625.png" alt="image-20210119181207625"></p>
+<p>通过16和bad long，可以猜测是判断长度</p>
+<p>进入411721函数：</p>
+<p><img src="/2021/01/18/0x06buuctfWP-1/image-20210119181252726.png" alt="image-20210119181252726"></p>
+<p>可以看到定义了一个v10，长度还是16位，4116E0函数对v10和128数字进行了一些操作，v9是我们输入的字符串</p>
+<p>进入4116E0函数：</p>
+<p><img src="/2021/01/18/0x06buuctfWP-1/image-20210119181546277.png" alt="image-20210119181546277"></p>
+<p>定义了一个v6数组，长16位，然后在2-128之间，对i做了一个411672的函数判断，然后把i存到数组里</p>
+<p>411672函数功能：</p>
+<p>研究了一下发现是判断质数（a2%i</p>
+<p><img src="/2021/01/18/0x06buuctfWP-1/image-20210119181647509.png" alt="image-20210119181647509"></p>
+<p>在411721函数下面的循环里，就可以简化一下理解</p>
+<p><img src="/2021/01/18/0x06buuctfWP-1/image-20210119181453477.png" alt="image-20210119181453477"></p>
+<p>然后进入411852判断函数：</p>
+<p><img src="/2021/01/18/0x06buuctfWP-1/image-20210119180607388.png" alt="image-20210119180607388"></p>
+<p>已知了操作算法和操作完后的数值，就可以编写脚本了</p>
+<p><img src="/2021/01/18/0x06buuctfWP-1/image-20210120114006207.png" alt="image-20210120114006207"></p>
 
     </div>
 
@@ -483,7 +517,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#0x01-2019%E7%BA%A2%E5%B8%BD%E6%9D%AFeasyre-2020-11-30"><span class="nav-text">0x01 2019红帽杯easyre 2020.11.30</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x02-%E7%9B%B8%E5%86%8C"><span class="nav-text">0x02 相册</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x03-Universe-final-answer"><span class="nav-text">0x03 Universe_final_answer</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x04"><span class="nav-text">0x04</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x05-%E6%96%B0%E5%B9%B4%E5%BF%AB%E4%B9%90-2021-1-5"><span class="nav-text">0x05 新年快乐 2021.1.5</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x06-MRCTF2020-Transform1"><span class="nav-text">0x06 [MRCTF2020]Transform1</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x07-ACTF%E6%96%B0%E7%94%9F%E8%B5%9B2020-SoulLike-%EF%BC%88python%E7%88%86%E7%A0%B4-pwn-re%EF%BC%892021-1-12"><span class="nav-text">0x07 [ACTF新生赛2020]SoulLike （python爆破 pwn&#x2F;re）2021.1.12</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x08-MRCTF2020-PixelShooter%EF%BC%88unity-%E5%AE%89%E5%8D%93%EF%BC%892021-1-13"><span class="nav-text">0x08 [MRCTF2020]PixelShooter（unity&#x2F;安卓）2021.1.13</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x09-FlareOn1-Bob-Doge-2021-1-18"><span class="nav-text">0x09 [FlareOn1]Bob Doge 2021.1.18</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x0A-FlareOn5-Ultimate-Minesweeper-2021-1-19"><span class="nav-text">0x0A [FlareOn5]Ultimate Minesweeper 2021.1.19</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#0x01-2019%E7%BA%A2%E5%B8%BD%E6%9D%AFeasyre-2020-11-30"><span class="nav-text">0x01 2019红帽杯easyre 2020.11.30</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x02-%E7%9B%B8%E5%86%8C"><span class="nav-text">0x02 相册</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x03-Universe-final-answer"><span class="nav-text">0x03 Universe_final_answer</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x04"><span class="nav-text">0x04</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x05-%E6%96%B0%E5%B9%B4%E5%BF%AB%E4%B9%90-2021-1-5"><span class="nav-text">0x05 新年快乐 2021.1.5</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x06-MRCTF2020-Transform1"><span class="nav-text">0x06 [MRCTF2020]Transform1</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x07-ACTF%E6%96%B0%E7%94%9F%E8%B5%9B2020-SoulLike-%EF%BC%88python%E7%88%86%E7%A0%B4-pwn-re%EF%BC%892021-1-12"><span class="nav-text">0x07 [ACTF新生赛2020]SoulLike （python爆破 pwn&#x2F;re）2021.1.12</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x08-MRCTF2020-PixelShooter%EF%BC%88unity-%E5%AE%89%E5%8D%93%EF%BC%892021-1-13"><span class="nav-text">0x08 [MRCTF2020]PixelShooter（unity&#x2F;安卓）2021.1.13</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x09-FlareOn1-Bob-Doge-2021-1-18"><span class="nav-text">0x09 [FlareOn1]Bob Doge 2021.1.18</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x0A-FlareOn5-Ultimate-Minesweeper-2021-1-19"><span class="nav-text">0x0A [FlareOn5]Ultimate Minesweeper 2021.1.19</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x0B-GKCTF2020-Chelly%E2%80%99s-identity-2021-1-19"><span class="nav-text">0x0B [GKCTF2020]Chelly’s identity 2021.1.19</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
