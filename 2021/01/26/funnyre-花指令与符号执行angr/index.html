@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="从funnyre的题中学习花指令和符号执行angr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="funnyre-花指令与符号执行angr">
+<meta property="og:url" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/index.html">
+<meta property="og:site_name" content="0xkami-blog">
+<meta property="og:description" content="从funnyre的题中学习花指令和符号执行angr">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126142113968.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126142153025.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126144811365.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126144927590.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126145012481.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126145914975.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126150038992.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126150251070.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126160200586.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126160341966.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126161130297.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126163407337.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126144235928.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126143748946.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126143848888.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126153307012.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126153743674.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126154110881.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126154152338.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126175926148.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126171814154.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126171024631.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126182027607.png">
+<meta property="og:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126175145859.png">
+<meta property="article:published_time" content="2021-01-26T01:51:51.000Z">
+<meta property="article:modified_time" content="2021-01-26T10:20:41.785Z">
+<meta property="article:author" content="0xkami">
+<meta property="article:tag" content="花指令">
+<meta property="article:tag" content="angr">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126142113968.png">
+
+<link rel="canonical" href="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>funnyre-花指令与符号执行angr | 0xkami-blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">0xkami-blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">void</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/0xkami" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.png">
+      <meta itemprop="name" content="0xkami">
+      <meta itemprop="description" content="If you want me,satisfy me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="0xkami-blog">
+    </span>
+      <header class="post-header" style="background-color: rgba(255,255,255,0.8);padding: 15px 0px;border-radius: 10px;margin-bottom: 60px">
+        <h1 class="post-title" itemprop="name headline">
+          funnyre-花指令与符号执行angr
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-01-26 09:51:51 / 修改时间：18:20:41" itemprop="dateCreated datePublished" datetime="2021-01-26T09:51:51+08:00">2021-01-26</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ctf/" itemprop="url" rel="index"><span itemprop="name">ctf</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody" style="background-color: rgba(255,255,255,0.8);padding: 15px; border-radius: 10px;">
+
+      
+        <p>从funnyre的题中学习花指令和符号执行angr</p>
+<a id="more"></a>
+
+<p>结合恶意代码实战分析书籍和funnyre题目：</p>
+<h5 id="0x1-花指令"><a href="#0x1-花指令" class="headerlink" title="0x1 花指令"></a>0x1 花指令</h5><p>用来防止反编译。</p>
+<h6 id="0x11-分为可执行和不可执行"><a href="#0x11-分为可执行和不可执行" class="headerlink" title="0x11 分为可执行和不可执行"></a>0x11 分为可执行和不可执行</h6><p><strong>可执行</strong>：</p>
+<p>能够正常运行的但又不改变原始程序逻辑性。无用指令。特点：①可以正常运行；②不改变任何寄存器的值；③反汇编器可以正确反汇编该指令。</p>
+<p>病毒在传播时通过变形引擎随机产生一组该类别花指令并插入到病毒正常代码中，可以改变病毒的特征码，从而起到变形的作用。</p>
+<p><strong>不可执行</strong>：</p>
+<p>插入到原始代码中但又不改变原始程序逻辑性。无用字节。特点：①不可以正常运行；②不改变任何寄存器的值；③反汇编器可能会错误反汇编这些字节。</p>
+<p>是某个合法指令的一部分，但是程序运行时，位于实际不可执行的代码路径。</p>
+<h6 id="0x12-常见花指令"><a href="#0x12-常见花指令" class="headerlink" title="0x12 常见花指令"></a>0x12 常见花指令</h6><h6 id="1、指向同一目的地址的两个连续条件跳转指令-虚假的call指令-jz-jnz-call"><a href="#1、指向同一目的地址的两个连续条件跳转指令-虚假的call指令-jz-jnz-call" class="headerlink" title="1、指向同一目的地址的两个连续条件跳转指令+虚假的call指令 jz+jnz+call"></a>1、指向同一目的地址的两个连续条件跳转指令+虚假的call指令 jz+jnz+call</h6><p>jz+jnz在效果上相当于jmp，则总是会跳转</p>
+<p>ida这类面向代码流的反汇编工具：当遇到jnz的时候，不管false分支会不会执行，都会反汇编它</p>
+<p>​                                                            当出现call指令时，会先反汇编紧跟call指令之后的字节，然后再反汇编call指令的调用目标</p>
+<p>机器执行中：</p>
+<p>hello字符串不会被当作指令执行，call会直接去pop</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126142113968.png" alt="image-20210126142113968"></p>
+<p>但是反汇编中：</p>
+<p>hello这串字符串被当作指令了</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126142153025.png" alt="image-20210126142153025"></p>
+<p>可以使用c或者d转换数据和代码</p>
+<p>general-option-numberofbytes可以显示出字节源码</p>
+<h6 id="2、固定的跳转指令xor-jz"><a href="#2、固定的跳转指令xor-jz" class="headerlink" title="2、固定的跳转指令xor+jz"></a>2、固定的跳转指令xor+jz</h6><p>xor eax,eax会将eax寄存器置0，同时也会置位标志寄存器的zero标志，jz是如果zero标志被置位，就会跳转，那么就肯定会跳，但是反汇编器总会反汇编false分支，所以就会反汇编后续紧跟的。</p>
+<p>如下图：E9和E8的作用一样，E9是jmp的字节码，E8是call的，可以用来欺骗反汇编器</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126144811365.png" alt="image-20210126144811365"></p>
+<p>转换后：</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126144927590.png" alt="image-20210126144927590"></p>
+<img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126145012481.png" alt="image-20210126145012481" style="zoom:50%;">
+
+<h6 id="3、无效指令patchbyte"><a href="#3、无效指令patchbyte" class="headerlink" title="3、无效指令patchbyte"></a>3、无效指令patchbyte</h6><p>一个字节同时被两个指令使用，反编译器就会产生困惑</p>
+<p>可以使用idc调用patchbyte函数，用nop指令序列替换</p>
+<p>在这个图里，先执行mov，然后xor后寄存器置0，jz必然会执行，jz跳转到mov中间，后半个字符串是jmp指令，跳转到真正的位置</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126145914975.png" alt="image-20210126145914975"></p>
+<p>但是反汇编中就会：</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126150038992.png" alt="image-20210126150038992"></p>
+<p>使用idc进行简化，因为实际效果就是eax置0，所以可以将这些db都置0，改为nop</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126150251070.png" alt="image-20210126150251070"></p>
+<h5 id="0x2-angr"><a href="#0x2-angr" class="headerlink" title="0x2 angr"></a>0x2 angr</h5><p>angr是一个利用python开发的二进制程序分析框架，安装时会修改libz3和libVEX，可能会影响其他程序的正常使用，所以学习使用python虚拟环境。</p>
+<p>angr模拟执行的过程就像人阅读代码，一边阅读的过程一边做预测、抽象执行结果，预估“执行结果”。在angr模拟执行前，必须先将变量（内存或者寄存器）符号化（声明哪些变量是符号），这些符号化的输入也正是程序的输入抽象。</p>
+<h6 id="0x21-安装虚拟环境virtualenvwrapper："><a href="#0x21-安装虚拟环境virtualenvwrapper：" class="headerlink" title="0x21 安装虚拟环境virtualenvwrapper："></a>0x21 安装虚拟环境virtualenvwrapper：</h6><p>pip install之后初始化source报错</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126160200586.png" alt="image-20210126160200586"></p>
+<p>需要在~/.bashrc文件中设置python解释器的路径</p>
+<p>插入：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export VIRTUALENVWRAPPER_PYTHON&#x3D;&#x2F;usr&#x2F;bin&#x2F;python3</span><br><span class="line">export VIRTUALENVWRAPPER_VIRTUALENV&#x3D;&#x2F;usr&#x2F;local&#x2F;bin&#x2F;virtualenv</span><br></pre></td></tr></table></figure>
+
+<p>然后source ~/.bashrc生效</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126160341966.png" alt="image-20210126160341966"></p>
+<h6 id="0x22-安装angr："><a href="#0x22-安装angr：" class="headerlink" title="0x22 安装angr："></a>0x22 安装angr：</h6><p><code>mkvirtualenv --python=$(which python3) angr &amp;&amp; pip install angr</code></p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126161130297.png" alt="image-20210126161130297"></p>
+<p>环境就装好了</p>
+<h6 id="0x23-angr使用："><a href="#0x23-angr使用：" class="headerlink" title="0x23 angr使用："></a>0x23 angr使用：</h6><p>参考：<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7117/#toc-17">https://xz.aliyun.com/t/7117/#toc-17</a></p>
+<p>先创建一个proj，载入需要模拟执行的程序</p>
+<p><code> &gt;&gt;&gt; proj = angr.Project(&#39;/bin/true&#39;)</code></p>
+<p>factory，即  AngrObjectFactory，提供重要分析对象的接口，如 blocks / state / SimulationManager等</p>
+<p>state，project 只是给出程序最初镜像的信息，state 可以给出模拟程序执行到某条指令时的进程的具体状态。可以设置 state 对象初始化寄存器/内存/栈帧等信息</p>
+<p>通过solver可以访问求解引擎claripy，用于求解约束，也就可以求解出相应输出的输入</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126163407337.png" alt="image-20210126163407337"></p>
+<h5 id="0x3-funnyre实践"><a href="#0x3-funnyre实践" class="headerlink" title="0x3 funnyre实践"></a>0x3 funnyre实践</h5><p>先修改花指令</p>
+<p>40061A处的call有问题，使用c和d来转换</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126144235928.png" alt="image-20210126144235928"></p>
+<p>用d转换成数据</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126143748946.png" alt="image-20210126143748946"></p>
+<p>此时我们再用c将40061B转为代码，整个代码就变成了这样：</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126143848888.png" alt="image-20210126143848888"></p>
+<p>根据上下的几个函数，应该大家格式都是一样，所以编写python脚本，使用idc的patchbyte把jz和jnz以及0e8h都给nop掉</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126153307012.png" alt="image-20210126153307012"></p>
+<p>往下拉，发现这样的地方还有好几处，全都改掉之后，发现还是不能反编译</p>
+<p>在main的地方感觉和平时见的不太一样，右键createp，创建一个函数，就可以反编译了：</p>
+<p>接下来来看主函数：输入的flag长度要为38并且定义了首尾是flag{}，然后对所有字符进行了一大堆异或操作</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126153743674.png" alt="image-20210126153743674"></p>
+<p>然后在最后，和unk_4025C0数组做对比</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126154110881.png" alt="image-20210126154110881"></p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126154152338.png" alt="image-20210126154152338"></p>
+<p>这么多操作总不能重新写一个脚本跑</p>
+<p>获取程序的开始地址：我们的程序开始是以v6=0开始，xor eax,eax就是将eax置0，64位rax是以eax作为其最低的32位</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126175926148.png" alt="image-20210126175926148"></p>
+<p>获取存储要求解的字符串的开始地址：</p>
+<p>在main函数里我们需要得知rbx的值，在main函数的前一个init函数中有定义</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126171814154.png" alt="image-20210126171814154"></p>
+<p>获取这是我们最终想要的结果的地址：</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126171024631.png" alt="image-20210126171024631"></p>
+<p>动态调试的时候在这里还看到了定义：</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126182027607.png" alt="image-20210126182027607"></p>
+<p>使用angr，编写脚本如下：</p>
+<p><img src="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/image-20210126175145859.png" alt="image-20210126175145859"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/%E8%8A%B1%E6%8C%87%E4%BB%A4/" rel="tag"><i class="fa fa-tag"></i> 花指令</a>
+              <a href="/tags/angr/" rel="tag"><i class="fa fa-tag"></i> angr</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/01/18/0x06buuctfWP-1/" rel="prev" title="0x06buuctfWP-1">
+      <i class="fa fa-chevron-left"></i> 0x06buuctfWP-1
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#0x1-%E8%8A%B1%E6%8C%87%E4%BB%A4"><span class="nav-text">0x1 花指令</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#0x11-%E5%88%86%E4%B8%BA%E5%8F%AF%E6%89%A7%E8%A1%8C%E5%92%8C%E4%B8%8D%E5%8F%AF%E6%89%A7%E8%A1%8C"><span class="nav-text">0x11 分为可执行和不可执行</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#0x12-%E5%B8%B8%E8%A7%81%E8%8A%B1%E6%8C%87%E4%BB%A4"><span class="nav-text">0x12 常见花指令</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#1%E3%80%81%E6%8C%87%E5%90%91%E5%90%8C%E4%B8%80%E7%9B%AE%E7%9A%84%E5%9C%B0%E5%9D%80%E7%9A%84%E4%B8%A4%E4%B8%AA%E8%BF%9E%E7%BB%AD%E6%9D%A1%E4%BB%B6%E8%B7%B3%E8%BD%AC%E6%8C%87%E4%BB%A4-%E8%99%9A%E5%81%87%E7%9A%84call%E6%8C%87%E4%BB%A4-jz-jnz-call"><span class="nav-text">1、指向同一目的地址的两个连续条件跳转指令+虚假的call指令 jz+jnz+call</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#2%E3%80%81%E5%9B%BA%E5%AE%9A%E7%9A%84%E8%B7%B3%E8%BD%AC%E6%8C%87%E4%BB%A4xor-jz"><span class="nav-text">2、固定的跳转指令xor+jz</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#3%E3%80%81%E6%97%A0%E6%95%88%E6%8C%87%E4%BB%A4patchbyte"><span class="nav-text">3、无效指令patchbyte</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x2-angr"><span class="nav-text">0x2 angr</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#0x21-%E5%AE%89%E8%A3%85%E8%99%9A%E6%8B%9F%E7%8E%AF%E5%A2%83virtualenvwrapper%EF%BC%9A"><span class="nav-text">0x21 安装虚拟环境virtualenvwrapper：</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#0x22-%E5%AE%89%E8%A3%85angr%EF%BC%9A"><span class="nav-text">0x22 安装angr：</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#0x23-angr%E4%BD%BF%E7%94%A8%EF%BC%9A"><span class="nav-text">0x23 angr使用：</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x3-funnyre%E5%AE%9E%E8%B7%B5"><span class="nav-text">0x3 funnyre实践</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="0xkami"
+      src="/images/head.png">
+  <p class="site-author-name" itemprop="name">0xkami</p>
+  <div class="site-description" itemprop="description">If you want me,satisfy me</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">26</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://yoloyolo.top/blog/" title="https:&#x2F;&#x2F;yoloyolo.top&#x2F;blog&#x2F;" rel="noopener" target="_blank">yoloyolo</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.harvey-blog.com/" title="http:&#x2F;&#x2F;www.harvey-blog.com" rel="noopener" target="_blank">Harveysn0w·北极熊</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://l3t1tb3.xyz/" title="http:&#x2F;&#x2F;l3t1tb3.xyz&#x2F;" rel="noopener" target="_blank">l3t1tb3</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="/risks255.github.io" title="risks255.github.io">risks</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://belyenochi.github.io/" title="https:&#x2F;&#x2F;belyenochi.github.io&#x2F;" rel="noopener" target="_blank">belyenochi</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">0xkami</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
