@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="django网站搭建–关于我最近在干嘛– 零基础开始的一个独立bootstrap+django网站搭建学习 需求：增删改查+上传下载文件+导出数据到csv+筛选+搜索 项目完整代码：https:&#x2F;&#x2F;github.com&#x2F;0xkami&#x2F;django-web">
+<meta property="og:type" content="article">
+<meta property="og:title" content="django-webproject">
+<meta property="og:url" content="http://example.com/2021/03/05/django-webproject/index.html">
+<meta property="og:site_name" content="0xkami-blog">
+<meta property="og:description" content="django网站搭建–关于我最近在干嘛– 零基础开始的一个独立bootstrap+django网站搭建学习 需求：增删改查+上传下载文件+导出数据到csv+筛选+搜索 项目完整代码：https:&#x2F;&#x2F;github.com&#x2F;0xkami&#x2F;django-web">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210301101823208.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210305143550833-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210301102403994-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210301102612299-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210301104219610-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210301111120033-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210301111200294-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210301114000246-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210305141424306-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210305141616584-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210305141656027-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210305142711997-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210305142818341-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210305142905738-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210305143500136-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210305143657723-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210305143848554-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210305143711042-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210305144111506-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210305144435191-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210305144403691-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210305144648161-4928991.png">
+<meta property="og:image" content="http://example.com/2021/03/05/django-webproject/image-20210305144804727-4928991.png">
+<meta property="article:published_time" content="2021-03-05T07:21:25.000Z">
+<meta property="article:modified_time" content="2021-03-05T07:49:30.724Z">
+<meta property="article:author" content="0xkami">
+<meta property="article:tag" content="django">
+<meta property="article:tag" content="python-web">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/03/05/django-webproject/image-20210301101823208.png">
+
+<link rel="canonical" href="http://example.com/2021/03/05/django-webproject/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>django-webproject | 0xkami-blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">0xkami-blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">void</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/0xkami" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/05/django-webproject/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.png">
+      <meta itemprop="name" content="0xkami">
+      <meta itemprop="description" content="If you want me,satisfy me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="0xkami-blog">
+    </span>
+      <header class="post-header" style="background-color: rgba(255,255,255,0.8);padding: 15px 0px;border-radius: 10px;margin-bottom: 60px">
+        <h1 class="post-title" itemprop="name headline">
+          django-webproject
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-03-05 15:21:25 / 修改时间：15:49:30" itemprop="dateCreated datePublished" datetime="2021-03-05T15:21:25+08:00">2021-03-05</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody" style="background-color: rgba(255,255,255,0.8);padding: 15px; border-radius: 10px;">
+
+      
+        <h4 id="django网站搭建"><a href="#django网站搭建" class="headerlink" title="django网站搭建"></a>django网站搭建</h4><p>–关于我最近在干嘛–</p>
+<p>零基础开始的一个独立bootstrap+django网站搭建学习</p>
+<p>需求：增删改查+上传下载文件+导出数据到csv+筛选+搜索</p>
+<p>项目完整代码：<a target="_blank" rel="noopener" href="https://github.com/0xkami/django-web">https://github.com/0xkami/django-web</a></p>
+<a id="more"></a>
+
+<h5 id="0x1-基础功能"><a href="#0x1-基础功能" class="headerlink" title="0x1 基础功能"></a>0x1 基础功能</h5><p>利用pycharm搭建一个django项目，可以成功开启最基础的访问</p>
+<p>前端使用bootstrap，模版使用的是clearmin，很简洁的一个管理平台</p>
+<h6 id="0x11-整体框架："><a href="#0x11-整体框架：" class="headerlink" title="0x11 整体框架："></a>0x11 整体框架：</h6><img src="/2021/03/05/django-webproject/image-20210301101823208.png" alt="image-20210301101823208">
+
+<p>urls.py:</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305143550833-4928991.png" alt="image-20210305143550833"></p>
+<h6 id="0x12-数据库设计："><a href="#0x12-数据库设计：" class="headerlink" title="0x12 数据库设计："></a>0x12 数据库设计：</h6><p>在电脑上装好sql，使用navicat创建连接，在django项目中创建对于数据库并迁移</p>
+<p>以下就是需要存到数据库中的信息字段：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210301102403994-4928991.png" alt="image-20210301102403994"></p>
+<p>在整体项目（和url文件在同一文件夹下）的settings中添加数据库的信息：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210301102612299-4928991.png" alt="image-20210301102612299"></p>
+<p>在项目命令行运行 <code>python manage.py makemigrations</code>和<code>python manage.py migrate </code>，在navicat就能看到创建好的数据库</p>
+<p><img src="/2021/03/05/django-webproject/image-20210301104219610-4928991.png" alt="image-20210301104219610"></p>
+<h6 id="0x13-基础展示信息页面：（-分页）"><a href="#0x13-基础展示信息页面：（-分页）" class="headerlink" title="0x13 基础展示信息页面：（+分页）"></a>0x13 基础展示信息页面：（+分页）</h6><p>在数据库中插入一些信息，然后想要在某个页面中以表格的形式展示它的部分内容</p>
+<p>重点代码：<code>data_sum = vul_info.objects.order_by(&#39;vul_id&#39;)</code>，vul_info是model中的类名，order_by可以根据固定字段来进行排序</p>
+<p>view.py中此功能完整代码：（加了分页的功能）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">@require_http_methods([&quot;GET&quot;, ])</span><br><span class="line">def vulinfo(request):</span><br><span class="line">    data_sum &#x3D; vul_info.objects.order_by(&#39;vul_id&#39;) </span><br><span class="line">    paginator &#x3D; Paginator(data_sum, 6)  # 每页6条记录</span><br><span class="line">    page &#x3D; request.GET.get(&#39;page&#39;, 1)</span><br><span class="line">    currentpage &#x3D; int(page)</span><br><span class="line">    all_page_num &#x3D; paginator.num_pages</span><br><span class="line">    try:</span><br><span class="line">        # 获取当前页码的记录</span><br><span class="line">        data_sum &#x3D; paginator.page(page)</span><br><span class="line">    except PageNotAnInteger:</span><br><span class="line">        # 如果用户输入的页码不是整数时,显示第1页的内容</span><br><span class="line">        data_sum &#x3D; paginator.page(1)</span><br><span class="line">    except EmptyPage:</span><br><span class="line">        # 如果用户输入的页数不在系统的页码列表中时,显示最后一页的内容</span><br><span class="line">        data_sum &#x3D; paginator.page(paginator.num_pages)</span><br><span class="line"></span><br><span class="line">    info &#x3D; &#123;</span><br><span class="line">        &quot;vuls&quot;: data_sum, # 定义了返回的数据名，在前端可以利用for循环来读取数据库里的内容</span><br><span class="line">        &quot;currentpage&quot;: currentpage,</span><br><span class="line">        &quot;all_page_num&quot;: all_page_num</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return render(request, &#39;vulinfo.html&#39;, info) # vulinfo.html是前端页面的名字</span><br></pre></td></tr></table></figure>
+
+<p>urls.py:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">path(r&#39;^vulinfo&#x2F;(?P&lt;pageNumber&gt;\d+)&#39;, views.vulinfo, name&#x3D;&#39;vulinfo&#39;)</span><br></pre></td></tr></table></figure>
+
+<p>前端页面：</p>
+<p>通过for循环，可以返回需要的数据，同时做了一个详细页面点击的链接</p>
+<p><img src="/2021/03/05/django-webproject/image-20210301111120033-4928991.png" alt="image-20210301111120033"></p>
+<p>效果图如下：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210301111200294-4928991.png" alt="image-20210301111200294"></p>
+<h6 id="0x14-提交信息页面：（-上传文件）"><a href="#0x14-提交信息页面：（-上传文件）" class="headerlink" title="0x14 提交信息页面：（+上传文件）"></a>0x14 提交信息页面：（+上传文件）</h6><p>使用forms进行信息的提交，在forms中进行定义：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210301114000246-4928991.png" alt="image-20210301114000246"></p>
+<p>view.py：（加了上传文件的功能）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">@csrf_exempt</span><br><span class="line">@require_http_methods([&quot;GET&quot;, &quot;POST&quot;])</span><br><span class="line">def vul_upload(request):</span><br><span class="line">    if request.method &#x3D;&#x3D; &quot;POST&quot;:</span><br><span class="line">        form &#x3D; VulUploadForm(request.POST) # 获取form的内容</span><br><span class="line">        print(request.POST)</span><br><span class="line">        </span><br><span class="line">				# 上传文件功能</span><br><span class="line">        file_obj &#x3D; request.FILES.get(&quot;poc_file&quot;, None)</span><br><span class="line">        destination &#x3D; open(os.path.join(&quot;#输入上传文件的地址&quot;, request.POST.get(&quot;poc_file&quot;)),&#39;wb+&#39;)</span><br><span class="line">        for i in file_obj.chunks():</span><br><span class="line">            destination.write(i)</span><br><span class="line">        destination.close()</span><br><span class="line">        print(form)</span><br><span class="line"></span><br><span class="line">        if form.is_valid():</span><br><span class="line">            form.save()</span><br><span class="line">            return HttpResponse(&quot;新增成功&quot;)</span><br><span class="line">            content &#x3D; &#123;</span><br><span class="line">                &quot;form&quot;: form</span><br><span class="line">            &#125;</span><br><span class="line">            return render(request, &quot;insert.html&quot;, content)</span><br><span class="line">        else:</span><br><span class="line">            return HttpResponse(&#39;Sorry...&#39;)</span><br><span class="line">    return render(request, &#39;insert.html&#39;)</span><br></pre></td></tr></table></figure>
+
+<p>效果图如下：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305141424306-4928991.png" alt="image-20210305141424306"></p>
+<p>下拉框和日期选择实现：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305141616584-4928991.png" alt="image-20210305141616584"></p>
+<h6 id="0x15-详细信息页面："><a href="#0x15-详细信息页面：" class="headerlink" title="0x15 详细信息页面："></a>0x15 详细信息页面：</h6><p>展示所有数据库的数据，并对一部分数据提供修改的功能：</p>
+<p>效果图如下：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305141656027-4928991.png" alt="image-20210305141656027"></p>
+<p>信息展示的前端同基础展示信息页面</p>
+<p>修改功能使用了模态框+js</p>
+<p>view.py:</p>
+<p>通过js实现post，传输前端数据，获取对应的vul_id和要更新的数据</p>
+<p>主要语句：vul_info.objects.filter(vul_id=xx).update(snort=xx)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">def update_snort(request):</span><br><span class="line">    if request.method &#x3D;&#x3D; &quot;POST&quot;:</span><br><span class="line">        snort_info &#x3D; request.POST.get(&#39;snort&#39;)</span><br><span class="line">        snort_detail &#x3D; request.POST.get(&#39;snort_detail&#39;)</span><br><span class="line">        vulid &#x3D; request.POST.get(&#39;vul_id&#39;)</span><br><span class="line">        vul_info.objects.filter(vul_id&#x3D;vulid).update(snort&#x3D;snort_info)</span><br><span class="line">        vul_info.objects.filter(vul_id&#x3D;vulid).update(snort_detail&#x3D;snort_detail)</span><br><span class="line">        return HttpResponse(&#39;save success!&#39;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def update_track(request):</span><br><span class="line">    if request.method &#x3D;&#x3D; &quot;POST&quot;:</span><br><span class="line">        track_info &#x3D; request.POST.get(&#39;track_stauts&#39;, &#39;&#39;)</span><br><span class="line">        vulid &#x3D; request.POST.get(&#39;vul_id&#39;)</span><br><span class="line">        print(vulid)</span><br><span class="line">        vul_info.objects.filter(vul_id&#x3D;vulid).update(track_stauts&#x3D;track_info)</span><br><span class="line">        return HttpResponse(&#39;save success!&#39;)</span><br></pre></td></tr></table></figure>
+
+<p>前端：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305142711997-4928991.png" alt="image-20210305142711997"></p>
+<p>js:</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305142818341-4928991.png" alt="image-20210305142818341"></p>
+<p>效果图：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305142905738-4928991.png" alt="image-20210305142905738"></p>
+<p>至此基础功能都已经实现</p>
+<h5 id="0x2-附加功能"><a href="#0x2-附加功能" class="headerlink" title="0x2 附加功能"></a>0x2 附加功能</h5><h6 id="0x21-搜索功能"><a href="#0x21-搜索功能" class="headerlink" title="0x21 搜索功能"></a>0x21 搜索功能</h6><p>使用q搜索，提供名字\cve\cnnvd的搜索</p>
+<p>view.py：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">def search(request):</span><br><span class="line">    q &#x3D; request.GET.get(&#39;q&#39;)</span><br><span class="line">    search_list &#x3D; vul_info.objects.filter(Q(name__icontains&#x3D;q) | Q(cve__icontains&#x3D;q) | Q(cnnvd__icontains&#x3D;q) )</span><br><span class="line">    error_msg &#x3D; &#39;No result&#39;</span><br><span class="line">    return render(request, &#39;vulinfo.html&#39;, &#123;&#39;vuls&#39;: search_list,</span><br><span class="line">                                            &#39;error_msg&#39;: error_msg,</span><br><span class="line">                                            &#125;)</span><br></pre></td></tr></table></figure>
+
+<p>前端：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305143500136-4928991.png" alt="image-20210305143500136"></p>
+<p>效果：</p>
+<p>在这里输入关键字即可：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305143657723-4928991.png" alt="image-20210305143657723"></p>
+<h6 id="0x22-下拉框筛选显示"><a href="#0x22-下拉框筛选显示" class="headerlink" title="0x22 下拉框筛选显示"></a>0x22 下拉框筛选显示</h6><p>事先预定好了一些关键筛选，点击即可跳转对应的筛选页面：</p>
+<p>筛选页面view.py：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">def filter_1(request):</span><br><span class="line">    search_lists &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;1) &amp; Q(protection_status_sac&#x3D;1))</span><br><span class="line">    error_msg &#x3D; &#39;No result&#39;</span><br><span class="line">    return render(request, &#39;vulinfo.html&#39;, &#123;&#39;vuls&#39;: search_lists,</span><br><span class="line">                                            &#39;error_msg&#39;: error_msg,</span><br><span class="line">                                            &#125;)</span><br></pre></td></tr></table></figure>
+
+<p>前端：下拉框使用dropdown，点击后就会跳转</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305143848554-4928991.png" alt="image-20210305143848554"></p>
+<p>效果图：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305143711042-4928991.png" alt="image-20210305143711042"></p>
+<h6 id="0x23-导出"><a href="#0x23-导出" class="headerlink" title="0x23 导出"></a>0x23 导出</h6><p>前端写了一个导出按钮，点击即可输出为一个csv文件，支持不同筛选页面的输出</p>
+<p>view.py:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">def export(request):</span><br><span class="line">    vul_lis &#x3D; vul_info.objects.all()</span><br><span class="line">    response &#x3D; HttpResponse(content_type&#x3D;&#39;text&#x2F;csv&#39;)</span><br><span class="line">    time_now &#x3D; time.strftime(&#39;%Y%m%d&#39;)</span><br><span class="line">    filename &#x3D; &#39;vul_&#39; + time_now</span><br><span class="line">    response.write(codecs.BOM_UTF8)</span><br><span class="line">    response[&#39;Content-Disposition&#39;] &#x3D; f&#39;attachment; filename&#x3D;&quot;&#123;filename&#125;.csv&quot;&#39;</span><br><span class="line">    writer &#x3D; csv.writer(response)</span><br><span class="line">    writer.writerow([&#39;vul_id&#39;, &#39;name&#39;, &#39;track&#39;, &#39;poc&#39;,</span><br><span class="line">                     &#39;snort&#39;, &#39;cve&#39;, &#39;cnnvd&#39;,</span><br><span class="line">                     &#39;ips&#39;, &#39;sac&#39;, &#39;note&#39;, &#39;update-time&#39;])</span><br><span class="line">    for vul in vul_lis:</span><br><span class="line">        writer.writerow([vul.vul_id, vul.name, vul.track_stauts, vul.poc, vul.snort, vul.cve, vul.cnnvd,</span><br><span class="line">                         vul.protection_status_ips, vul.protection_status_sac, vul.note, vul.updated_time])</span><br><span class="line">    return response</span><br></pre></td></tr></table></figure>
+
+<p>前端：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305144111506-4928991.png" alt="image-20210305144111506"></p>
+<p>效果图：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305144435191-4928991.png" alt="image-20210305144435191"></p>
+<h6 id="0x24-信息汇总页面"><a href="#0x24-信息汇总页面" class="headerlink" title="0x24 信息汇总页面"></a>0x24 信息汇总页面</h6><p>使用了c3表格，有模板</p>
+<p>view.py：传输了一些数据到前端</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">def index(request):</span><br><span class="line">    sum &#x3D; vul_info.objects.all().count()</span><br><span class="line">    high &#x3D; vul_info.objects.filter(severity&#x3D;&#39;2&#39;).count()</span><br><span class="line">    med &#x3D; vul_info.objects.filter(severity&#x3D;&#39;1&#39;).count()</span><br><span class="line">    low &#x3D; vul_info.objects.filter(severity&#x3D;&#39;0&#39;).count()</span><br><span class="line">    wgzs &#x3D; vul_info.objects.filter(track_stauts&#x3D;&#39;0&#39;).count()</span><br><span class="line">    gzzs &#x3D; vul_info.objects.filter(track_stauts&#x3D;&#39;1&#39;).count()</span><br><span class="line">    ygzs &#x3D; vul_info.objects.filter(track_stauts&#x3D;&#39;2&#39;).count()</span><br><span class="line">    tgips &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;1) &amp; Q(protection_status_sac&#x3D;1)).count()</span><br><span class="line">    tg &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;0) &amp; Q(protection_status_sac&#x3D;1)).count()</span><br><span class="line">    ips &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;1) &amp; Q(protection_status_sac&#x3D;0)).count()</span><br><span class="line">    ntgips &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;0) &amp; Q(protection_status_sac&#x3D;0)).count()</span><br><span class="line">    d &#x3D; int(tgips &#x2F; sum * 100)</span><br><span class="line">    e &#x3D; int(tg &#x2F; sum * 100)</span><br><span class="line">    f &#x3D; int(ips &#x2F; sum * 100)</span><br><span class="line">    g &#x3D; int(ntgips &#x2F; sum * 100)</span><br><span class="line">    a &#x3D; int(wgzs &#x2F; sum * 100)</span><br><span class="line">    b &#x3D; int(gzzs &#x2F; sum * 100)</span><br><span class="line">    c &#x3D; int(ygzs &#x2F; sum * 100)</span><br><span class="line"></span><br><span class="line">    return render(request, &#39;index.html&#39;, &#123;&#39;sum&#39;: sum, &#39;high&#39;: high, &#39;med&#39;: med, &#39;low&#39;: low,</span><br><span class="line">                                          &#39;wgz&#39;: a, &#39;gzz&#39;: b, &#39;ygz&#39;: c,</span><br><span class="line">                                          &#39;wgzs&#39;: wgzs, &#39;gzzs&#39;: gzzs, &#39;ygzs&#39;: ygzs,</span><br><span class="line">                                          &#39;tgips&#39;: d, &#39;tg&#39;: e, &#39;ips&#39;: f,&#39;ntgips&#39;: g,</span><br><span class="line">                                          &#39;tgipss&#39;: tgips, &#39;tgs&#39;: tg, &#39;ipss&#39;: ips,&#39;ntgipss&#39;: ntgips&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>效果图：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305144403691-4928991.png" alt="image-20210305144403691"></p>
+<h6 id="0x25-文件下载"><a href="#0x25-文件下载" class="headerlink" title="0x25 文件下载"></a>0x25 文件下载</h6><p>单个poc文件下载功能，直接在页面上做了下载链接，点击即可下载对应poc：</p>
+<p>view.py：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">def download_file(request, vul_id):</span><br><span class="line">    search_lists &#x3D; vul_info.objects.get(vul_id&#x3D;vul_id)</span><br><span class="line">    file_name &#x3D; search_lists.poc_file</span><br><span class="line">    the_file_name &#x3D; &#39;#文件存储的地址&#39;+ file_name</span><br><span class="line">    file &#x3D; open(the_file_name, &#39;rb&#39;)</span><br><span class="line">    response &#x3D; StreamingHttpResponse(file)</span><br><span class="line">    response[&#39;Content-Type&#39;] &#x3D; &#39;application&#x2F;octet-stream&#39;</span><br><span class="line">    response[&#39;Content-Disposition&#39;] &#x3D; &#39;attachement;filename&#x3D;&quot;&#123;0&#125;&quot;&#39;.format(file_name)</span><br><span class="line">    return response</span><br></pre></td></tr></table></figure>
+
+<p>前端：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305144648161-4928991.png" alt="image-20210305144648161"></p>
+<p>效果图：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305144804727-4928991.png" alt="image-20210305144804727"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/django/" rel="tag"><i class="fa fa-tag"></i> django</a>
+              <a href="/tags/python-web/" rel="tag"><i class="fa fa-tag"></i> python-web</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/" rel="prev" title="funnyre-花指令与符号执行angr">
+      <i class="fa fa-chevron-left"></i> funnyre-花指令与符号执行angr
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#django%E7%BD%91%E7%AB%99%E6%90%AD%E5%BB%BA"><span class="nav-text">django网站搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#0x1-%E5%9F%BA%E7%A1%80%E5%8A%9F%E8%83%BD"><span class="nav-text">0x1 基础功能</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#0x11-%E6%95%B4%E4%BD%93%E6%A1%86%E6%9E%B6%EF%BC%9A"><span class="nav-text">0x11 整体框架：</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#0x12-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BE%E8%AE%A1%EF%BC%9A"><span class="nav-text">0x12 数据库设计：</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#0x13-%E5%9F%BA%E7%A1%80%E5%B1%95%E7%A4%BA%E4%BF%A1%E6%81%AF%E9%A1%B5%E9%9D%A2%EF%BC%9A%EF%BC%88-%E5%88%86%E9%A1%B5%EF%BC%89"><span class="nav-text">0x13 基础展示信息页面：（+分页）</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#0x14-%E6%8F%90%E4%BA%A4%E4%BF%A1%E6%81%AF%E9%A1%B5%E9%9D%A2%EF%BC%9A%EF%BC%88-%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%EF%BC%89"><span class="nav-text">0x14 提交信息页面：（+上传文件）</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#0x15-%E8%AF%A6%E7%BB%86%E4%BF%A1%E6%81%AF%E9%A1%B5%E9%9D%A2%EF%BC%9A"><span class="nav-text">0x15 详细信息页面：</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x2-%E9%99%84%E5%8A%A0%E5%8A%9F%E8%83%BD"><span class="nav-text">0x2 附加功能</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#0x21-%E6%90%9C%E7%B4%A2%E5%8A%9F%E8%83%BD"><span class="nav-text">0x21 搜索功能</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#0x22-%E4%B8%8B%E6%8B%89%E6%A1%86%E7%AD%9B%E9%80%89%E6%98%BE%E7%A4%BA"><span class="nav-text">0x22 下拉框筛选显示</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#0x23-%E5%AF%BC%E5%87%BA"><span class="nav-text">0x23 导出</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#0x24-%E4%BF%A1%E6%81%AF%E6%B1%87%E6%80%BB%E9%A1%B5%E9%9D%A2"><span class="nav-text">0x24 信息汇总页面</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#0x25-%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD"><span class="nav-text">0x25 文件下载</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="0xkami"
+      src="/images/head.png">
+  <p class="site-author-name" itemprop="name">0xkami</p>
+  <div class="site-description" itemprop="description">If you want me,satisfy me</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://yoloyolo.top/blog/" title="https:&#x2F;&#x2F;yoloyolo.top&#x2F;blog&#x2F;" rel="noopener" target="_blank">yoloyolo</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.harvey-blog.com/" title="http:&#x2F;&#x2F;www.harvey-blog.com" rel="noopener" target="_blank">Harveysn0w·北极熊</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://l3t1tb3.xyz/" title="http:&#x2F;&#x2F;l3t1tb3.xyz&#x2F;" rel="noopener" target="_blank">l3t1tb3</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="/risks255.github.io" title="risks255.github.io">risks</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://belyenochi.github.io/" title="https:&#x2F;&#x2F;belyenochi.github.io&#x2F;" rel="noopener" target="_blank">belyenochi</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">0xkami</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
