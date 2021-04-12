@@ -1776,4 +1776,39 @@
         <tag>python-web</tag>
       </tags>
   </entry>
+  <entry>
+    <title>VNCTF2021-Reverse-wp</title>
+    <url>/2021/04/13/VNCTF2021-Reverse-wp/</url>
+    <content><![CDATA[<p>VNCTF2021-Reverse-wp</p>
+<a id="more"></a>
+
+<h5 id="0x1-notsudoku"><a href="#0x1-notsudoku" class="headerlink" title="0x1 notsudoku"></a>0x1 notsudoku</h5><p>查看基本信息，发现upx壳，脱壳（upx -d）</p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413053005139.png" alt="image-20210413053005139"></p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413053047491.png" alt="image-20210413053047491"></p>
+<p>放到ida里看看，发现并没有明文字符串，而是一堆关于py的信息</p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413053232312.png" alt="image-20210413053232312"></p>
+<p>可以猜测是用py打包的</p>
+<p>所以尝试解包（使用最新版的pyinstxtractor.py，可以自动生成pyc文件，不用手工改magic value，这个2.pyc就是我们需要的</p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413053535763.png" alt="image-20210413053535763"></p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413053444736.png" alt="image-20210413053444736"></p>
+<p>但是经过查看和struct中的magic value并不相同，所以手动替换一下，使用py3.7和uncompyle6可以正常解出源码，py3.9会报错，py2也会报错，easy那个软件也会报错</p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413054918399.png" alt="image-20210413054918399"></p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413054757278.png" alt="image-20210413054757278"></p>
+<p>开始研究源码：</p>
+<p> <img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413055029915.png" alt="image-20210413055029915"></p>
+<p>替换掉一些日文：</p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413055104065.png" alt="image-20210413055104065"></p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413055129674.png" alt="image-20210413055129674"></p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413055212442.png" alt="image-20210413055212442"></p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413055149840.png" alt="image-20210413055149840"></p>
+<p>通过已给的数字提示以及题目，判断这是一个五阶幻方，然后要求我们按1的顺序输入每个字所在的横纵坐标</p>
+<p>根据此图我们就可以推出输入的字符串</p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413055310499.png" alt="image-20210413055310499"></p>
+<p>编写脚本，得到flag：e3a912c1e911ad82544af0c3d753f44f</p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413061037076.png" alt="image-20210413061037076"></p>
+]]></content>
+      <categories>
+        <category>ctf</category>
+      </categories>
+  </entry>
 </search>
