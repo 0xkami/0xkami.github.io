@@ -1811,4 +1811,40 @@
         <category>ctf</category>
       </categories>
   </entry>
+  <entry>
+    <title>0x0EbuuctfWP-2</title>
+    <url>/2021/04/18/0x0EbuuctfWP-2/</url>
+    <content><![CDATA[<p>0x0EbuuctfWP</p>
+<a id="more"></a>
+
+<h5 id="0x01-GKCTF2020-BabyDriver（sys文件，键盘扫描码"><a href="#0x01-GKCTF2020-BabyDriver（sys文件，键盘扫描码" class="headerlink" title="0x01 [GKCTF2020]BabyDriver（sys文件，键盘扫描码"></a>0x01 [GKCTF2020]BabyDriver（sys文件，键盘扫描码</h5><p>一个sys文件，无壳，进ida分析，发现两个特殊字符串</p>
+<p><img src="/2021/04/18/0x0EbuuctfWP-2/image-20210418140047135.png" alt="image-20210418140047135"></p>
+<p>判断算法：猜测是一个迷宫</p>
+<p><img src="/2021/04/18/0x0EbuuctfWP-2/image-20210418140141623.png" alt="image-20210418140141623"></p>
+<p><img src="/2021/04/18/0x0EbuuctfWP-2/image-20210418140117787.png" alt="image-20210418140117787"></p>
+<p>去看另一个特殊的字符串：是个迷宫无误了</p>
+<p><img src="/2021/04/18/0x0EbuuctfWP-2/image-20210418140208701.png" alt="image-20210418140208701"></p>
+<p>但是上下左右对应的字符串并不是ascii编码</p>
+<p>由于是sys文件，是由键盘过滤驱动获取键盘扫描码来控制上下左右</p>
+<p><a href="https://www.supfree.net/search.asp?id=6386">https://www.supfree.net/search.asp?id=6386</a></p>
+<p><img src="/2021/04/18/0x0EbuuctfWP-2/image-20210418140357034.png" alt="image-20210418140357034"></p>
+<p>最后得出路径为LKKKLLKLKKKLLLKKKLLLLLL，flag就是flag{403950a6f64f7fc4b655dea696997851}</p>
+<h5 id="0x02-GKCTF2020-Check-1n"><a href="#0x02-GKCTF2020-Check-1n" class="headerlink" title="0x02 [GKCTF2020]Check_1n"></a>0x02 [GKCTF2020]Check_1n</h5><p>签到题，下载下来是个很有趣的exe</p>
+<p><img src="/2021/04/18/0x0EbuuctfWP-2/image-20210418140728735.png" alt="image-20210418140728735"></p>
+<p><img src="/2021/04/18/0x0EbuuctfWP-2/image-20210418140901219.png" alt="image-20210418140901219"></p>
+<p>先查壳，无壳，拖到ida中找开机密码</p>
+<p><img src="/2021/04/18/0x0EbuuctfWP-2/image-20210418140757037.png" alt="image-20210418140757037"></p>
+<p><img src="/2021/04/18/0x0EbuuctfWP-2/image-20210418140804734.png" alt="image-20210418140804734"></p>
+<p>看到strcmp，合理猜测开机密码就是HelloWorld</p>
+<p>果不其然可以登进去了</p>
+<p>在桌面看到flag.txt文件，然后发现一串base64，解码，是说去玩方块游戏</p>
+<p><img src="/2021/04/18/0x0EbuuctfWP-2/image-20210418141016904.png" alt="image-20210418141016904"></p>
+<p>然后打开桌面上的方块游戏，游戏结束flag就出来了</p>
+<p><img src="/2021/04/18/0x0EbuuctfWP-2/image-20210418141026120.png" alt="image-20210418141026120"></p>
+<p>在ida中也有一串特殊的字符串，但是base64解不开，后来才知道是base58，可以直接解出flag</p>
+]]></content>
+      <tags>
+        <tag>ctf</tag>
+      </tags>
+  </entry>
 </search>
