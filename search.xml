@@ -1842,6 +1842,25 @@
 <p>然后打开桌面上的方块游戏，游戏结束flag就出来了</p>
 <p><img src="/2021/04/18/0x0EbuuctfWP-2/image-20210418141026120.png" alt="image-20210418141026120"></p>
 <p>在ida中也有一串特殊的字符串，但是base64解不开，后来才知道是base58，可以直接解出flag</p>
+<h5 id="0x03-V-amp-N2020-公开赛-strangeCpp"><a href="#0x03-V-amp-N2020-公开赛-strangeCpp" class="headerlink" title="0x03 [V&amp;N2020 公开赛]strangeCpp"></a>0x03 [V&amp;N2020 公开赛]strangeCpp</h5><p>无壳，用ida看</p>
+<p><img src="/2021/04/18/0x0EbuuctfWP-2/image-20210506152157962.png" alt="image-20210506152157962"></p>
+<p>根据关键字符串找到主函数</p>
+<p><img src="/2021/04/18/0x0EbuuctfWP-2/image-20210506152146219.png" alt="image-20210506152146219"></p>
+<p>没有发现什么异常，但是程序无法跑成功，也无法下断点</p>
+<p>在前面的putchar中发现了一段数据</p>
+<p><img src="/2021/04/18/0x0EbuuctfWP-2/image-20210506152308299.png" alt="image-20210506152308299"></p>
+<p>调用这段数据的函数如下：</p>
+<p><img src="/2021/04/18/0x0EbuuctfWP-2/image-20210506152233111.png" alt="image-20210506152233111"></p>
+<p>重点在result和红框的异或操作</p>
+<p>查看result的生成函数：</p>
+<p>有一个小于14549743的值，经过一些操作得到unsigned int类型的v7，赋值给了result，然后result=607052314</p>
+<p><img src="/2021/04/18/0x0EbuuctfWP-2/image-20210506152133843.png" alt="image-20210506152133843"></p>
+<p>编写脚本：</p>
+<p><img src="/2021/04/18/0x0EbuuctfWP-2/image-20210506153448183.png" alt="image-20210506153448183"></p>
+<p><img src="/2021/04/18/0x0EbuuctfWP-2/image-20210506153608511.png" alt="image-20210506153608511"></p>
+<p>所以flag是e10adc3949ba59abbe56e057f20f883e</p>
+<p>ps:一些常用类型字节数</p>
+<p><img src="/2021/04/18/0x0EbuuctfWP-2/image-20210506152014295.png" alt="image-20210506152014295"></p>
 ]]></content>
       <tags>
         <tag>ctf</tag>
