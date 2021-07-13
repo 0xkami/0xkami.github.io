@@ -38,7 +38,7 @@
 <meta property="og:image" content="http://example.com/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712182813147.png">
 <meta property="og:image" content="http://example.com/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712182831000.png">
 <meta property="article:published_time" content="2020-11-10T08:55:01.000Z">
-<meta property="article:modified_time" content="2021-07-12T10:39:44.705Z">
+<meta property="article:modified_time" content="2021-07-13T07:39:11.054Z">
 <meta property="article:author" content="0xkami">
 <meta property="article:tag" content="加密与解密">
 <meta name="twitter:card" content="summary">
@@ -235,7 +235,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-07-12 18:39:44" itemprop="dateModified" datetime="2021-07-12T18:39:44+08:00">2021-07-12</time>
+                <time title="修改时间：2021-07-13 15:39:11" itemprop="dateModified" datetime="2021-07-13T15:39:11+08:00">2021-07-13</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -265,17 +265,26 @@
 <h5 id="0x02-win-api函数"><a href="#0x02-win-api函数" class="headerlink" title="0x02 win api函数"></a>0x02 win api函数</h5><p>应用程序编程接口，相当于是一个合成了各个功能的函数库，提供应用程序运行所需要的窗口管理、内存管理等功能</p>
 <p>windows应用程序-&gt;API-&gt;系统服务-&gt;硬件层</p>
 <p>常用函数：</p>
-<p>hmemcpy{目的数据地址，源数据地址，数据大小}：拷贝数据，当做断点</p>
-<p>GetWindowsText{句柄，缓冲区地址，复制的最大字符数}：获得文本控件内容</p>
-<p>GetDlgItem{句柄，控件标识}：获取指定对话框的句柄</p>
-<p>GetDlgItemText{句柄，控件标识，缓冲区指针，缓冲区长度}：获取对话框文本，成功就返回文本长度</p>
-<p>messageBox{父窗口句柄，消息框文本，消息框标题，消息框样式}：创建信息框</p>
+<ul>
+<li><p>hmemcpy{目的数据地址，源数据地址，数据大小}：拷贝数据，当做断点</p>
+</li>
+<li><p>GetWindowsText{句柄，缓冲区地址，复制的最大字符数}：获得文本控件内容</p>
+</li>
+<li><p>GetDlgItem{句柄，控件标识}：获取指定对话框的句柄</p>
+</li>
+<li><p>GetDlgItemText{句柄，控件标识，缓冲区指针，缓冲区长度}：获取对话框文本，成功就返回文本长度</p>
+</li>
+<li><p>messageBox{父窗口句柄，消息框文本，消息框标题，消息框样式}：创建信息框</p>
+</li>
+</ul>
 <h5 id="0x03-句柄"><a href="#0x03-句柄" class="headerlink" title="0x03 句柄"></a>0x03 句柄</h5><p>相当于一个唯一的标识，通常为32位，让windows能正确引用对应的对象。当一个进程被初始化的，系统会分配句柄表，句柄值就是索引</p>
 <h5 id="0x04-windows消息机制"><a href="#0x04-windows消息机制" class="headerlink" title="0x04 windows消息机制"></a>0x04 windows消息机制</h5><p>消息是给应用程序与应用程序之间、应用程序与windows系统间通信的</p>
 <p>应用程序实现功能靠消息触发，靠消息响应和处理来完成</p>
 <p>流程：事件发生-&gt;windows把输入的消息放入系统消息队列-&gt;拷贝到相应的应用程序队列-&gt;循环检索发给对应的应用程序窗口</p>
 <p>常用函数：</p>
-<p>sendMessage{目的窗口句柄，消息标识，消息的WPARAM，消息的LPARAM}</p>
+<ul>
+<li>sendMessage{目的窗口句柄，消息标识，消息的WPARAM，消息的LPARAM}</li>
+</ul>
 <h5 id="0x05-保护模式"><a href="#0x05-保护模式" class="headerlink" title="0x05 保护模式"></a>0x05 保护模式</h5><p>虚拟内存：简化内存管理，防止多程序间的冲突</p>
 <p>应用程序不会直接访问物理内存，应用程序启动时，操作系统会新建一个进程，分配给它2GB的虚拟地址，虚拟内存管理器将应用程序的代码映射到虚拟地址中，并把当前所需要的代码读取到物理地址中。</p>
 <p>dll也会映射到虚拟地址，但是都是要和对应的使用的应用程序一起，没有自己私有的虚拟地址。</p>
@@ -336,7 +345,70 @@
 <p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712182813147.png" alt="image-20210712182813147"></p>
 <p>再按c，ida重新分析，即可得到最终代码</p>
 <p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712182831000.png" alt="image-20210712182831000"></p>
-<h4 id="0x4-解密"><a href="#0x4-解密" class="headerlink" title="0x4 解密"></a>0x4 解密</h4><h4 id="0x5-PE文件"><a href="#0x5-PE文件" class="headerlink" title="0x5 PE文件"></a>0x5 PE文件</h4><h4 id="0x6-脱壳"><a href="#0x6-脱壳" class="headerlink" title="0x6 脱壳"></a>0x6 脱壳</h4><h4 id="0x7-保护"><a href="#0x7-保护" class="headerlink" title="0x7 保护"></a>0x7 保护</h4><h4 id="0x8-PEDIY"><a href="#0x8-PEDIY" class="headerlink" title="0x8 PEDIY"></a>0x8 PEDIY</h4>
+<p>附:IDC常用函数：</p>
+<p><strong>读取和修改数据的函数：</strong></p>
+<ul>
+<li>long Byte（long addr），从虚拟地址addr处读取一个字节值</li>
+<li>long Word（long addr），从虚拟地址addr处读取一个字（2个字节）值</li>
+<li>long Dword（long addr），从虚拟地址addr处读取一个双字（4个字节）值</li>
+<li>long PatchByte（long addr，long val），设置虚拟地址addr处的一个字节值</li>
+<li>long PatchWord（long addr，long val），设置虚拟地址addr处的一个字值</li>
+<li>long PatchDword（long addr，long val），设置虚拟地址addr处读取一个双字值</li>
+<li>void idLoaded（long addr），如果addr包含有效数据，则返回1，否则返回0</li>
+</ul>
+<p><strong>用户交互函数：</strong></p>
+<ul>
+<li>void Message（string fromat，……），在输出窗口打印一条格式化消息，这个函数类似于C语言的printf函数，并接受printf风格的格式化字符串</li>
+<li>void printf（……），在输出窗口中打印每个参数的字符串表示形式</li>
+<li>void Warning（string fromat，……），在对话框中显示一条格式化消息</li>
+<li>string AskStr（string default，string prompt），显示一个输入框，要求用户输入一个字符串值。如果操作成功，则返回用户的字符串；如果对话框被取消，则返回0</li>
+<li>string AskFile（long doSave，string mask，String prompt），显示一个文件选择对话框，以简化选择文件的任务。你可以创建新文件保存数据（doSave=1），或选择现有的文件读取数据（doSave=0）。你可以根据mask（如*.<em>或</em>.idc）过滤显示的文件列表。如果操作成功，则返回选定文件的名称；如果对话框被取消，则返回0</li>
+<li>long AskYN（long deafult，string prompt），用一个答案为“是”或“否”的问题提示用户，如初一个默认的答案（1为是，0为否，-1为取消）。返回值是一个表示选定答案的整数。</li>
+<li>long ScreenEA（），返回当前光标所在位置的虚拟地址</li>
+<li>bool Jump（long addr），跳转到反汇编窗口的指定地址</li>
+</ul>
+<h6 id="0x03-hiew使用"><a href="#0x03-hiew使用" class="headerlink" title="0x03 hiew使用"></a>0x03 hiew使用</h6><p>F5 输入地址后跳转</p>
+<p>F3 修改文件内容，直接输入要修改的数字即可</p>
+<p>F9 更新，修改完内容后可以更新一下</p>
+<p>F10 更新完后文件内容就被修改了</p>
+<h4 id="0x4-逆向分析技术"><a href="#0x4-逆向分析技术" class="headerlink" title="0x4 逆向分析技术"></a>0x4 逆向分析技术</h4><h6 id="启动函数："><a href="#启动函数：" class="headerlink" title="启动函数："></a><strong>启动函数：</strong></h6><p>编译器会生成的一个代码，用来完成初始化进程，然后才会执行winmain函数。各编译器有各自的启动函数。启动函数在分析的时候可以略过</p>
+<h6 id="函数："><a href="#函数：" class="headerlink" title="函数："></a><strong>函数：</strong></h6><ul>
+<li><p>组成：函数名，入口参数，返回值，函数功能</p>
+<p>CALL指令：会保存返回信息（它之后的指令的地址），遇到RET的时候就返回。CALL后跟着的就是被调用的函数的首地址</p>
+</li>
+<li><p>参数传递：</p>
+<ul>
+<li><p>堆栈方式：先进后出。</p>
+<p>流程：1、压入函数结束时应返回的地址和需要的一些参数</p>
+<p>​            2、函数使用EBP指针+偏移量对堆栈中的参数进行寻址，然后取出进行操作</p>
+<p>​            3、函数使用RET返回，CPU把EIP设为之前堆栈里存入的应返回的地址，继续执行</p>
+<p>一般用EBP存取堆栈，也会用ESP堆栈指针来寻址</p>
+</li>
+<li><p>寄存器方式：一部分参数使用寄存器，用完的话剩下的用堆栈</p>
+</li>
+<li><p>通过全局变量进行隐含参数的传递</p>
+</li>
+</ul>
+</li>
+<li><p>返回值：</p>
+<p>一般放在EAX中返回，如果结果超过了EAX的容量，其高32位就会放到EDX中</p>
+</li>
+</ul>
+<h6 id="数据结构："><a href="#数据结构：" class="headerlink" title="数据结构："></a>数据结构：</h6><ul>
+<li><p>局部变量：</p>
+<p>在堆栈中进行分配，函数执行完就释放。或者直接存在寄存器中。</p>
+</li>
+<li><p>全局变量：</p>
+<p>作用于整个程序，放在全局变量的内存区，通常位于一个固定的位置</p>
+</li>
+<li><p>数组：</p>
+<p>在内存中按顺序连续存放在一起，一般用基址+偏移量来访问</p>
+</li>
+</ul>
+<h6 id="控制语句："><a href="#控制语句：" class="headerlink" title="控制语句："></a>控制语句：</h6><p>CMP：</p>
+<p>JZ：</p>
+<h6 id="指令修改："><a href="#指令修改：" class="headerlink" title="指令修改："></a>指令修改：</h6><p>替换一个字节：90 nop</p>
+<h4 id="0x5-常见的保护技术"><a href="#0x5-常见的保护技术" class="headerlink" title="0x5 常见的保护技术"></a>0x5 常见的保护技术</h4><h4 id="0x4-解密"><a href="#0x4-解密" class="headerlink" title="0x4 解密"></a>0x4 解密</h4><h4 id="0x5-PE文件"><a href="#0x5-PE文件" class="headerlink" title="0x5 PE文件"></a>0x5 PE文件</h4><h4 id="0x6-脱壳"><a href="#0x6-脱壳" class="headerlink" title="0x6 脱壳"></a>0x6 脱壳</h4><h4 id="0x7-保护"><a href="#0x7-保护" class="headerlink" title="0x7 保护"></a>0x7 保护</h4><h4 id="0x8-PEDIY"><a href="#0x8-PEDIY" class="headerlink" title="0x8 PEDIY"></a>0x8 PEDIY</h4>
     </div>
 
     
@@ -420,7 +492,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86"><span class="nav-text">加密与解密</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#0x1-%E5%9F%BA%E7%A1%80"><span class="nav-text">0x1 基础</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#0x01-%E5%A4%A7%E7%AB%AF%E5%B0%8F%E7%AB%AF"><span class="nav-text">0x01 大端小端</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x02-win-api%E5%87%BD%E6%95%B0"><span class="nav-text">0x02 win api函数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x03-%E5%8F%A5%E6%9F%84"><span class="nav-text">0x03 句柄</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x04-windows%E6%B6%88%E6%81%AF%E6%9C%BA%E5%88%B6"><span class="nav-text">0x04 windows消息机制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x05-%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F"><span class="nav-text">0x05 保护模式</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x2-%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95"><span class="nav-text">0x2 动态调试</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#0x01-OD%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-text">0x01 OD的使用:</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x3-%E9%9D%99%E6%80%81%E5%88%86%E6%9E%90"><span class="nav-text">0x3 静态分析</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#0x01-ida%E7%9A%84%E5%B8%B8%E7%94%A8%E5%8A%9F%E8%83%BD"><span class="nav-text">0x01 ida的常用功能</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#0x02-IDC%E8%84%9A%E6%9C%AC%E7%9A%84%E4%BD%BF%E7%94%A8%E5%AE%9E%E8%B7%B5"><span class="nav-text">0x02 IDC脚本的使用实践</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x4-%E8%A7%A3%E5%AF%86"><span class="nav-text">0x4 解密</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x5-PE%E6%96%87%E4%BB%B6"><span class="nav-text">0x5 PE文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x6-%E8%84%B1%E5%A3%B3"><span class="nav-text">0x6 脱壳</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x7-%E4%BF%9D%E6%8A%A4"><span class="nav-text">0x7 保护</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x8-PEDIY"><span class="nav-text">0x8 PEDIY</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86"><span class="nav-text">加密与解密</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#0x1-%E5%9F%BA%E7%A1%80"><span class="nav-text">0x1 基础</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#0x01-%E5%A4%A7%E7%AB%AF%E5%B0%8F%E7%AB%AF"><span class="nav-text">0x01 大端小端</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x02-win-api%E5%87%BD%E6%95%B0"><span class="nav-text">0x02 win api函数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x03-%E5%8F%A5%E6%9F%84"><span class="nav-text">0x03 句柄</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x04-windows%E6%B6%88%E6%81%AF%E6%9C%BA%E5%88%B6"><span class="nav-text">0x04 windows消息机制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x05-%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F"><span class="nav-text">0x05 保护模式</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x2-%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95"><span class="nav-text">0x2 动态调试</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#0x01-OD%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-text">0x01 OD的使用:</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x3-%E9%9D%99%E6%80%81%E5%88%86%E6%9E%90"><span class="nav-text">0x3 静态分析</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#0x01-ida%E7%9A%84%E5%B8%B8%E7%94%A8%E5%8A%9F%E8%83%BD"><span class="nav-text">0x01 ida的常用功能</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#0x02-IDC%E8%84%9A%E6%9C%AC%E7%9A%84%E4%BD%BF%E7%94%A8%E5%AE%9E%E8%B7%B5"><span class="nav-text">0x02 IDC脚本的使用实践</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#0x03-hiew%E4%BD%BF%E7%94%A8"><span class="nav-text">0x03 hiew使用</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x4-%E9%80%86%E5%90%91%E5%88%86%E6%9E%90%E6%8A%80%E6%9C%AF"><span class="nav-text">0x4 逆向分析技术</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8%E5%87%BD%E6%95%B0%EF%BC%9A"><span class="nav-text">启动函数：</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%EF%BC%9A"><span class="nav-text">函数：</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%EF%BC%9A"><span class="nav-text">数据结构：</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E8%AF%AD%E5%8F%A5%EF%BC%9A"><span class="nav-text">控制语句：</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%8C%87%E4%BB%A4%E4%BF%AE%E6%94%B9%EF%BC%9A"><span class="nav-text">指令修改：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x5-%E5%B8%B8%E8%A7%81%E7%9A%84%E4%BF%9D%E6%8A%A4%E6%8A%80%E6%9C%AF"><span class="nav-text">0x5 常见的保护技术</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x4-%E8%A7%A3%E5%AF%86"><span class="nav-text">0x4 解密</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x5-PE%E6%96%87%E4%BB%B6"><span class="nav-text">0x5 PE文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x6-%E8%84%B1%E5%A3%B3"><span class="nav-text">0x6 脱壳</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x7-%E4%BF%9D%E6%8A%A4"><span class="nav-text">0x7 保护</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x8-PEDIY"><span class="nav-text">0x8 PEDIY</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
