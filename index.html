@@ -190,6 +190,85 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.png">
+      <meta itemprop="name" content="0xkami">
+      <meta itemprop="description" content="If you want me,satisfy me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="0xkami-blog">
+    </span>
+      <header class="post-header" style="background-color: rgba(255,255,255,0.8);padding: 15px 0px;border-radius: 10px;margin-bottom: 60px">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">CVE-2021-24086 Windows TCP/IP 拒绝服务漏洞复现分析</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-08-19 13:13:37 / 修改时间：13:16:46" itemprop="dateCreated datePublished" datetime="2021-08-19T13:13:37+08:00">2021-08-19</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%BC%8F%E6%B4%9E/" itemprop="url" rel="index"><span itemprop="name">二进制漏洞</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody" style="background-color: rgba(255,255,255,0.8);padding: 15px; border-radius: 10px;">
+
+      
+          <h4 id="CVE-2021-24086-复现"><a href="#CVE-2021-24086-复现" class="headerlink" title="CVE-2021-24086 复现"></a>CVE-2021-24086 复现</h4><p>参考：</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.quarkslab.com/analysis-of-a-windows-ipv6-fragmentation-vulnerability-cve-2021-24086.html">https://blog.quarkslab.com/analysis-of-a-windows-ipv6-fragmentation-vulnerability-cve-2021-24086.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://doar-e.github.io/blog/2021/04/15/reverse-engineering-tcpipsys-mechanics-of-a-packet-of-the-death-cve-2021-24086/#the-mechanics-of-parsing-an-ipv6-packet">https://doar-e.github.io/blog/2021/04/15/reverse-engineering-tcpipsys-mechanics-of-a-packet-of-the-death-cve-2021-24086/#the-mechanics-of-parsing-an-ipv6-packet</a></p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -303,7 +382,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-07-13 15:40:50" itemprop="dateModified" datetime="2021-07-13T15:40:50+08:00">2021-07-13</time>
+                <time title="修改时间：2021-07-21 13:20:13" itemprop="dateModified" datetime="2021-07-21T13:20:13+08:00">2021-07-21</time>
               </span>
 
           
@@ -324,6 +403,8 @@
 
 <p>输出到json：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">with open(jsonoutfile, &#39;a&#39;, encoding&#x3D;&#39;utf8&#39;)as fp:</span><br><span class="line">     json.dump(templateData, fp)</span><br><span class="line">     fp.write(&#39;\n&#39;)#加了一个换行</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cvedatas &#x3D; []</span><br><span class="line">cvedatas.append(templateData)</span><br><span class="line">with open(&quot;cve.json&quot;, &#39;a&#39;, encoding&#x3D;&#39;utf8&#39;)as f:</span><br><span class="line">    json.dump(cvedatas, f, ensure_ascii&#x3D;False)</span><br></pre></td></tr></table></figure>
 
 <p>遍历目录：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">files &#x3D; os.listdir(cacheDirPath)</span><br><span class="line">    for file in files:</span><br><span class="line">        json_transfer(os.path.join(cacheDirPath, file), jsonFile)</span><br></pre></td></tr></table></figure>
@@ -850,81 +931,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/head.png">
-      <meta itemprop="name" content="0xkami">
-      <meta itemprop="description" content="If you want me,satisfy me">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="0xkami-blog">
-    </span>
-      <header class="post-header" style="background-color: rgba(255,255,255,0.8);padding: 15px 0px;border-radius: 10px;margin-bottom: 60px">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/" class="post-title-link" itemprop="url">funnyre-花指令与符号执行angr</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-01-26 09:51:51 / 修改时间：18:20:41" itemprop="dateCreated datePublished" datetime="2021-01-26T09:51:51+08:00">2021-01-26</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ctf/" itemprop="url" rel="index"><span itemprop="name">ctf</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody" style="background-color: rgba(255,255,255,0.8);padding: 15px; border-radius: 10px;">
-
-      
-          <p>从funnyre的题中学习花指令和符号执行angr</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -996,7 +1002,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-count">36</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1009,7 +1015,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">36</span>
+        <span class="site-state-item-count">37</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

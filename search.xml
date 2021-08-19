@@ -366,66 +366,6 @@
       </categories>
   </entry>
   <entry>
-    <title>0x03CVE-2020-14644 weblogic iiop反序列化漏洞分析</title>
-    <url>/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/</url>
-    <content><![CDATA[<h3 id="CVE-2020-14644-weblogic-iiop反序列化漏洞分析"><a href="#CVE-2020-14644-weblogic-iiop反序列化漏洞分析" class="headerlink" title="CVE-2020-14644 weblogic iiop反序列化漏洞分析"></a>CVE-2020-14644 weblogic iiop反序列化漏洞分析</h3><p>参考：</p>
-<p>0x1 <a href="https://my.oschina.net/u/4280983/blog/4477476">https://my.oschina.net/u/4280983/blog/4477476</a></p>
-<p>0x2 宽字节的推文</p>
-<a id="more"></a>
-
-<h4 id="0x1-漏洞介绍"><a href="#0x1-漏洞介绍" class="headerlink" title="0x1 漏洞介绍"></a>0x1 漏洞介绍</h4><h5 id="0x01-WebLogic组件"><a href="#0x01-WebLogic组件" class="headerlink" title="0x01 WebLogic组件"></a>0x01 WebLogic组件</h5><p>WebLogic是美国Oracle公司出品的一个application server，是一个基于JAVAEE架构的中间件，WebLogic是用于开发、集成、部署和管理大型分布式Web应用、网络应用和数据库应用的Java应用服务器，适用于云环境和传统环境的应用服务器组件。</p>
-<h5 id="0x02-漏洞简介"><a href="#0x02-漏洞简介" class="headerlink" title="0x02 漏洞简介"></a>0x02 漏洞简介</h5><p>Oracle官方在2020年7月份发布的最新安全补丁中披露了此漏洞。此漏洞CVSS评分9.8，<strong>受影响的版本是12.2.1.3.0、12.2.1.4.0和14.1.1.0.0</strong>。该漏洞允许未经身份验证的攻击者通过 IIOP , T3 进行网络访问，攻击者成功攻击此漏洞可能导致Oracle WebLogic Server被接管。</p>
-<h4 id="0x2-漏洞分析"><a href="#0x2-漏洞分析" class="headerlink" title="0x2 漏洞分析"></a>0x2 漏洞分析</h4><h5 id="0x01-相关知识"><a href="#0x01-相关知识" class="headerlink" title="0x01 相关知识"></a>0x01 相关知识</h5><h6 id="JDK的classloader类和defineClass方法"><a href="#JDK的classloader类和defineClass方法" class="headerlink" title="JDK的classloader类和defineClass方法"></a>JDK的classloader类和defineClass方法</h6><p>​    一个类在被使用之前，会经历class文件生成—&gt;加载—&gt;连接—&gt;初始化等阶段。其中加载阶段主要完成三件事：1、通过类的全限定名来获取定义次类的二进制字节流，2、将该二进制字节流定义的静态数据结构转换成方法区的运行时数据结构，3、在内存中生成一个代表该类的Class对象，供外部通过该对象来获取类的元数据信息。</p>
-<p>​    JDK中的ClassLoader类中有个方法是defineClass，可以根据类全限定名和类的字节数组，加载一个类并返回对应的Class对象到 JVM（Java Virtual Machine）中。</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110556771.png" alt="image-20201015110556771"></p>
-<p>如上图所示，如果参数’name’（类名）和’b’（类文件的二进制数据）可控，理论上我们可以加载任何类，我们可以通过该方法，构造符合class格式的bytes数组作为类去加载。（注意：1、一般情况下，通过defineClass加载的类不允许同名，2、一个类中的类名name和类字节数组b中的类名要对应）</p>
-<h6 id="javassist"><a href="#javassist" class="headerlink" title="javassist"></a>javassist</h6><p>​    javassist是一个开源的分析、编辑和创建Java字节码的类库。它提供了更高级的API，执行效率相对ASM较差，但无需掌握字节码指令的知识，对使用者要求较低。它直接使用java编码的形式，不需要了解虚拟机指令，就能动态改变类的结构，或者动态生成类。</p>
-<h5 id="0x02-漏洞代码分析"><a href="#0x02-漏洞代码分析" class="headerlink" title="0x02 漏洞代码分析"></a>0x02 漏洞代码分析</h5><p>该漏洞的原理是在反序列化时，通过使用defineClass方法，加载恶意类。</p>
-<p>关键类：com.tangosol.internal.util.invoke.RemoteConstructor</p>
-<p>在RemoteConstructor类中，构造实例的代码如下：</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014111222573.png" alt="image-20201014111222573"></p>
-<p>其中RemotableSupport类，可以理解为是coherence自定义的Classloader，在其中实现了defineClass，具有加载类的功能。查看其中的realize方法：</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110307308.png" alt="image-20201015110307308"></p>
-<p>先执行this.registerIfAbsent(constructor.getDefinition())方法</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110341915.png" alt="image-20201015110341915"></p>
-<p>RemotableSupport中定义了 Map 类型的 f_mapDefinitions 的变量充当缓存，每次调用realize时就会先在缓存中查找ClassDefinition。</p>
-<p>执行完成后，调用getRemotableClass方法，获取clz。查看ClassDefinition类</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014112030482.png" alt="image-20201014112030482"></p>
-<p>可以看到getRemotableClass返回m_clz,并且m_clz是用transient修饰的（transient的含义：将不需要序列化的属性前添加关键字transient，序列化对象的时候，这个属性就不会被序列化，最终变量为NULL）</p>
-<p>所以clz为NULL。于是在realize方法中，就会进入if分支，调用defineClass加载恶意类字节码。</p>
-<p>RemotableSupport 继承了ClassLoader，所以它的 defineClass 就是调用了父类的 defineClass来加载类。</p>
-<p>需要注意的是BinClassName变量的命名，使用的是ClassIdentity类中的getName方法</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110410957.png" alt="image-20201015110410957"></p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110448486.png" alt="image-20201015110448486"></p>
-<p>ClassIdentity类中的构造方法是将clazz作为参数，然后提取该类的一些特征信息，如Basename等。其中getName函数可以简化为：getName() = package + “/“ + baseName + “$” + version</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014105230694.png" alt="image-20201014105230694"></p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014105430256.png" alt="image-20201014105430256"></p>
-<p>所以 ClassIdentity 中的字节数组 byte[] 中的对应的 Class 的类名必须为 package + “.” + baseName + “$” + version，否则可能会加载失败。</p>
-<p>继续分析realize方法，加载类之后调用了createInstance方法</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014152406910.png" alt="image-20201014152406910"></p>
-<p>aoArgs作为参数进行实例化对象，所以将恶意代码写在构造方法中，实例化之后就会执行恶意代码。</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110636109.png" alt="image-20201015110636109"></p>
-<p> 所以只要构造一个带有包名类的恶意代码写进构造函数中，通过 javassist动态修改类名，将原类名加上 $ 和 version 值对应，通过iiop协议和反序列化发送给weblogic服务器，即可实现漏洞利用</p>
-<h4 id="0x3-漏洞复现"><a href="#0x3-漏洞复现" class="headerlink" title="0x3 漏洞复现"></a>0x3 漏洞复现</h4><h5 id="0x01-漏洞利用-弹计算器"><a href="#0x01-漏洞利用-弹计算器" class="headerlink" title="0x01 漏洞利用-弹计算器"></a>0x01 漏洞利用-弹计算器</h5><p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110723660.png" alt="image-20201015110723660"></p>
-<h5 id="0x02-漏洞利用-信息回显"><a href="#0x02-漏洞利用-信息回显" class="headerlink" title="0x02 漏洞利用-信息回显"></a>0x02 漏洞利用-信息回显</h5><p>1、开启weblogic服务器</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110854978.png" alt="image-20201015110854978"></p>
-<p>2、查看weblogic服务器的网络配置信息</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110937437.png" alt="image-20201015110937437"></p>
-<p>3、在攻击机上，编写特制的恶意类（写入weblogic服务器的Ip和weblogic服务的端口以及攻击命令），打包jar包，运行，就可以直接获取到weblogic服务器的信息</p>
-<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201109171158094.png" alt="image-20201109171158094"></p>
-<h4 id="0x4-漏洞防护方案"><a href="#0x4-漏洞防护方案" class="headerlink" title="0x4 漏洞防护方案"></a>0x4 漏洞防护方案</h4><h5 id="0x01-官方方案："><a href="#0x01-官方方案：" class="headerlink" title="0x01 官方方案："></a>0x01 官方方案：</h5><p>官方已经针对此漏洞发布补丁，请受影响的用户参考以下链接安装补丁更新：</p>
-<p><a href="https://www.oracle.com/security-alerts/cpujul2020.html">https://www.oracle.com/security-alerts/cpujul2020.html</a></p>
-<h5 id="0x02-临时解决方案："><a href="#0x02-临时解决方案：" class="headerlink" title="0x02 临时解决方案："></a>0x02 临时解决方案：</h5><h6 id="关闭IIOP协议："><a href="#关闭IIOP协议：" class="headerlink" title="关闭IIOP协议："></a>关闭IIOP协议：</h6><p>在WebLogic控制台中，选择“服务”-&gt;”AdminServer”-&gt;”协议”，取消“启用IIOP”的勾选。并重启WebLogic项目，使配置生效。</p>
-<h6 id="控制T3服务："><a href="#控制T3服务：" class="headerlink" title="控制T3服务："></a>控制T3服务：</h6><p>在WebLogic界面中选择安全-筛选器，在下方出现的界面中找到“连接筛选器”，在里面输入：security.net.ConnectionFilterImpl，然后在连接筛选器规则中输入：127.0.0.1 * * allow t3 t3s，0.0.0.0/0 * * deny t3 t3s。最后保存并重启服务器即可生效。</p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>weblogic</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>0x03Xctf进阶刷题-1</title>
     <url>/2020/11/03/0x03Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-1/</url>
     <content><![CDATA[<h4 id="Xctf进阶刷题-1"><a href="#Xctf进阶刷题-1" class="headerlink" title="Xctf进阶刷题-1"></a>Xctf进阶刷题-1</h4><a id="more"></a>
@@ -590,6 +530,66 @@
       <tags>
         <tag>jackson</tag>
         <tag>反序列化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>0x03CVE-2020-14644 weblogic iiop反序列化漏洞分析</title>
+    <url>/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/</url>
+    <content><![CDATA[<h3 id="CVE-2020-14644-weblogic-iiop反序列化漏洞分析"><a href="#CVE-2020-14644-weblogic-iiop反序列化漏洞分析" class="headerlink" title="CVE-2020-14644 weblogic iiop反序列化漏洞分析"></a>CVE-2020-14644 weblogic iiop反序列化漏洞分析</h3><p>参考：</p>
+<p>0x1 <a href="https://my.oschina.net/u/4280983/blog/4477476">https://my.oschina.net/u/4280983/blog/4477476</a></p>
+<p>0x2 宽字节的推文</p>
+<a id="more"></a>
+
+<h4 id="0x1-漏洞介绍"><a href="#0x1-漏洞介绍" class="headerlink" title="0x1 漏洞介绍"></a>0x1 漏洞介绍</h4><h5 id="0x01-WebLogic组件"><a href="#0x01-WebLogic组件" class="headerlink" title="0x01 WebLogic组件"></a>0x01 WebLogic组件</h5><p>WebLogic是美国Oracle公司出品的一个application server，是一个基于JAVAEE架构的中间件，WebLogic是用于开发、集成、部署和管理大型分布式Web应用、网络应用和数据库应用的Java应用服务器，适用于云环境和传统环境的应用服务器组件。</p>
+<h5 id="0x02-漏洞简介"><a href="#0x02-漏洞简介" class="headerlink" title="0x02 漏洞简介"></a>0x02 漏洞简介</h5><p>Oracle官方在2020年7月份发布的最新安全补丁中披露了此漏洞。此漏洞CVSS评分9.8，<strong>受影响的版本是12.2.1.3.0、12.2.1.4.0和14.1.1.0.0</strong>。该漏洞允许未经身份验证的攻击者通过 IIOP , T3 进行网络访问，攻击者成功攻击此漏洞可能导致Oracle WebLogic Server被接管。</p>
+<h4 id="0x2-漏洞分析"><a href="#0x2-漏洞分析" class="headerlink" title="0x2 漏洞分析"></a>0x2 漏洞分析</h4><h5 id="0x01-相关知识"><a href="#0x01-相关知识" class="headerlink" title="0x01 相关知识"></a>0x01 相关知识</h5><h6 id="JDK的classloader类和defineClass方法"><a href="#JDK的classloader类和defineClass方法" class="headerlink" title="JDK的classloader类和defineClass方法"></a>JDK的classloader类和defineClass方法</h6><p>​    一个类在被使用之前，会经历class文件生成—&gt;加载—&gt;连接—&gt;初始化等阶段。其中加载阶段主要完成三件事：1、通过类的全限定名来获取定义次类的二进制字节流，2、将该二进制字节流定义的静态数据结构转换成方法区的运行时数据结构，3、在内存中生成一个代表该类的Class对象，供外部通过该对象来获取类的元数据信息。</p>
+<p>​    JDK中的ClassLoader类中有个方法是defineClass，可以根据类全限定名和类的字节数组，加载一个类并返回对应的Class对象到 JVM（Java Virtual Machine）中。</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110556771.png" alt="image-20201015110556771"></p>
+<p>如上图所示，如果参数’name’（类名）和’b’（类文件的二进制数据）可控，理论上我们可以加载任何类，我们可以通过该方法，构造符合class格式的bytes数组作为类去加载。（注意：1、一般情况下，通过defineClass加载的类不允许同名，2、一个类中的类名name和类字节数组b中的类名要对应）</p>
+<h6 id="javassist"><a href="#javassist" class="headerlink" title="javassist"></a>javassist</h6><p>​    javassist是一个开源的分析、编辑和创建Java字节码的类库。它提供了更高级的API，执行效率相对ASM较差，但无需掌握字节码指令的知识，对使用者要求较低。它直接使用java编码的形式，不需要了解虚拟机指令，就能动态改变类的结构，或者动态生成类。</p>
+<h5 id="0x02-漏洞代码分析"><a href="#0x02-漏洞代码分析" class="headerlink" title="0x02 漏洞代码分析"></a>0x02 漏洞代码分析</h5><p>该漏洞的原理是在反序列化时，通过使用defineClass方法，加载恶意类。</p>
+<p>关键类：com.tangosol.internal.util.invoke.RemoteConstructor</p>
+<p>在RemoteConstructor类中，构造实例的代码如下：</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014111222573.png" alt="image-20201014111222573"></p>
+<p>其中RemotableSupport类，可以理解为是coherence自定义的Classloader，在其中实现了defineClass，具有加载类的功能。查看其中的realize方法：</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110307308.png" alt="image-20201015110307308"></p>
+<p>先执行this.registerIfAbsent(constructor.getDefinition())方法</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110341915.png" alt="image-20201015110341915"></p>
+<p>RemotableSupport中定义了 Map 类型的 f_mapDefinitions 的变量充当缓存，每次调用realize时就会先在缓存中查找ClassDefinition。</p>
+<p>执行完成后，调用getRemotableClass方法，获取clz。查看ClassDefinition类</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014112030482.png" alt="image-20201014112030482"></p>
+<p>可以看到getRemotableClass返回m_clz,并且m_clz是用transient修饰的（transient的含义：将不需要序列化的属性前添加关键字transient，序列化对象的时候，这个属性就不会被序列化，最终变量为NULL）</p>
+<p>所以clz为NULL。于是在realize方法中，就会进入if分支，调用defineClass加载恶意类字节码。</p>
+<p>RemotableSupport 继承了ClassLoader，所以它的 defineClass 就是调用了父类的 defineClass来加载类。</p>
+<p>需要注意的是BinClassName变量的命名，使用的是ClassIdentity类中的getName方法</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110410957.png" alt="image-20201015110410957"></p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110448486.png" alt="image-20201015110448486"></p>
+<p>ClassIdentity类中的构造方法是将clazz作为参数，然后提取该类的一些特征信息，如Basename等。其中getName函数可以简化为：getName() = package + “/“ + baseName + “$” + version</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014105230694.png" alt="image-20201014105230694"></p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014105430256.png" alt="image-20201014105430256"></p>
+<p>所以 ClassIdentity 中的字节数组 byte[] 中的对应的 Class 的类名必须为 package + “.” + baseName + “$” + version，否则可能会加载失败。</p>
+<p>继续分析realize方法，加载类之后调用了createInstance方法</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201014152406910.png" alt="image-20201014152406910"></p>
+<p>aoArgs作为参数进行实例化对象，所以将恶意代码写在构造方法中，实例化之后就会执行恶意代码。</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110636109.png" alt="image-20201015110636109"></p>
+<p> 所以只要构造一个带有包名类的恶意代码写进构造函数中，通过 javassist动态修改类名，将原类名加上 $ 和 version 值对应，通过iiop协议和反序列化发送给weblogic服务器，即可实现漏洞利用</p>
+<h4 id="0x3-漏洞复现"><a href="#0x3-漏洞复现" class="headerlink" title="0x3 漏洞复现"></a>0x3 漏洞复现</h4><h5 id="0x01-漏洞利用-弹计算器"><a href="#0x01-漏洞利用-弹计算器" class="headerlink" title="0x01 漏洞利用-弹计算器"></a>0x01 漏洞利用-弹计算器</h5><p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110723660.png" alt="image-20201015110723660"></p>
+<h5 id="0x02-漏洞利用-信息回显"><a href="#0x02-漏洞利用-信息回显" class="headerlink" title="0x02 漏洞利用-信息回显"></a>0x02 漏洞利用-信息回显</h5><p>1、开启weblogic服务器</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110854978.png" alt="image-20201015110854978"></p>
+<p>2、查看weblogic服务器的网络配置信息</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201015110937437.png" alt="image-20201015110937437"></p>
+<p>3、在攻击机上，编写特制的恶意类（写入weblogic服务器的Ip和weblogic服务的端口以及攻击命令），打包jar包，运行，就可以直接获取到weblogic服务器的信息</p>
+<p><img src="/2020/09/07/0x03CVE-2020-14644-weblogic-iiop%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/image-20201109171158094.png" alt="image-20201109171158094"></p>
+<h4 id="0x4-漏洞防护方案"><a href="#0x4-漏洞防护方案" class="headerlink" title="0x4 漏洞防护方案"></a>0x4 漏洞防护方案</h4><h5 id="0x01-官方方案："><a href="#0x01-官方方案：" class="headerlink" title="0x01 官方方案："></a>0x01 官方方案：</h5><p>官方已经针对此漏洞发布补丁，请受影响的用户参考以下链接安装补丁更新：</p>
+<p><a href="https://www.oracle.com/security-alerts/cpujul2020.html">https://www.oracle.com/security-alerts/cpujul2020.html</a></p>
+<h5 id="0x02-临时解决方案："><a href="#0x02-临时解决方案：" class="headerlink" title="0x02 临时解决方案："></a>0x02 临时解决方案：</h5><h6 id="关闭IIOP协议："><a href="#关闭IIOP协议：" class="headerlink" title="关闭IIOP协议："></a>关闭IIOP协议：</h6><p>在WebLogic控制台中，选择“服务”-&gt;”AdminServer”-&gt;”协议”，取消“启用IIOP”的勾选。并重启WebLogic项目，使配置生效。</p>
+<h6 id="控制T3服务："><a href="#控制T3服务：" class="headerlink" title="控制T3服务："></a>控制T3服务：</h6><p>在WebLogic界面中选择安全-筛选器，在下方出现的界面中找到“连接筛选器”，在里面输入：security.net.ConnectionFilterImpl，然后在连接筛选器规则中输入：127.0.0.1 * * allow t3 t3s，0.0.0.0/0 * * deny t3 t3s。最后保存并重启服务器即可生效。</p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>weblogic</tag>
       </tags>
   </entry>
   <entry>
@@ -860,40 +860,26 @@
       </categories>
   </entry>
   <entry>
-    <title>0x06Cve-2020-1956、Cve-2020-13925复现</title>
-    <url>/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h4 id="Cve-2020-1956、Cve-2020-13925复现"><a href="#Cve-2020-1956、Cve-2020-13925复现" class="headerlink" title="Cve-2020-1956、Cve-2020-13925复现"></a>Cve-2020-1956、Cve-2020-13925复现</h4><p>参考：<a href="https://paper.seebug.org/1237/">https://paper.seebug.org/1237/</a></p>
-<p><a href="http://www.ijiandao.com/2b/baijia/373874.html">http://www.ijiandao.com/2b/baijia/373874.html</a></p>
-<p>这两个都是Kylin下的漏洞，放在一起复现了</p>
+    <title>0x07cve-2020-13933复现</title>
+    <url>/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="cve-2020-13933：Apache-shiro-权限绕过漏洞复现"><a href="#cve-2020-13933：Apache-shiro-权限绕过漏洞复现" class="headerlink" title="cve-2020-13933：Apache shiro 权限绕过漏洞复现"></a>cve-2020-13933：Apache shiro 权限绕过漏洞复现</h4><p>这个复现非常简单，先用IDEA+shiro搭环境</p>
+<p>参考：<a href="https://www.cnblogs.com/ph4nt0mer/p/13535999.html">https://www.cnblogs.com/ph4nt0mer/p/13535999.html</a></p>
 <a id="more"></a>
 
-<p>环境：<strong>Kylin</strong> 官网文档 <a href="http://kylin.apache.org/cn/docs/install/kylin_docker.html">http://kylin.apache.org/cn/docs/install/kylin_docker.html</a></p>
-<h5 id="0x1-docker里下环境"><a href="#0x1-docker里下环境" class="headerlink" title="0x1 docker里下环境"></a>0x1 docker里下环境</h5><p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201109181510327.png" alt="image-20201109181510327"></p>
-<h5 id="0x2-运行docker"><a href="#0x2-运行docker" class="headerlink" title="0x2 运行docker"></a>0x2 运行docker</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">-m 8G \</span><br><span class="line">-p 7070:7070 \</span><br><span class="line">-p 8088:8088 \</span><br><span class="line">-p 50070:50070 \</span><br><span class="line">-p 8032:8032 \</span><br><span class="line">-p 8042:8042 \</span><br><span class="line">-p 16010:16010 \</span><br><span class="line">apachekylin&#x2F;apache-kylin-standalone:3.0.1</span><br></pre></td></tr></table></figure>
-
-<p>注意：login的页面要等一会儿才能出来（一开始一直没有页面还以为是哪里有问题查了一会儿…..</p>
-<h5 id="0x3-使用默认密码-admin-KYLIN-登录"><a href="#0x3-使用默认密码-admin-KYLIN-登录" class="headerlink" title="0x3 使用默认密码 admin/KYLIN 登录"></a>0x3 使用默认密码 <strong>admin/KYLIN</strong> 登录</h5><p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021111136838.png" alt="image-20201021111136838"></p>
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021111207181.png" alt="image-20201021111207181"></p>
-<h5 id="0x01-Cve-2020-1956"><a href="#0x01-Cve-2020-1956" class="headerlink" title="0x01 Cve-2020-1956:"></a>0x01 Cve-2020-1956:</h5><p>0x001 修改配置：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">kylin.tool.auuto-migrate-cube.enabled&#x3D;true</span><br><span class="line">kylin.tool.auto-migrate-cube.src-config&#x3D;&#x2F;home&#x2F;admin&#x2F;apache-kylin-3.0.1-bin-hbase1x&#x2F;conf&#x2F;kylin.propertie</span><br><span class="line">kylin.server.cluster-name&#x3D;kylin_metadata</span><br><span class="line">kylin.tool.auto-migrate-cube.dest-config&#x3D;&#x2F;tmp&#x2F;kylin.properties kylin_streaming_cube learn_kylin true true true true;touch &#x2F;tmp&#x2F;kami;echo</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021142624221.png" alt="image-20201021142624221"></p>
-<p>0x002 发包，可以看到返回200</p>
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021114530646.png" alt="image-20201021114530646"></p>
-<p>0x003 进入查看（docker exec -it <CONTAINER id> bash），可以看到我们写进配置的语句被执行了，生成文件成功</CONTAINER></p>
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021114830282.png" alt="image-20201021114830282"></p>
-<h5 id="0x02-Cve-2020-13925"><a href="#0x02-Cve-2020-13925" class="headerlink" title="0x02 Cve-2020-13925:"></a>0x02 Cve-2020-13925:</h5><p>0x001 选择一个项目，点击diagnosis，抓包</p>
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021143637495.png" alt="image-20201021143637495"></p>
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021143717266.png" alt="image-20201021143717266"></p>
-<p>0x002 改包，即可</p>
-<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021150700075.png" alt="image-20201021150700075"></p>
-<p>这里有一个额外的知识：burp的collaborator模块</p>
+<p>然后运行，访问，抓包即可</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200923095122117.png" alt="image-20200923095122117"></p>
+<p>访问test，成功</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183129207.png" alt="image-20200922183129207"></p>
+<p>要越权访问test文件夹下的内容，跳转到登录界面</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183151071.png" alt="image-20200922183151071"></p>
+<p>进行%3b的操作，绕过登录访问到了页面内容</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183207361.png" alt="image-20200922183207361"></p>
 ]]></content>
       <categories>
         <category>漏洞复现</category>
       </categories>
       <tags>
-        <tag>kylin</tag>
+        <tag>apaches shiro</tag>
       </tags>
   </entry>
   <entry>
@@ -1041,26 +1027,40 @@
       </categories>
   </entry>
   <entry>
-    <title>0x07cve-2020-13933复现</title>
-    <url>/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h4 id="cve-2020-13933：Apache-shiro-权限绕过漏洞复现"><a href="#cve-2020-13933：Apache-shiro-权限绕过漏洞复现" class="headerlink" title="cve-2020-13933：Apache shiro 权限绕过漏洞复现"></a>cve-2020-13933：Apache shiro 权限绕过漏洞复现</h4><p>这个复现非常简单，先用IDEA+shiro搭环境</p>
-<p>参考：<a href="https://www.cnblogs.com/ph4nt0mer/p/13535999.html">https://www.cnblogs.com/ph4nt0mer/p/13535999.html</a></p>
+    <title>0x06Cve-2020-1956、Cve-2020-13925复现</title>
+    <url>/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="Cve-2020-1956、Cve-2020-13925复现"><a href="#Cve-2020-1956、Cve-2020-13925复现" class="headerlink" title="Cve-2020-1956、Cve-2020-13925复现"></a>Cve-2020-1956、Cve-2020-13925复现</h4><p>参考：<a href="https://paper.seebug.org/1237/">https://paper.seebug.org/1237/</a></p>
+<p><a href="http://www.ijiandao.com/2b/baijia/373874.html">http://www.ijiandao.com/2b/baijia/373874.html</a></p>
+<p>这两个都是Kylin下的漏洞，放在一起复现了</p>
 <a id="more"></a>
 
-<p>然后运行，访问，抓包即可</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200923095122117.png" alt="image-20200923095122117"></p>
-<p>访问test，成功</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183129207.png" alt="image-20200922183129207"></p>
-<p>要越权访问test文件夹下的内容，跳转到登录界面</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183151071.png" alt="image-20200922183151071"></p>
-<p>进行%3b的操作，绕过登录访问到了页面内容</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183207361.png" alt="image-20200922183207361"></p>
+<p>环境：<strong>Kylin</strong> 官网文档 <a href="http://kylin.apache.org/cn/docs/install/kylin_docker.html">http://kylin.apache.org/cn/docs/install/kylin_docker.html</a></p>
+<h5 id="0x1-docker里下环境"><a href="#0x1-docker里下环境" class="headerlink" title="0x1 docker里下环境"></a>0x1 docker里下环境</h5><p><img src="/Users/kami/Desktop/hexo/source/_posts/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201109181510327.png" alt="image-20201109181510327"></p>
+<h5 id="0x2-运行docker"><a href="#0x2-运行docker" class="headerlink" title="0x2 运行docker"></a>0x2 运行docker</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">-m 8G \</span><br><span class="line">-p 7070:7070 \</span><br><span class="line">-p 8088:8088 \</span><br><span class="line">-p 50070:50070 \</span><br><span class="line">-p 8032:8032 \</span><br><span class="line">-p 8042:8042 \</span><br><span class="line">-p 16010:16010 \</span><br><span class="line">apachekylin&#x2F;apache-kylin-standalone:3.0.1</span><br></pre></td></tr></table></figure>
+
+<p>注意：login的页面要等一会儿才能出来（一开始一直没有页面还以为是哪里有问题查了一会儿…..</p>
+<h5 id="0x3-使用默认密码-admin-KYLIN-登录"><a href="#0x3-使用默认密码-admin-KYLIN-登录" class="headerlink" title="0x3 使用默认密码 admin/KYLIN 登录"></a>0x3 使用默认密码 <strong>admin/KYLIN</strong> 登录</h5><p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021111136838.png" alt="image-20201021111136838"></p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021111207181.png" alt="image-20201021111207181"></p>
+<h5 id="0x01-Cve-2020-1956"><a href="#0x01-Cve-2020-1956" class="headerlink" title="0x01 Cve-2020-1956:"></a>0x01 Cve-2020-1956:</h5><p>0x001 修改配置：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">kylin.tool.auuto-migrate-cube.enabled&#x3D;true</span><br><span class="line">kylin.tool.auto-migrate-cube.src-config&#x3D;&#x2F;home&#x2F;admin&#x2F;apache-kylin-3.0.1-bin-hbase1x&#x2F;conf&#x2F;kylin.propertie</span><br><span class="line">kylin.server.cluster-name&#x3D;kylin_metadata</span><br><span class="line">kylin.tool.auto-migrate-cube.dest-config&#x3D;&#x2F;tmp&#x2F;kylin.properties kylin_streaming_cube learn_kylin true true true true;touch &#x2F;tmp&#x2F;kami;echo</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021142624221.png" alt="image-20201021142624221"></p>
+<p>0x002 发包，可以看到返回200</p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021114530646.png" alt="image-20201021114530646"></p>
+<p>0x003 进入查看（docker exec -it <CONTAINER id> bash），可以看到我们写进配置的语句被执行了，生成文件成功</CONTAINER></p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021114830282.png" alt="image-20201021114830282"></p>
+<h5 id="0x02-Cve-2020-13925"><a href="#0x02-Cve-2020-13925" class="headerlink" title="0x02 Cve-2020-13925:"></a>0x02 Cve-2020-13925:</h5><p>0x001 选择一个项目，点击diagnosis，抓包</p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021143637495.png" alt="image-20201021143637495"></p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021143717266.png" alt="image-20201021143717266"></p>
+<p>0x002 改包，即可</p>
+<p><img src="/2020/10/21/0x06Cve-2020-1956%E3%80%81Cve-2020-13925%E5%A4%8D%E7%8E%B0/image-20201021150700075.png" alt="image-20201021150700075"></p>
+<p>这里有一个额外的知识：burp的collaborator模块</p>
 ]]></content>
       <categories>
         <category>漏洞复现</category>
       </categories>
       <tags>
-        <tag>apaches shiro</tag>
+        <tag>kylin</tag>
       </tags>
   </entry>
   <entry>
@@ -1120,6 +1120,29 @@
       </categories>
   </entry>
   <entry>
+    <title>0x0ACVE-2020-8617复现</title>
+    <url>/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="CVE-2020-8617复现"><a href="#CVE-2020-8617复现" class="headerlink" title="CVE-2020-8617复现"></a>CVE-2020-8617复现</h4><p>参考：<a href="https://github.com/knqyf263/CVE-2020-8617">https://github.com/knqyf263/CVE-2020-8617</a></p>
+<a id="more"></a>
+
+<p>0x1 下载docker镜像后运行（服务器环境）</p>
+<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201110095624465.png" alt="image-20201110095624465"></p>
+<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103142215582.png" alt="image-20201103142215582"></p>
+<p>0x2 安装pipenv</p>
+<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201110095701235.png" alt="image-20201110095701235"></p>
+<p>0x3 因为已经有pipfile.lock文件，所以运行脚本会自动安装依赖，可以看到运行脚本之后服务器就崩溃了</p>
+<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103143139388.png" alt="image-20201103143139388"></p>
+<p>0x4 流量包情况</p>
+<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103145742284.png" alt="image-20201103145742284"></p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>pipenv</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>0x0BCve-2020-7361 禅道远程代码执行漏洞复现</title>
     <url>/2020/11/05/0x0BCve-2020-7361-%E7%A6%85%E9%81%93%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</url>
     <content><![CDATA[<h4 id="0x0B-Cve-2020-7361-禅道远程代码执行漏洞复现"><a href="#0x0B-Cve-2020-7361-禅道远程代码执行漏洞复现" class="headerlink" title="0x0B Cve-2020-7361 禅道远程代码执行漏洞复现"></a>0x0B Cve-2020-7361 禅道远程代码执行漏洞复现</h4><p>poc：<a href="https://github.com/rapid7/metasploit-framework/pull/13828">https://github.com/rapid7/metasploit-framework/pull/13828</a></p>
@@ -1161,29 +1184,6 @@
       <tags>
         <tag>kali</tag>
         <tag>metasploit</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>0x0ACVE-2020-8617复现</title>
-    <url>/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h4 id="CVE-2020-8617复现"><a href="#CVE-2020-8617复现" class="headerlink" title="CVE-2020-8617复现"></a>CVE-2020-8617复现</h4><p>参考：<a href="https://github.com/knqyf263/CVE-2020-8617">https://github.com/knqyf263/CVE-2020-8617</a></p>
-<a id="more"></a>
-
-<p>0x1 下载docker镜像后运行（服务器环境）</p>
-<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201110095624465.png" alt="image-20201110095624465"></p>
-<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103142215582.png" alt="image-20201103142215582"></p>
-<p>0x2 安装pipenv</p>
-<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201110095701235.png" alt="image-20201110095701235"></p>
-<p>0x3 因为已经有pipfile.lock文件，所以运行脚本会自动安装依赖，可以看到运行脚本之后服务器就崩溃了</p>
-<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103143139388.png" alt="image-20201103143139388"></p>
-<p>0x4 流量包情况</p>
-<p><img src="/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/image-20201103145742284.png" alt="image-20201103145742284"></p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>pipenv</tag>
       </tags>
   </entry>
   <entry>
@@ -1448,6 +1448,106 @@
       </categories>
   </entry>
   <entry>
+    <title>CVE-2021-24086 Windows TCP/IP 拒绝服务漏洞复现分析</title>
+    <url>/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/</url>
+    <content><![CDATA[<h4 id="CVE-2021-24086-复现"><a href="#CVE-2021-24086-复现" class="headerlink" title="CVE-2021-24086 复现"></a>CVE-2021-24086 复现</h4><p>参考：</p>
+<blockquote>
+<p><a href="https://blog.quarkslab.com/analysis-of-a-windows-ipv6-fragmentation-vulnerability-cve-2021-24086.html">https://blog.quarkslab.com/analysis-of-a-windows-ipv6-fragmentation-vulnerability-cve-2021-24086.html</a></p>
+<p><a href="https://doar-e.github.io/blog/2021/04/15/reverse-engineering-tcpipsys-mechanics-of-a-packet-of-the-death-cve-2021-24086/#the-mechanics-of-parsing-an-ipv6-packet">https://doar-e.github.io/blog/2021/04/15/reverse-engineering-tcpipsys-mechanics-of-a-packet-of-the-death-cve-2021-24086/#the-mechanics-of-parsing-an-ipv6-packet</a></p>
+</blockquote>
+<a id="more"></a>
+
+<h4 id="0x1-复现过程："><a href="#0x1-复现过程：" class="headerlink" title="0x1 复现过程："></a>0x1 复现过程：</h4><h5 id="0x01-靶机环境"><a href="#0x01-靶机环境" class="headerlink" title="0x01 靶机环境"></a>0x01 靶机环境</h5><p>一个win7虚拟机，查看IPV6地址后记录</p>
+<h5 id="0x02-攻击机运行poc"><a href="#0x02-攻击机运行poc" class="headerlink" title="0x02 攻击机运行poc"></a>0x02 攻击机运行poc</h5><p>同局域网下的一个kali虚拟机，运行poc，进行发包</p>
+<p><img src="/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210817103826864.png" alt="image-20210817103826864"></p>
+<h5 id="0x03-攻击成功，靶机蓝屏重启"><a href="#0x03-攻击成功，靶机蓝屏重启" class="headerlink" title="0x03 攻击成功，靶机蓝屏重启"></a>0x03 攻击成功，靶机蓝屏重启</h5><p><img src="/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210818162353841.png" alt="image-20210818162353841"></p>
+<p><img src="/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210817103818174.png" alt="image-20210817103818174"></p>
+<h4 id="0x2-漏洞部分分析："><a href="#0x2-漏洞部分分析：" class="headerlink" title="0x2 漏洞部分分析："></a>0x2 漏洞部分分析：</h4><h5 id="0x20-前置知识"><a href="#0x20-前置知识" class="headerlink" title="0x20 前置知识"></a>0x20 前置知识</h5><h6 id="0x201-驱动程序tcpip-sys"><a href="#0x201-驱动程序tcpip-sys" class="headerlink" title="0x201 驱动程序tcpip.sys"></a>0x201 驱动程序tcpip.sys</h6><p>Microsoft Windows中的TCP/IP功能在内核级别运行，并由驱动程序tcpip.sys提供。该驱动程序处理所有传入和传出的TCP/IP通信信息，包括解析从网络接口接收到的数据包，以及解释此数据并将其传递给更高级别的组件。</p>
+<h6 id="0x202-ipv6分片"><a href="#0x202-ipv6分片" class="headerlink" title="0x202 ipv6分片"></a>0x202 ipv6分片</h6><blockquote>
+<p><a href="https://datatracker.ietf.org/doc/html/rfc8200#section-4.5">https://datatracker.ietf.org/doc/html/rfc8200#section-4.5</a></p>
+</blockquote>
+<p><strong>分片</strong></p>
+<p>为了发送一个太大而无法放入MTU（最大传输单元）的数据包到目的地的路径，源节点将数据包分成片段，并将每个片段作为单独的数据包发送，在接收处重新组装。</p>
+<p><strong>分片过程</strong></p>
+<p>Fragment 标头</p>
+<p><img src="/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210818135823005.png" alt="image-20210818135823005"></p>
+<p>其中每个字段：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Next Header-下一个         8-bit</span><br><span class="line">Reserved-保留字段            8-bit</span><br><span class="line">Fragment Offset-片段偏移量     13-bit：标头后面的数据是在重组数据包中的哪个位置（偏移量）</span><br><span class="line">Res                 2-bit</span><br><span class="line">M flag              1 &#x3D; more fragments; 0 &#x3D; last fragment</span><br><span class="line">Identification      32 bits</span><br></pre></td></tr></table></figure>
+
+<p>原始数据包中的Per-Fragment Headers是不分片部分，其中含有IPv6 标头、Hop-by-Hop Options标头</p>
+<p>剩下的部分是一个Extension &amp; Upper-Layer Headers和分出来的多个fragment数据</p>
+<p>然后每个fragment数据和Per-Fragment Headers以及一个fragment header组合成一个新的数据包进行发送</p>
+<p>即每个分片数据包由不可分片部分（Per-Fragment Headers）、分片报头（fragment header）和可分片部分的切片（fragment数据）组成</p>
+<p>分片流程如下：</p>
+<p><img src="/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210818140303683.png" alt="image-20210818140303683"></p>
+<p>重组过程则是将第一个数据包的不分片部分与所有重组的可分片部分拼接成一个重组包，流程如下：</p>
+<p><img src="/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210818180411748.png" alt="image-20210818180411748"></p>
+<h5 id="0x21-漏洞原理"><a href="#0x21-漏洞原理" class="headerlink" title="0x21 漏洞原理"></a>0x21 漏洞原理</h5><p>（不知为何蓝屏导出来的dmp文件在windbg中没法看到调用链，所以就引用大佬的图了</p>
+<p>漏洞的根本原因是Ipv6pReassembleDatagram 中产生的空指针引用</p>
+<p><img src="/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210818165203285.png" alt="image-20210818165203285"></p>
+<p><img src="/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210818165357425.png" alt="image-20210818165357425"></p>
+<p>可以看到是tcpip!Ipv6ReassembleDatagram中的NdisGetDataBuffer返回了一个NULL指针导致的崩溃</p>
+<p>使用IDA64反编译驱动程序tcpip.sys（win7）</p>
+<p>找到tcpip!Ipv6ReassembleDatagram函数（负责重新组装接收到的分片数据包的功能）</p>
+<p>使用NdisGetDataBuffer函数，返回了一个连续数据开头的指针Dsta，然后使用memmove进行缓冲区转移，当引用的Dsta指针是NULL的时候，也就是空指针引用，就会引起崩溃</p>
+<p><img src="/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210818165538248.png" alt="image-20210818165538248"></p>
+<h5 id="0x22-poc原理"><a href="#0x22-poc原理" class="headerlink" title="0x22 poc原理"></a>0x22 poc原理</h5><h6 id="0x221-如何让Dsta指针返回NULL"><a href="#0x221-如何让Dsta指针返回NULL" class="headerlink" title="0x221 如何让Dsta指针返回NULL"></a>0x221 如何让Dsta指针返回NULL</h6><blockquote>
+<p><a href="https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/nblapi/nf-nblapi-ndisgetdatabuffer">https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/nblapi/nf-nblapi-ndisgetdatabuffer</a></p>
+<p>函数定义：NDIS_EXPORTED_ROUTINE PVOID NdisGetDataBuffer(  </p>
+<p>NET_BUFFER *NetBuffer,  </p>
+<p>ULONG      BytesNeeded,  </p>
+<p>PVOID      Storage,  </p>
+<p>ULONG      AlignMultiple,  </p>
+<p>ULONG      AlignOffset );</p>
+<p><strong>NdisGetDataBuffer</strong>返回指向连续数据开头的指针或返回<strong>NULL</strong>。</p>
+<p>如果<em>NetBuffer</em> 参数指向的<a href="https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/nbl/ns-nbl-net_buffer_data">NET_BUFFER</a>结构中 <a href="https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/nbl/ns-nbl-net_buffer">NET_BUFFER_DATA</a>结构的<strong>DataLength</strong>成员小于 <em>BytesNeeded</em>参数中的值，则返回值为<strong>NULL</strong>。</p>
+<p>如果缓冲区中请求的数据是连续的，则返回值是指向 NDIS 提供的位置的指针。如果数据不连续，NDIS 使用 <em>Storage</em>参数如下：</p>
+<ul>
+<li>如果 <em>Storage</em>参数为非<strong>NULL</strong>，则 NDIS 将数据复制到<em>Storage</em>处的缓冲区 。返回值是传递给<em>Storage</em>参数的指针 。</li>
+<li>如果 <em>Storage</em>参数为<strong>NULL</strong>，则返回值为<strong>NULL</strong>。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p><a href="https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/nbl/ns-nbl-net_buffer">https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/nbl/ns-nbl-net_buffer</a></p>
+<p>DataLength：MDL 链中使用的数据空间的长度（以字节为单位）。最大长度为 0xFFFFFFFF 字节。</p>
+</blockquote>
+<p>根据上面两个函数规定，满足Net Buffer Data中DataLength成员小于BytesNeeded参数中的值的条件，就会返回NULL指针</p>
+<p><strong>注意：</strong>继续分析Ipv6ReassembleDatagram函数，图中的NdisRetreatNetBufferDataStart函数中的Dst参数被uint16_t截断了</p>
+<p><img src="/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210818172828058.png" alt="image-20210818172828058"></p>
+<p>根据图中代码，可以理解为Dst参数就是不分片部分的长度+ipv6头的长度</p>
+<p><img src="/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210818180211148.png" alt="image-20210818180211148"></p>
+<p>其中a2是Ipv6pReceiveFragment中的v21=v18=Ipv6pFragmentLookup的返回值=v11=i，可以理解为需要重组的数据包的集合</p>
+<p>Ipv6pReceiveFragment：</p>
+<p><img src="/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210818175059255.png" alt="image-20210818175059255"></p>
+<p><img src="/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210818175023952.png" alt="image-20210818175023952"></p>
+<p>Ipv6pFragmentLookup</p>
+<p><img src="/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210818175125251.png" alt="image-20210818175125251"></p>
+<blockquote>
+<p><a href="https://docs.microsoft.com/zh-cn/windows-hardware/drivers/ddi/nblapi/nf-nblapi-ndisretreatnetbufferdatastart">https://docs.microsoft.com/zh-cn/windows-hardware/drivers/ddi/nblapi/nf-nblapi-ndisretreatnetbufferdatastart</a></p>
+<p>NdisRetreatNetBufferDataStart函数:Call the <strong>NdisRetreatNetBufferDataStart</strong> function to access more <em>used data space</em> in the MDL chain of a <a href="https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/nbl/ns-nbl-net_buffer">NET_BUFFER</a> structure.</p>
+</blockquote>
+<p>那么比如Dst为0x11111，通过NdisRetreatNetBufferDataStart函数（可以理解为功能是获取一个MDL 链中可以使用的数据空间）截断后，MDL 链中使用的数据空间的长度就是0x1111（可以理解为一个0x1111的缓冲区），但是NdisGetDataBuffer函数使用了Dst也就是0x11111大小的数据来进行缓冲区转移，那么就会成功达到NetBuffer-&gt;DataLength &lt; BytesNeeded 的值的条件，因此返回NULL指针。</p>
+<h6 id="0x222-如何发送一个巨大的包"><a href="#0x222-如何发送一个巨大的包" class="headerlink" title="0x222 如何发送一个巨大的包"></a>0x222 如何发送一个巨大的包</h6><p>对具有非常大标头的数据包进行分段并使堆栈重新组装已经重新组装的数据包</p>
+<p>先创建一个需要重组的数据包，在最后一个包中，设置m=1，即需要分片，并且标识值和第二个数据包相同</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">IPv6ExtHdrFragment(</span><br><span class="line">            id &#x3D; second_pkt_id, m &#x3D; 1,</span><br><span class="line">            nh &#x3D; 17, offset &#x3D; 0</span><br><span class="line">        )</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210819091132061.png" alt="image-20210819091132061"></p>
+<p>设置第二个数据包</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">reassembled_pkt_2 &#x3D; Ether() \</span><br><span class="line">        &#x2F; IPv6(dst &#x3D; args.target) \</span><br><span class="line">        &#x2F; IPv6ExtHdrFragment(id &#x3D; second_pkt_id, m &#x3D; 0, offset &#x3D; 1, nh &#x3D; 17) \</span><br><span class="line">        &#x2F; &#39;doar-e ftw&#39;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210819091341303.png" alt="image-20210819091341303"></p>
+<p>接收到第一个数据包后，系统开始重组，解析到最后一个分片时，Ipv6ReassembleDatagram函数运行到这里，这里的v30就是分片标识符m，如果还需要继续分片，就会运行到else中的IppReceiveHeaderBatch函数</p>
+<p><img src="/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210819092445786.png" alt="image-20210819092445786"></p>
+<p>在IppReceiveHeaderBatch函数中，系统会再次调用tcpip!Ipv6pReceiveFragmentList函数，并且认为之前的数据包长度是第二个数据包的已经处理过的数据长度，并设置为不分片的数据长度，最终加上ipv6头，导致不分片的数据长度也就是Dst参数超过0xffff，引起崩溃</p>
+]]></content>
+      <categories>
+        <category>二进制漏洞</category>
+      </categories>
+      <tags>
+        <tag>tcpip.sys</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>django-webproject</title>
     <url>/2021/03/05/django-webproject/</url>
     <content><![CDATA[<h4 id="django网站搭建"><a href="#django网站搭建" class="headerlink" title="django网站搭建"></a>django网站搭建</h4><p>–关于我最近在干嘛–</p>
@@ -1651,6 +1751,41 @@
       </tags>
   </entry>
   <entry>
+    <title>mac下pyqt5+pycharm的环境配置</title>
+    <url>/2021/06/10/mac%E4%B8%8Bpyqt5-pycharm%E7%9A%84%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<p>因为最近学习了很多，然后写了一些小的脚本，想合成一下，就研究了一下python的图形化编程，配置了一上午，也踩了点坑，终于配置成功了。</p>
+<a id="more"></a>
+
+<h5 id="0x1-在pycharm中安装库文件"><a href="#0x1-在pycharm中安装库文件" class="headerlink" title="0x1 在pycharm中安装库文件"></a>0x1 在pycharm中安装库文件</h5><p>PyQt5和pyqt5-tools，会附带下一些其他的库文件的</p>
+<p><img src="/2021/06/10/mac%E4%B8%8Bpyqt5-pycharm%E7%9A%84%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20210610150145658.png" alt="image-20210610150145658"></p>
+<p>下载源：</p>
+<p><img src="/2021/06/10/mac%E4%B8%8Bpyqt5-pycharm%E7%9A%84%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20210610150220633.png" alt="image-20210610150220633"></p>
+<h5 id="0x2-安装external-tools"><a href="#0x2-安装external-tools" class="headerlink" title="0x2 安装external tools"></a>0x2 安装external tools</h5><p>在tools里面，配置qt designer和pyuic</p>
+<p>路径如下：</p>
+<p><strong>qt designer：</strong></p>
+<p>program：site-packages/qt5_applications/Qt/bin/Designer.app</p>
+<p><strong>pyuic：</strong></p>
+<p>program：项目python的路径</p>
+<p>arguments：-m PyQt5.uic.pyuic  $FileName$ -o $FileNameWithoutExtension$.py</p>
+<p><img src="/2021/06/10/mac%E4%B8%8Bpyqt5-pycharm%E7%9A%84%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20210610151237291.png" alt="image-20210610151237291"></p>
+<p><img src="/2021/06/10/mac%E4%B8%8Bpyqt5-pycharm%E7%9A%84%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20210610151320248.png" alt="image-20210610151320248"></p>
+<p>此时我们简单的配置就完成了</p>
+<h5 id="0x3-运行"><a href="#0x3-运行" class="headerlink" title="0x3 运行"></a>0x3 运行</h5><p>使用qt designer生成一个ui文件在文件夹下，然后使用pyuic转换成py文件</p>
+<p><img src="/2021/06/10/mac%E4%B8%8Bpyqt5-pycharm%E7%9A%84%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20210610152501223.png" alt="image-20210610152501223"></p>
+<p>接下来我们在test里面调用它</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">import sys</span><br><span class="line">from PyQt5.QtWidgets import QApplication, QMainWindow</span><br><span class="line">import ui #ui.py</span><br><span class="line">class MyWindow(QMainWindow, ui.Ui_MainWindow):</span><br><span class="line">    def __init__(self, parent&#x3D;None):</span><br><span class="line">        super(MyWindow, self).__init__(parent)</span><br><span class="line">        self.setupUi(self)</span><br><span class="line"></span><br><span class="line">if __name__ &#x3D;&#x3D; &#39;__main__&#39;:</span><br><span class="line">    app &#x3D; QApplication(sys.argv)</span><br><span class="line">    myWin &#x3D; MyWindow()</span><br><span class="line">    myWin.show()</span><br><span class="line">    sys.exit(app.exec_())</span><br></pre></td></tr></table></figure>
+
+<p>此时出现了一个问题：</p>
+<p><img src="/2021/06/10/mac%E4%B8%8Bpyqt5-pycharm%E7%9A%84%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20210610153155166.png" alt="image-20210610153155166"></p>
+<p>解决方法：看了网上很多的都没用，尝试了下在pycharm里添加环境变量，就成功了</p>
+<p><img src="/2021/06/10/mac%E4%B8%8Bpyqt5-pycharm%E7%9A%84%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20210610152929133.png" alt="image-20210610152929133"></p>
+<p><img src="/2021/06/10/mac%E4%B8%8Bpyqt5-pycharm%E7%9A%84%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20210610154327948.png" alt="image-20210610154327948"></p>
+]]></content>
+      <tags>
+        <tag>pyqt5</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>mac+gitbook笔记环境搭建</title>
     <url>/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</url>
     <content><![CDATA[<h4 id="mac-gitbook笔记环境搭建"><a href="#mac-gitbook笔记环境搭建" class="headerlink" title="mac+gitbook笔记环境搭建"></a>mac+gitbook笔记环境搭建</h4><p>为了更方便看笔记以及总结漏洞复现情况，搭建了一个gitbook环境</p>
@@ -1711,41 +1846,6 @@
       </tags>
   </entry>
   <entry>
-    <title>mac下pyqt5+pycharm的环境配置</title>
-    <url>/2021/06/10/mac%E4%B8%8Bpyqt5-pycharm%E7%9A%84%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/</url>
-    <content><![CDATA[<p>因为最近学习了很多，然后写了一些小的脚本，想合成一下，就研究了一下python的图形化编程，配置了一上午，也踩了点坑，终于配置成功了。</p>
-<a id="more"></a>
-
-<h5 id="0x1-在pycharm中安装库文件"><a href="#0x1-在pycharm中安装库文件" class="headerlink" title="0x1 在pycharm中安装库文件"></a>0x1 在pycharm中安装库文件</h5><p>PyQt5和pyqt5-tools，会附带下一些其他的库文件的</p>
-<p><img src="/2021/06/10/mac%E4%B8%8Bpyqt5-pycharm%E7%9A%84%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20210610150145658.png" alt="image-20210610150145658"></p>
-<p>下载源：</p>
-<p><img src="/2021/06/10/mac%E4%B8%8Bpyqt5-pycharm%E7%9A%84%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20210610150220633.png" alt="image-20210610150220633"></p>
-<h5 id="0x2-安装external-tools"><a href="#0x2-安装external-tools" class="headerlink" title="0x2 安装external tools"></a>0x2 安装external tools</h5><p>在tools里面，配置qt designer和pyuic</p>
-<p>路径如下：</p>
-<p><strong>qt designer：</strong></p>
-<p>program：site-packages/qt5_applications/Qt/bin/Designer.app</p>
-<p><strong>pyuic：</strong></p>
-<p>program：项目python的路径</p>
-<p>arguments：-m PyQt5.uic.pyuic  $FileName$ -o $FileNameWithoutExtension$.py</p>
-<p><img src="/2021/06/10/mac%E4%B8%8Bpyqt5-pycharm%E7%9A%84%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20210610151237291.png" alt="image-20210610151237291"></p>
-<p><img src="/2021/06/10/mac%E4%B8%8Bpyqt5-pycharm%E7%9A%84%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20210610151320248.png" alt="image-20210610151320248"></p>
-<p>此时我们简单的配置就完成了</p>
-<h5 id="0x3-运行"><a href="#0x3-运行" class="headerlink" title="0x3 运行"></a>0x3 运行</h5><p>使用qt designer生成一个ui文件在文件夹下，然后使用pyuic转换成py文件</p>
-<p><img src="/2021/06/10/mac%E4%B8%8Bpyqt5-pycharm%E7%9A%84%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20210610152501223.png" alt="image-20210610152501223"></p>
-<p>接下来我们在test里面调用它</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">import sys</span><br><span class="line">from PyQt5.QtWidgets import QApplication, QMainWindow</span><br><span class="line">import ui #ui.py</span><br><span class="line">class MyWindow(QMainWindow, ui.Ui_MainWindow):</span><br><span class="line">    def __init__(self, parent&#x3D;None):</span><br><span class="line">        super(MyWindow, self).__init__(parent)</span><br><span class="line">        self.setupUi(self)</span><br><span class="line"></span><br><span class="line">if __name__ &#x3D;&#x3D; &#39;__main__&#39;:</span><br><span class="line">    app &#x3D; QApplication(sys.argv)</span><br><span class="line">    myWin &#x3D; MyWindow()</span><br><span class="line">    myWin.show()</span><br><span class="line">    sys.exit(app.exec_())</span><br></pre></td></tr></table></figure>
-
-<p>此时出现了一个问题：</p>
-<p><img src="/2021/06/10/mac%E4%B8%8Bpyqt5-pycharm%E7%9A%84%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20210610153155166.png" alt="image-20210610153155166"></p>
-<p>解决方法：看了网上很多的都没用，尝试了下在pycharm里添加环境变量，就成功了</p>
-<p><img src="/2021/06/10/mac%E4%B8%8Bpyqt5-pycharm%E7%9A%84%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20210610152929133.png" alt="image-20210610152929133"></p>
-<p><img src="/2021/06/10/mac%E4%B8%8Bpyqt5-pycharm%E7%9A%84%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20210610154327948.png" alt="image-20210610154327948"></p>
-]]></content>
-      <tags>
-        <tag>pyqt5</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>python小脚本合集</title>
     <url>/2021/07/08/python%E5%B0%8F%E8%84%9A%E6%9C%AC%E5%90%88%E9%9B%86/</url>
     <content><![CDATA[<a id="more"></a>
@@ -1755,6 +1855,8 @@
 
 <p>输出到json：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">with open(jsonoutfile, &#39;a&#39;, encoding&#x3D;&#39;utf8&#39;)as fp:</span><br><span class="line">     json.dump(templateData, fp)</span><br><span class="line">     fp.write(&#39;\n&#39;)#加了一个换行</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cvedatas &#x3D; []</span><br><span class="line">cvedatas.append(templateData)</span><br><span class="line">with open(&quot;cve.json&quot;, &#39;a&#39;, encoding&#x3D;&#39;utf8&#39;)as f:</span><br><span class="line">    json.dump(cvedatas, f, ensure_ascii&#x3D;False)</span><br></pre></td></tr></table></figure>
 
 <p>遍历目录：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">files &#x3D; os.listdir(cacheDirPath)</span><br><span class="line">    for file in files:</span><br><span class="line">        json_transfer(os.path.join(cacheDirPath, file), jsonFile)</span><br></pre></td></tr></table></figure>
@@ -1868,180 +1970,6 @@
       </categories>
       <tags>
         <tag>seeyon OA</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>世界线偏移-2021.6.10</title>
-    <url>/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/</url>
-    <content><![CDATA[<p>近期的一些小成果：</p>
-<a id="more"></a>
-
-<p>1、成长平台百分，写了不少脚本和总结</p>
-<p><img src="/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/image-20210528091015995.png" alt="image-20210528091015995"></p>
-<p><img src="/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/image-20210528100934762.png" alt="image-20210528100934762" style="zoom: 50%;"><img src="/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/image-20210528100950328.png" alt="image-20210528100950328" style="zoom: 33%;"></p>
-<p>2、换了个更好的公司</p>
-<p><img src="/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/image-20210610145500746.png" alt="image-20210610145500746"></p>
-]]></content>
-  </entry>
-  <entry>
-    <title>加密与解密笔记--更新中</title>
-    <url>/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<h3 id="加密与解密"><a href="#加密与解密" class="headerlink" title="加密与解密"></a>加密与解密</h3><a id="more"></a>
-
-<h4 id="0x1-基础"><a href="#0x1-基础" class="headerlink" title="0x1 基础"></a>0x1 基础</h4><h5 id="0x01-大端小端"><a href="#0x01-大端小端" class="headerlink" title="0x01 大端小端"></a>0x01 大端小端</h5><p>大端：12345678h存入后还是12345678，高位字节存入低地址，依序</p>
-<p>小端：12345678h存入后变为78563412，低位字节存入低地址，反序</p>
-<h5 id="0x02-win-api函数"><a href="#0x02-win-api函数" class="headerlink" title="0x02 win api函数"></a>0x02 win api函数</h5><p>应用程序编程接口，相当于是一个合成了各个功能的函数库，提供应用程序运行所需要的窗口管理、内存管理等功能</p>
-<p>windows应用程序-&gt;API-&gt;系统服务-&gt;硬件层</p>
-<p>常用函数：</p>
-<ul>
-<li><p>hmemcpy{目的数据地址，源数据地址，数据大小}：拷贝数据，当做断点</p>
-</li>
-<li><p>GetWindowsText{句柄，缓冲区地址，复制的最大字符数}：获得文本控件内容</p>
-</li>
-<li><p>GetDlgItem{句柄，控件标识}：获取指定对话框的句柄</p>
-</li>
-<li><p>GetDlgItemText{句柄，控件标识，缓冲区指针，缓冲区长度}：获取对话框文本，成功就返回文本长度</p>
-</li>
-<li><p>messageBox{父窗口句柄，消息框文本，消息框标题，消息框样式}：创建信息框</p>
-</li>
-</ul>
-<h5 id="0x03-句柄"><a href="#0x03-句柄" class="headerlink" title="0x03 句柄"></a>0x03 句柄</h5><p>相当于一个唯一的标识，通常为32位，让windows能正确引用对应的对象。当一个进程被初始化的，系统会分配句柄表，句柄值就是索引</p>
-<h5 id="0x04-windows消息机制"><a href="#0x04-windows消息机制" class="headerlink" title="0x04 windows消息机制"></a>0x04 windows消息机制</h5><p>消息是给应用程序与应用程序之间、应用程序与windows系统间通信的</p>
-<p>应用程序实现功能靠消息触发，靠消息响应和处理来完成</p>
-<p>流程：事件发生-&gt;windows把输入的消息放入系统消息队列-&gt;拷贝到相应的应用程序队列-&gt;循环检索发给对应的应用程序窗口</p>
-<p>常用函数：</p>
-<ul>
-<li>sendMessage{目的窗口句柄，消息标识，消息的WPARAM，消息的LPARAM}</li>
-</ul>
-<h5 id="0x05-保护模式"><a href="#0x05-保护模式" class="headerlink" title="0x05 保护模式"></a>0x05 保护模式</h5><p>虚拟内存：简化内存管理，防止多程序间的冲突</p>
-<p>应用程序不会直接访问物理内存，应用程序启动时，操作系统会新建一个进程，分配给它2GB的虚拟地址，虚拟内存管理器将应用程序的代码映射到虚拟地址中，并把当前所需要的代码读取到物理地址中。</p>
-<p>dll也会映射到虚拟地址，但是都是要和对应的使用的应用程序一起，没有自己私有的虚拟地址。</p>
-<p>不同应用程序的虚拟地址是隔离的。</p>
-<h4 id="0x2-动态调试"><a href="#0x2-动态调试" class="headerlink" title="0x2 动态调试"></a>0x2 动态调试</h4><h6 id="0x01-OD的使用"><a href="#0x01-OD的使用" class="headerlink" title="0x01 OD的使用:"></a>0x01 OD的使用:</h6><p>L：log</p>
-<p>E：executable</p>
-<p>M：memory</p>
-<p>T：threads</p>
-<p>W：windows</p>
-<p>Hhandles</p>
-<p>C：CPU，默认的主窗口，绝大部分操作，包括了反汇编，信息，数据，寄存器和堆栈</p>
-<p>P：patches</p>
-<p>K：call stack</p>
-<p>B：breakpoints</p>
-<p>R：reference</p>
-<p>S：source</p>
-<p>反汇编窗口：</p>
-<p>地址：单击地址可以跳转，再次双击可以返回</p>
-<p>机器码：设置或取消无条件断点，F2</p>
-<p>汇编代码：可以直接修改</p>
-<p>注释：分号(;)可以加注释</p>
-<p>信息窗口：</p>
-<p>显示寄存器值、API函数、跳转提示等</p>
-<p>数据面板：</p>
-<p>十六进制显示，ctrl+G可以快速跳转到对应地址</p>
-<p>寄存器面板：</p>
-<p>单击鼠标右键可以切换显示寄存器的方式</p>
-<p>堆栈面板：</p>
-<p>显示ESP指向地址的内容，API函数和子程序等</p>
-<h4 id="0x3-静态分析"><a href="#0x3-静态分析" class="headerlink" title="0x3 静态分析"></a>0x3 静态分析</h4><p>peid用来查壳，ida用来静态分析，做逆向题的时候经常用到</p>
-<h6 id="0x01-ida的常用功能"><a href="#0x01-ida的常用功能" class="headerlink" title="0x01 ida的常用功能"></a>0x01 ida的常用功能</h6><p>F5 反汇编</p>
-<h6 id="0x02-IDC脚本的使用实践"><a href="#0x02-IDC脚本的使用实践" class="headerlink" title="0x02 IDC脚本的使用实践"></a>0x02 IDC脚本的使用实践</h6><p>比如用来解密对代码段进行加密的程序</p>
-<p><strong>smc</strong>（self modifying code）技术，在可执行文件中保存着加密后的数据。只有在程序运行的时候，程序某处的代码就会被调用来解密</p>
-<p>书本例子实践：</p>
-<p>打开书本里的例子exe</p>
-<p>是一个pe32的文件，用ida7.0（32）版本的ida</p>
-<p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712165355470.png" alt="image-20210712165355470"></p>
-<p>打开后看到程序入口：</p>
-<p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712164939040.png" alt="image-20210712164939040"></p>
-<p>看到了call 401080和401060的操作，点击过去看看</p>
-<p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712165750238.png" alt="image-20210712165750238"></p>
-<p>反汇编一下：</p>
-<p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712165645333.png" alt="image-20210712165645333"></p>
-<p>看起来像是对401060做了一系列操作</p>
-<p>401060的函数如下，无法看出功能</p>
-<p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712165134938.png" alt="image-20210712165134938"></p>
-<p>理解401080，是从401060的首位开始，之后的每一位数据和1做异或，运行到401074为止</p>
-<p>编写一个idc脚本：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#include &lt;idc.idc&gt;</span><br><span class="line">static decrypt(from, size, key ) &#123; &#x2F;&#x2F;from是解密的开始地址，size是大小，key是异或的值</span><br><span class="line">   auto i, x; </span><br><span class="line">   for ( i&#x3D;0; i &lt; size; i&#x3D;i+1 ) &#123; </span><br><span class="line">      x &#x3D; Byte(from); &#x2F;&#x2F;获取一个字节数据</span><br><span class="line">      x &#x3D; (x^key); &#x2F;&#x2F;进行异或</span><br><span class="line">      PatchByte(from,x); &#x2F;&#x2F;将一个字节数据放回原处</span><br><span class="line">      from &#x3D; from + 1;&#x2F;&#x2F;地址加1</span><br><span class="line">   &#125; </span><br><span class="line"> Message(&quot;\n&quot; + &quot;Decrypt Complete\n&quot;);</span><br><span class="line">&#125; </span><br><span class="line">static main()&#123;</span><br><span class="line">	decrypt(0x401060, 0x15, 0x1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行：</p>
-<p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712182457179.png" alt="image-20210712182457179"></p>
-<p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712182432116.png" alt="image-20210712182432116"></p>
-<p>运行结束：401060函数的数据就被解密出来了</p>
-<p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712182522600.png" alt="image-20210712182522600"></p>
-<p>还是无法看出来是什么功能</p>
-<p>按u，全部转换成数据：</p>
-<p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712182813147.png" alt="image-20210712182813147"></p>
-<p>再按c，ida重新分析，即可得到最终代码</p>
-<p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712182831000.png" alt="image-20210712182831000"></p>
-<p>附:IDC常用函数：</p>
-<p><strong>读取和修改数据的函数：</strong></p>
-<ul>
-<li>long Byte（long addr），从虚拟地址addr处读取一个字节值</li>
-<li>long Word（long addr），从虚拟地址addr处读取一个字（2个字节）值</li>
-<li>long Dword（long addr），从虚拟地址addr处读取一个双字（4个字节）值</li>
-<li>long PatchByte（long addr，long val），设置虚拟地址addr处的一个字节值</li>
-<li>long PatchWord（long addr，long val），设置虚拟地址addr处的一个字值</li>
-<li>long PatchDword（long addr，long val），设置虚拟地址addr处读取一个双字值</li>
-<li>void idLoaded（long addr），如果addr包含有效数据，则返回1，否则返回0</li>
-</ul>
-<p><strong>用户交互函数：</strong></p>
-<ul>
-<li>void Message（string fromat，……），在输出窗口打印一条格式化消息，这个函数类似于C语言的printf函数，并接受printf风格的格式化字符串</li>
-<li>void printf（……），在输出窗口中打印每个参数的字符串表示形式</li>
-<li>void Warning（string fromat，……），在对话框中显示一条格式化消息</li>
-<li>string AskStr（string default，string prompt），显示一个输入框，要求用户输入一个字符串值。如果操作成功，则返回用户的字符串；如果对话框被取消，则返回0</li>
-<li>string AskFile（long doSave，string mask，String prompt），显示一个文件选择对话框，以简化选择文件的任务。你可以创建新文件保存数据（doSave=1），或选择现有的文件读取数据（doSave=0）。你可以根据mask（如*.<em>或</em>.idc）过滤显示的文件列表。如果操作成功，则返回选定文件的名称；如果对话框被取消，则返回0</li>
-<li>long AskYN（long deafult，string prompt），用一个答案为“是”或“否”的问题提示用户，如初一个默认的答案（1为是，0为否，-1为取消）。返回值是一个表示选定答案的整数。</li>
-<li>long ScreenEA（），返回当前光标所在位置的虚拟地址</li>
-<li>bool Jump（long addr），跳转到反汇编窗口的指定地址</li>
-</ul>
-<h6 id="0x03-hiew使用"><a href="#0x03-hiew使用" class="headerlink" title="0x03 hiew使用"></a>0x03 hiew使用</h6><p>F5 输入地址后跳转</p>
-<p>F3 修改文件内容，直接输入要修改的数字即可</p>
-<p>F9 更新，修改完内容后可以更新一下</p>
-<p>F10 更新完后文件内容就被修改了</p>
-<h4 id="0x4-逆向分析技术"><a href="#0x4-逆向分析技术" class="headerlink" title="0x4 逆向分析技术"></a>0x4 逆向分析技术</h4><h6 id="启动函数："><a href="#启动函数：" class="headerlink" title="启动函数："></a><strong>启动函数：</strong></h6><p>编译器会生成的一个代码，用来完成初始化进程，然后才会执行winmain函数。各编译器有各自的启动函数。启动函数在分析的时候可以略过</p>
-<h6 id="函数："><a href="#函数：" class="headerlink" title="函数："></a><strong>函数：</strong></h6><ul>
-<li><p>组成：函数名，入口参数，返回值，函数功能</p>
-<p>CALL指令：会保存返回信息（它之后的指令的地址），遇到RET的时候就返回。CALL后跟着的就是被调用的函数的首地址</p>
-</li>
-<li><p>参数传递：</p>
-<ul>
-<li><p>堆栈方式：先进后出。</p>
-<p>流程：1、压入函数结束时应返回的地址和需要的一些参数</p>
-<p>​            2、函数使用EBP指针+偏移量对堆栈中的参数进行寻址，然后取出进行操作</p>
-<p>​            3、函数使用RET返回，CPU把EIP设为之前堆栈里存入的应返回的地址，继续执行</p>
-<p>一般用EBP存取堆栈，也会用ESP堆栈指针来寻址</p>
-</li>
-<li><p>寄存器方式：一部分参数使用寄存器，用完的话剩下的用堆栈</p>
-</li>
-<li><p>通过全局变量进行隐含参数的传递</p>
-</li>
-</ul>
-</li>
-<li><p>返回值：</p>
-<p>一般放在EAX中返回，如果结果超过了EAX的容量，其高32位就会放到EDX中</p>
-</li>
-</ul>
-<h6 id="数据结构："><a href="#数据结构：" class="headerlink" title="数据结构："></a>数据结构：</h6><ul>
-<li><p>局部变量：</p>
-<p>在堆栈中进行分配，函数执行完就释放。或者直接存在寄存器中。</p>
-</li>
-<li><p>全局变量：</p>
-<p>作用于整个程序，放在全局变量的内存区，通常位于一个固定的位置</p>
-</li>
-<li><p>数组：</p>
-<p>在内存中按顺序连续存放在一起，一般用基址+偏移量来访问</p>
-</li>
-</ul>
-<h6 id="控制语句："><a href="#控制语句：" class="headerlink" title="控制语句："></a>控制语句：</h6><p>CMP：</p>
-<p>JZ：</p>
-<h6 id="指令修改："><a href="#指令修改：" class="headerlink" title="指令修改："></a>指令修改：</h6><p>替换一个字节：90 nop</p>
-<h4 id="0x5-常见的保护技术"><a href="#0x5-常见的保护技术" class="headerlink" title="0x5 常见的保护技术"></a>0x5 常见的保护技术</h4><h4 id="0x4-解密"><a href="#0x4-解密" class="headerlink" title="0x4 解密"></a>0x4 解密</h4><h4 id="0x5-PE文件"><a href="#0x5-PE文件" class="headerlink" title="0x5 PE文件"></a>0x5 PE文件</h4><h4 id="0x6-脱壳"><a href="#0x6-脱壳" class="headerlink" title="0x6 脱壳"></a>0x6 脱壳</h4><h4 id="0x7-保护"><a href="#0x7-保护" class="headerlink" title="0x7 保护"></a>0x7 保护</h4><h4 id="0x8-PEDIY"><a href="#0x8-PEDIY" class="headerlink" title="0x8 PEDIY"></a>0x8 PEDIY</h4>]]></content>
-      <categories>
-        <category>笔记</category>
-      </categories>
-      <tags>
-        <tag>加密与解密</tag>
       </tags>
   </entry>
   <entry>
@@ -2219,6 +2147,180 @@
       <tags>
         <tag>tcpdump</tag>
         <tag>gdb</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>世界线偏移-2021.6.10</title>
+    <url>/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/</url>
+    <content><![CDATA[<p>近期的一些小成果：</p>
+<a id="more"></a>
+
+<p>1、成长平台百分，写了不少脚本和总结</p>
+<p><img src="/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/image-20210528091015995.png" alt="image-20210528091015995"></p>
+<p><img src="/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/image-20210528100934762.png" alt="image-20210528100934762" style="zoom: 50%;"><img src="/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/image-20210528100950328.png" alt="image-20210528100950328" style="zoom: 33%;"></p>
+<p>2、换了个更好的公司</p>
+<p><img src="/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/image-20210610145500746.png" alt="image-20210610145500746"></p>
+]]></content>
+  </entry>
+  <entry>
+    <title>加密与解密笔记--更新中</title>
+    <url>/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h3 id="加密与解密"><a href="#加密与解密" class="headerlink" title="加密与解密"></a>加密与解密</h3><a id="more"></a>
+
+<h4 id="0x1-基础"><a href="#0x1-基础" class="headerlink" title="0x1 基础"></a>0x1 基础</h4><h5 id="0x01-大端小端"><a href="#0x01-大端小端" class="headerlink" title="0x01 大端小端"></a>0x01 大端小端</h5><p>大端：12345678h存入后还是12345678，高位字节存入低地址，依序</p>
+<p>小端：12345678h存入后变为78563412，低位字节存入低地址，反序</p>
+<h5 id="0x02-win-api函数"><a href="#0x02-win-api函数" class="headerlink" title="0x02 win api函数"></a>0x02 win api函数</h5><p>应用程序编程接口，相当于是一个合成了各个功能的函数库，提供应用程序运行所需要的窗口管理、内存管理等功能</p>
+<p>windows应用程序-&gt;API-&gt;系统服务-&gt;硬件层</p>
+<p>常用函数：</p>
+<ul>
+<li><p>hmemcpy{目的数据地址，源数据地址，数据大小}：拷贝数据，当做断点</p>
+</li>
+<li><p>GetWindowsText{句柄，缓冲区地址，复制的最大字符数}：获得文本控件内容</p>
+</li>
+<li><p>GetDlgItem{句柄，控件标识}：获取指定对话框的句柄</p>
+</li>
+<li><p>GetDlgItemText{句柄，控件标识，缓冲区指针，缓冲区长度}：获取对话框文本，成功就返回文本长度</p>
+</li>
+<li><p>messageBox{父窗口句柄，消息框文本，消息框标题，消息框样式}：创建信息框</p>
+</li>
+</ul>
+<h5 id="0x03-句柄"><a href="#0x03-句柄" class="headerlink" title="0x03 句柄"></a>0x03 句柄</h5><p>相当于一个唯一的标识，通常为32位，让windows能正确引用对应的对象。当一个进程被初始化的，系统会分配句柄表，句柄值就是索引</p>
+<h5 id="0x04-windows消息机制"><a href="#0x04-windows消息机制" class="headerlink" title="0x04 windows消息机制"></a>0x04 windows消息机制</h5><p>消息是给应用程序与应用程序之间、应用程序与windows系统间通信的</p>
+<p>应用程序实现功能靠消息触发，靠消息响应和处理来完成</p>
+<p>流程：事件发生-&gt;windows把输入的消息放入系统消息队列-&gt;拷贝到相应的应用程序队列-&gt;循环检索发给对应的应用程序窗口</p>
+<p>常用函数：</p>
+<ul>
+<li>sendMessage{目的窗口句柄，消息标识，消息的WPARAM，消息的LPARAM}</li>
+</ul>
+<h5 id="0x05-保护模式"><a href="#0x05-保护模式" class="headerlink" title="0x05 保护模式"></a>0x05 保护模式</h5><p>虚拟内存：简化内存管理，防止多程序间的冲突</p>
+<p>应用程序不会直接访问物理内存，应用程序启动时，操作系统会新建一个进程，分配给它2GB的虚拟地址，虚拟内存管理器将应用程序的代码映射到虚拟地址中，并把当前所需要的代码读取到物理地址中。</p>
+<p>dll也会映射到虚拟地址，但是都是要和对应的使用的应用程序一起，没有自己私有的虚拟地址。</p>
+<p>不同应用程序的虚拟地址是隔离的。</p>
+<h4 id="0x2-动态调试"><a href="#0x2-动态调试" class="headerlink" title="0x2 动态调试"></a>0x2 动态调试</h4><h6 id="0x01-OD的使用"><a href="#0x01-OD的使用" class="headerlink" title="0x01 OD的使用:"></a>0x01 OD的使用:</h6><p>L：log</p>
+<p>E：executable</p>
+<p>M：memory</p>
+<p>T：threads</p>
+<p>W：windows</p>
+<p>Hhandles</p>
+<p>C：CPU，默认的主窗口，绝大部分操作，包括了反汇编，信息，数据，寄存器和堆栈</p>
+<p>P：patches</p>
+<p>K：call stack</p>
+<p>B：breakpoints</p>
+<p>R：reference</p>
+<p>S：source</p>
+<p>反汇编窗口：</p>
+<p>地址：单击地址可以跳转，再次双击可以返回</p>
+<p>机器码：设置或取消无条件断点，F2</p>
+<p>汇编代码：可以直接修改</p>
+<p>注释：分号(;)可以加注释</p>
+<p>信息窗口：</p>
+<p>显示寄存器值、API函数、跳转提示等</p>
+<p>数据面板：</p>
+<p>十六进制显示，ctrl+G可以快速跳转到对应地址</p>
+<p>寄存器面板：</p>
+<p>单击鼠标右键可以切换显示寄存器的方式</p>
+<p>堆栈面板：</p>
+<p>显示ESP指向地址的内容，API函数和子程序等</p>
+<h4 id="0x3-静态分析"><a href="#0x3-静态分析" class="headerlink" title="0x3 静态分析"></a>0x3 静态分析</h4><p>peid用来查壳，ida用来静态分析，做逆向题的时候经常用到</p>
+<h6 id="0x01-ida的常用功能"><a href="#0x01-ida的常用功能" class="headerlink" title="0x01 ida的常用功能"></a>0x01 ida的常用功能</h6><p>F5 反汇编</p>
+<h6 id="0x02-IDC脚本的使用实践"><a href="#0x02-IDC脚本的使用实践" class="headerlink" title="0x02 IDC脚本的使用实践"></a>0x02 IDC脚本的使用实践</h6><p>比如用来解密对代码段进行加密的程序</p>
+<p><strong>smc</strong>（self modifying code）技术，在可执行文件中保存着加密后的数据。只有在程序运行的时候，程序某处的代码就会被调用来解密</p>
+<p>书本例子实践：</p>
+<p>打开书本里的例子exe</p>
+<p>是一个pe32的文件，用ida7.0（32）版本的ida</p>
+<p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712165355470.png" alt="image-20210712165355470"></p>
+<p>打开后看到程序入口：</p>
+<p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712164939040.png" alt="image-20210712164939040"></p>
+<p>看到了call 401080和401060的操作，点击过去看看</p>
+<p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712165750238.png" alt="image-20210712165750238"></p>
+<p>反汇编一下：</p>
+<p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712165645333.png" alt="image-20210712165645333"></p>
+<p>看起来像是对401060做了一系列操作</p>
+<p>401060的函数如下，无法看出功能</p>
+<p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712165134938.png" alt="image-20210712165134938"></p>
+<p>理解401080，是从401060的首位开始，之后的每一位数据和1做异或，运行到401074为止</p>
+<p>编写一个idc脚本：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#include &lt;idc.idc&gt;</span><br><span class="line">static decrypt(from, size, key ) &#123; &#x2F;&#x2F;from是解密的开始地址，size是大小，key是异或的值</span><br><span class="line">   auto i, x; </span><br><span class="line">   for ( i&#x3D;0; i &lt; size; i&#x3D;i+1 ) &#123; </span><br><span class="line">      x &#x3D; Byte(from); &#x2F;&#x2F;获取一个字节数据</span><br><span class="line">      x &#x3D; (x^key); &#x2F;&#x2F;进行异或</span><br><span class="line">      PatchByte(from,x); &#x2F;&#x2F;将一个字节数据放回原处</span><br><span class="line">      from &#x3D; from + 1;&#x2F;&#x2F;地址加1</span><br><span class="line">   &#125; </span><br><span class="line"> Message(&quot;\n&quot; + &quot;Decrypt Complete\n&quot;);</span><br><span class="line">&#125; </span><br><span class="line">static main()&#123;</span><br><span class="line">	decrypt(0x401060, 0x15, 0x1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行：</p>
+<p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712182457179.png" alt="image-20210712182457179"></p>
+<p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712182432116.png" alt="image-20210712182432116"></p>
+<p>运行结束：401060函数的数据就被解密出来了</p>
+<p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712182522600.png" alt="image-20210712182522600"></p>
+<p>还是无法看出来是什么功能</p>
+<p>按u，全部转换成数据：</p>
+<p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712182813147.png" alt="image-20210712182813147"></p>
+<p>再按c，ida重新分析，即可得到最终代码</p>
+<p><img src="/2020/11/10/%E5%8A%A0%E5%AF%86%E4%B8%8E%E8%A7%A3%E5%AF%86%E7%AC%94%E8%AE%B0/image-20210712182831000.png" alt="image-20210712182831000"></p>
+<p>附:IDC常用函数：</p>
+<p><strong>读取和修改数据的函数：</strong></p>
+<ul>
+<li>long Byte（long addr），从虚拟地址addr处读取一个字节值</li>
+<li>long Word（long addr），从虚拟地址addr处读取一个字（2个字节）值</li>
+<li>long Dword（long addr），从虚拟地址addr处读取一个双字（4个字节）值</li>
+<li>long PatchByte（long addr，long val），设置虚拟地址addr处的一个字节值</li>
+<li>long PatchWord（long addr，long val），设置虚拟地址addr处的一个字值</li>
+<li>long PatchDword（long addr，long val），设置虚拟地址addr处读取一个双字值</li>
+<li>void idLoaded（long addr），如果addr包含有效数据，则返回1，否则返回0</li>
+</ul>
+<p><strong>用户交互函数：</strong></p>
+<ul>
+<li>void Message（string fromat，……），在输出窗口打印一条格式化消息，这个函数类似于C语言的printf函数，并接受printf风格的格式化字符串</li>
+<li>void printf（……），在输出窗口中打印每个参数的字符串表示形式</li>
+<li>void Warning（string fromat，……），在对话框中显示一条格式化消息</li>
+<li>string AskStr（string default，string prompt），显示一个输入框，要求用户输入一个字符串值。如果操作成功，则返回用户的字符串；如果对话框被取消，则返回0</li>
+<li>string AskFile（long doSave，string mask，String prompt），显示一个文件选择对话框，以简化选择文件的任务。你可以创建新文件保存数据（doSave=1），或选择现有的文件读取数据（doSave=0）。你可以根据mask（如*.<em>或</em>.idc）过滤显示的文件列表。如果操作成功，则返回选定文件的名称；如果对话框被取消，则返回0</li>
+<li>long AskYN（long deafult，string prompt），用一个答案为“是”或“否”的问题提示用户，如初一个默认的答案（1为是，0为否，-1为取消）。返回值是一个表示选定答案的整数。</li>
+<li>long ScreenEA（），返回当前光标所在位置的虚拟地址</li>
+<li>bool Jump（long addr），跳转到反汇编窗口的指定地址</li>
+</ul>
+<h6 id="0x03-hiew使用"><a href="#0x03-hiew使用" class="headerlink" title="0x03 hiew使用"></a>0x03 hiew使用</h6><p>F5 输入地址后跳转</p>
+<p>F3 修改文件内容，直接输入要修改的数字即可</p>
+<p>F9 更新，修改完内容后可以更新一下</p>
+<p>F10 更新完后文件内容就被修改了</p>
+<h4 id="0x4-逆向分析技术"><a href="#0x4-逆向分析技术" class="headerlink" title="0x4 逆向分析技术"></a>0x4 逆向分析技术</h4><h6 id="启动函数："><a href="#启动函数：" class="headerlink" title="启动函数："></a><strong>启动函数：</strong></h6><p>编译器会生成的一个代码，用来完成初始化进程，然后才会执行winmain函数。各编译器有各自的启动函数。启动函数在分析的时候可以略过</p>
+<h6 id="函数："><a href="#函数：" class="headerlink" title="函数："></a><strong>函数：</strong></h6><ul>
+<li><p>组成：函数名，入口参数，返回值，函数功能</p>
+<p>CALL指令：会保存返回信息（它之后的指令的地址），遇到RET的时候就返回。CALL后跟着的就是被调用的函数的首地址</p>
+</li>
+<li><p>参数传递：</p>
+<ul>
+<li><p>堆栈方式：先进后出。</p>
+<p>流程：1、压入函数结束时应返回的地址和需要的一些参数</p>
+<p>​            2、函数使用EBP指针+偏移量对堆栈中的参数进行寻址，然后取出进行操作</p>
+<p>​            3、函数使用RET返回，CPU把EIP设为之前堆栈里存入的应返回的地址，继续执行</p>
+<p>一般用EBP存取堆栈，也会用ESP堆栈指针来寻址，结合栈溢出学习看</p>
+</li>
+<li><p>寄存器方式：一部分参数使用寄存器，用完的话剩下的用堆栈</p>
+</li>
+<li><p>通过全局变量进行隐含参数的传递</p>
+</li>
+</ul>
+</li>
+<li><p>返回值：</p>
+<p>一般放在EAX中返回，如果结果超过了EAX的容量，其高32位就会放到EDX中</p>
+</li>
+</ul>
+<h6 id="数据结构："><a href="#数据结构：" class="headerlink" title="数据结构："></a>数据结构：</h6><ul>
+<li><p>局部变量：</p>
+<p>在堆栈中进行分配，函数执行完就释放。或者直接存在寄存器中。</p>
+</li>
+<li><p>全局变量：</p>
+<p>作用于整个程序，放在全局变量的内存区，通常位于一个固定的位置</p>
+</li>
+<li><p>数组：</p>
+<p>在内存中按顺序连续存放在一起，一般用基址+偏移量来访问</p>
+</li>
+</ul>
+<h6 id="控制语句："><a href="#控制语句：" class="headerlink" title="控制语句："></a>控制语句：</h6><p>CMP：</p>
+<p>JZ：</p>
+<h6 id="指令修改："><a href="#指令修改：" class="headerlink" title="指令修改："></a>指令修改：</h6><p>替换一个字节：90 nop</p>
+<h4 id="0x5-常见的保护技术"><a href="#0x5-常见的保护技术" class="headerlink" title="0x5 常见的保护技术"></a>0x5 常见的保护技术</h4><h4 id="0x4-解密"><a href="#0x4-解密" class="headerlink" title="0x4 解密"></a>0x4 解密</h4><h4 id="0x5-PE文件"><a href="#0x5-PE文件" class="headerlink" title="0x5 PE文件"></a>0x5 PE文件</h4><h4 id="0x6-脱壳"><a href="#0x6-脱壳" class="headerlink" title="0x6 脱壳"></a>0x6 脱壳</h4><h4 id="0x7-保护"><a href="#0x7-保护" class="headerlink" title="0x7 保护"></a>0x7 保护</h4><h4 id="0x8-PEDIY"><a href="#0x8-PEDIY" class="headerlink" title="0x8 PEDIY"></a>0x8 PEDIY</h4>]]></content>
+      <categories>
+        <category>笔记</category>
+      </categories>
+      <tags>
+        <tag>加密与解密</tag>
       </tags>
   </entry>
   <entry>
