@@ -1080,7 +1080,8 @@
   <entry>
     <title>python小脚本合集</title>
     <url>/2021/07/08/python%E5%B0%8F%E8%84%9A%E6%9C%AC%E5%90%88%E9%9B%86/</url>
-    <content><![CDATA[<a id="more"></a>
+    <content><![CDATA[<p>一些常用功能</p>
+<a id="more"></a>
 
 <p>打开json：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">with open(jsonfile, &#39;r&#39;, encoding&#x3D;&#39;utf8&#39;)as f:</span><br><span class="line">        json_data &#x3D; json.load(f)</span><br></pre></td></tr></table></figure>
