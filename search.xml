@@ -851,6 +851,213 @@
       </tags>
   </entry>
   <entry>
+    <title>PE文件格式总结</title>
+    <url>/2021/11/18/PE%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E6%80%BB%E7%BB%93/</url>
+    <content><![CDATA[<h4 id="PE文件格式"><a href="#PE文件格式" class="headerlink" title="PE文件格式"></a>PE文件格式</h4><h5 id="0x1-PE"><a href="#0x1-PE" class="headerlink" title="0x1 PE"></a>0x1 PE</h5><p>PE是Windows下使用的可执行文件格式，包括exe，dll等</p>
+<p>总结性的PE文件格式思维图：</p>
+<a id="more"></a>
+
+<p><img src="/2021/11/18/PE%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E6%80%BB%E7%BB%93/image-20211118153224646.png" alt="image-20211118153224646"></p>
+<h5 id="0x2-PE格式"><a href="#0x2-PE格式" class="headerlink" title="0x2 PE格式"></a>0x2 PE格式</h5><p>PE头：存储运行所需要的信息（内存加载，运行起始位置等）由DOS头+三个节区头组成，PE头和各节区的尾部有一个NULL填充</p>
+<p><strong>DOS头</strong>：IMAGE_DOS_HEADER结构体：40字节</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">typedef struct _IMAE_DOS_HEADER &#123;		</span><br><span class="line">	WORD e_magic;						  &#x2F;&#x2F;Magic number 0x00，”MZ“</span><br><span class="line">	WORD e_cblp;              &#x2F;&#x2F;Bytes on last page of file 0x02</span><br><span class="line">	WORD e_cp;                &#x2F;&#x2F;Pages in file	 0x04</span><br><span class="line">	WORD e_crlc;              &#x2F;&#x2F;Relocations   0x06</span><br><span class="line">	WORD e_cparhdr;						&#x2F;&#x2F;Size of header in paragraphs 0x08</span><br><span class="line">	WORD e_minalloc;          &#x2F;&#x2F;Minimum extra paragraphs needed 0x0A</span><br><span class="line">	WORD e_maxalloc;					&#x2F;&#x2F;Maximum extra paragraphs needed 0x0C</span><br><span class="line">	WORD e_ss;                &#x2F;&#x2F;Initial (relative) SS value	0x0E</span><br><span class="line">	WORD e_sp;							  &#x2F;&#x2F;Initial SP value 0x10</span><br><span class="line">	WORD e_csum;						  &#x2F;&#x2F;Checksum 0x12</span><br><span class="line">	WORD e_ip;							  &#x2F;&#x2F;Initial IP value 0x14</span><br><span class="line">	WORD e_cs;							  &#x2F;&#x2F;Initial (relative) CS value 0x16</span><br><span class="line">	WORD e_lfarlc;						&#x2F;&#x2F;File address of relocation table 0x18</span><br><span class="line">	WORD e_ovno;						  &#x2F;&#x2F;Overlay number 0x1A</span><br><span class="line">	WORD e_res[4];						&#x2F;&#x2F;Reserved words 0x1C</span><br><span class="line">	WORD e_oemid;						  &#x2F;&#x2F;OEM identifier (for e_oeminfo) 0x24</span><br><span class="line">	WORD e_oeminfo;						&#x2F;&#x2F;OEM information; e_oemid specific 0x26 </span><br><span class="line">	WORD e_res2[10];					&#x2F;&#x2F;Reserved words 0x28</span><br><span class="line">	LONG e_lfanew;						&#x2F;&#x2F;offset to NT header</span><br><span class="line">&#125; IMAGE_DOS-HEADER, *PIMAGE_DOS_HEADER;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>e_magic：DOS签名（”MZ“，也就是”4D5A“）</p>
+<p>e_lfanew：指示NT头（IMAGE_NT_HEADER）的偏移（000000E0）</p>
+<p><strong>DOS存根</strong>（stub）：可选项，大小不固定</p>
+<p><strong>NT头</strong>：IMAGE_NT_HEADER（NT头）：F8字节，有以下三个成员</p>
+<ul>
+<li>Signature：50450000h（“PE”00）</li>
+<li>File Header：IMAGE_FILE_HEADER，文件头</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">typedef struct _IMAGE_FILE_HEADER &#123;</span><br><span class="line">  WORD  Machine; &#x2F;&#x2F;计算机的体系结构类型，比如x86的值就是0x014c</span><br><span class="line">  WORD  NumberOfSections;&#x2F;&#x2F;节数-&gt;文件中存在的节区数量，大于0，数量要和实际节区一致，否则会运行错误</span><br><span class="line">  DWORD TimeDateStamp;&#x2F;&#x2F;文件时间戳的低32位，编译器创建此文件的时间</span><br><span class="line">  DWORD PointerToSymbolTable;&#x2F;&#x2F;符号表的偏移量，以字节为单位，如果不存在 COFF 符号表，则为零。</span><br><span class="line">  DWORD NumberOfSymbols;&#x2F;&#x2F;符号表中的符号数。</span><br><span class="line">  WORD  SizeOfOptionalHeader;&#x2F;&#x2F;指出Optional Header结构体的长度</span><br><span class="line">  WORD  Characteristics;&#x2F;&#x2F;特征，比如文件是否可运行（0x0002），是否是dll文件（0x2000）等</span><br><span class="line">&#125; IMAGE_FILE_HEADER, *PIMAGE_FILE_HEADER;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Optional Header：IMAGE_OPTIONAL_HEADER，可选头</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">typedef struct _IMAGE_OPTIONAL_HEADER &#123;</span><br><span class="line">  WORD                 Magic; &#x2F;&#x2F;文件的状态，如果是32位结构体就是10B，64就是20B</span><br><span class="line">  BYTE                 MajorLinkerVersion;&#x2F;&#x2F;链接器的主要版本号</span><br><span class="line">  BYTE                 MinorLinkerVersion;&#x2F;&#x2F;链接器的次要版本号</span><br><span class="line">  DWORD                SizeOfCode;&#x2F;&#x2F;代码段的大小，以字节为单位</span><br><span class="line">  DWORD                SizeOfInitializedData;&#x2F;&#x2F;已初始化数据部分的大小（以字节为单位）</span><br><span class="line">  DWORD                SizeOfUninitializedData;&#x2F;&#x2F;未初始化数据部分的大小（以字节为单位）</span><br><span class="line">  DWORD                AddressOfEntryPoint;&#x2F;&#x2F;指向入口点函数的指针，代码执行的起始地址</span><br><span class="line">  DWORD                BaseOfCode;&#x2F;&#x2F;指向代码部分开头的指针</span><br><span class="line">  DWORD                BaseOfData;&#x2F;&#x2F;指向数据部分开头的指针</span><br><span class="line">  DWORD                ImageBase;&#x2F;&#x2F;文件的优先装入地址。文件加载到内存中时第一个字节的首选地址。该值是64K字节的倍数。DLL的默认值为0x10000000。应用程序的默认值为0x00400000。执行PE时，先创建进程，再载入内存，然后设置EIP寄存器的值为ImageBase+AddressOfEntryPoint</span><br><span class="line">  DWORD                SectionAlignment;&#x2F;&#x2F;加载到内存中的节的对齐方式，以字节为单位。指定了节区在内存文件中的最小单位</span><br><span class="line">  DWORD                FileAlignment;&#x2F;&#x2F;文件中节的原始数据的对齐方式，以字节为单位。指定了节区在磁盘文件中的最小单位</span><br><span class="line">  WORD                 MajorOperatingSystemVersion;&#x2F;&#x2F;所需操作系统的主要版本号。</span><br><span class="line">  WORD                 MinorOperatingSystemVersion;&#x2F;&#x2F;所需操作系统的次要版本号。</span><br><span class="line">  WORD                 MajorImageVersion;&#x2F;&#x2F;图像的主要版本号。</span><br><span class="line">  WORD                 MinorImageVersion;&#x2F;&#x2F;图像的次要版本号。</span><br><span class="line">  WORD                 MajorSubsystemVersion;&#x2F;&#x2F;子系统的主要版本号。</span><br><span class="line">  WORD                 MinorSubsystemVersion;&#x2F;&#x2F;子系统的次要版本号。</span><br><span class="line">  DWORD                Win32VersionValue;&#x2F;&#x2F;保留参数，必须为 0。</span><br><span class="line">  DWORD                SizeOfImage;&#x2F;&#x2F;PE image在虚拟内存中所占的空间大小</span><br><span class="line">  DWORD                SizeOfHeaders;&#x2F;&#x2F;整个PE头的大小</span><br><span class="line">  DWORD                CheckSum;&#x2F;&#x2F;文件校验和</span><br><span class="line">  WORD                 Subsystem;&#x2F;&#x2F;运行此映像所需的子系统。区分系统驱动文件和普通的可执行文件</span><br><span class="line">  WORD                 DllCharacteristics;&#x2F;&#x2F; DLL特性</span><br><span class="line">  DWORD                SizeOfStackReserve;&#x2F;&#x2F;为堆栈保留的字节数</span><br><span class="line">  DWORD                SizeOfStackCommit;&#x2F;&#x2F;为堆栈提交的字节数。</span><br><span class="line">  DWORD                SizeOfHeapReserve;&#x2F;&#x2F;为本地堆保留的字节数</span><br><span class="line">  DWORD                SizeOfHeapCommit;&#x2F;&#x2F;为本地堆提交的字节数。</span><br><span class="line">  DWORD                LoaderFlags;</span><br><span class="line">  DWORD                NumberOfRvaAndSizes;&#x2F;&#x2F;用来指定DataDirectory数组的个数</span><br><span class="line">  IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];</span><br><span class="line">  &#x2F;&#x2F;DataDirectory[0]:EXPORT</span><br><span class="line">  &#x2F;&#x2F;DataDirectory[1]:IMPORT</span><br><span class="line">  &#x2F;&#x2F;DataDirectory[2]:RESOURCE</span><br><span class="line">  &#x2F;&#x2F;DataDirectory[9]:TLS</span><br><span class="line">&#125; IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;</span><br></pre></td></tr></table></figure>
+
+<p><strong>IMAGE_SECTION_HEADER：节区头</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">typedef struct _IMAGE_SECTION_HEADER &#123;</span><br><span class="line">  BYTE  Name[IMAGE_SIZEOF_SHORT_NAME];</span><br><span class="line">  union &#123;</span><br><span class="line">    DWORD PhysicalAddress;</span><br><span class="line">    DWORD VirtualSize;&#x2F;&#x2F;加载到内存中时节区的大小</span><br><span class="line">  &#125; Misc;</span><br><span class="line">  DWORD VirtualAddress;&#x2F;&#x2F;内存中节区的起始地址（RVA）</span><br><span class="line">  DWORD SizeOfRawData;&#x2F;&#x2F;磁盘文件中节区的大小</span><br><span class="line">  DWORD PointerToRawData;&#x2F;&#x2F;磁盘中节区的起始地址</span><br><span class="line">  DWORD PointerToRelocations;</span><br><span class="line">  DWORD PointerToLinenumbers;</span><br><span class="line">  WORD  NumberOfRelocations;</span><br><span class="line">  WORD  NumberOfLinenumbers;</span><br><span class="line">  DWORD Characteristics;&#x2F;&#x2F;节区属性</span><br><span class="line">&#125; IMAGE_SECTION_HEADER, *PIMAGE_SECTION_HEADER;</span><br></pre></td></tr></table></figure>
+
+<p>PE文件加载到内存时，每个节区要完成内存地址和文件偏移间的映射：RVA-&gt;RAW</p>
+<p>过程：</p>
+<p>1、查找RVA所在的节区</p>
+<p>2、计算文件偏移（RAW-PointerToRawData=RVA-VirtualAddress）</p>
+<h5 id="0x3-IAT"><a href="#0x3-IAT" class="headerlink" title="0x3 IAT"></a>0x3 IAT</h5><p>导入地址表：保存进程、内存、DLL结构等相关内容</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">typedef struct _IMAGE_IMPORT_DESCRIPTOR &#123;&#x2F;&#x2F;记录PE文件要导入哪些库文件</span><br><span class="line">DWORD    OriginalFirstThunk;&#x2F;&#x2F;INT（包含导入函数信息的结构体指针数组）的地址（RVA）</span><br><span class="line">DWORD    TimeDateStamp;</span><br><span class="line">DWORD    ForwarderChain;</span><br><span class="line">DWORD    Name;&#x2F;&#x2F;库名称字符串的地址</span><br><span class="line">DWORD    FirstThunk;&#x2F;&#x2F;IAT的地址（RVA）</span><br><span class="line">&#125; IMAGE_IMPORT_DESCRIPTOR, *PIMAGE_IMPORT_DESCRIPTOR;</span><br></pre></td></tr></table></figure>
+
+<p>当程序导入DLL的时候，一个DLL对应一个IMAGE_IMPORT_DESCRIPTOR结构体，多个结构体形成数组，最后以一个NULL结构体结束</p>
+<p>1、PE装载器会读取IID（IMAGE_IMPORT_DESCRIPTOR）的Name成员，获取dll名称字符串</p>
+<p>2、使用LoadLibrary加载相应的库</p>
+<p>3、读取IID的OriginalFirstThunk成员，获取INT的地址，逐一读取INT数组的值，获取IMAGE_IMPORT_BY_NAME地址</p>
+<p>4、使用IMAGE_IMPORT_BY_NAME的Hint或Name项，获取相应函数的起始地址（GetProcAddress)</p>
+<p>5、读取FirstThunk成员，获取IAT地址，将上面获得的相应函数的起始地址输入到相应的IAT数组值</p>
+<p>IMAGE_IMPORT_DESCRIPTOR不在PE头，在PE体里，IMAGE_OPTIONAL_HEADER头中DataDirectory[1].VirtualAddress的值就是IMAGE_IMPORT_DESCRIPTOR的起始地址</p>
+<h5 id="0x4-EAT"><a href="#0x4-EAT" class="headerlink" title="0x4 EAT"></a>0x4 EAT</h5><p>是一种核心机制，使不同的应用程序可以调用库文件中提供的函数</p>
+<p>用来获取相应库中的导出函数的起始地址</p>
+<p>PE文件中只有一个用来说明库EAT的IMAGE_EXPORT_DIRECTORY结构体</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">IMAGE_EXPORT_DIRECTORY STRUCT【导出表，共40字节】&#123;</span><br><span class="line">	DWORD Characteristics ; </span><br><span class="line">	DWORD TimeDateStamp ; &#x2F;&#x2F;文件生成时间</span><br><span class="line">	WORD MajorVersion     ; </span><br><span class="line">	WORD MinorVersion ;</span><br><span class="line">	DWORD Name     ; &#x2F;&#x2F;库文件名的地址</span><br><span class="line">	DWORD Base     ; &#x2F;&#x2F;基数，加上序数就是函数地址数组的索引值</span><br><span class="line">	DWORD NumberOfFunctions ; &#x2F;&#x2F;导出函数的总数</span><br><span class="line">	DWORD NumberOfNames ; &#x2F;&#x2F;以名称方式导出的函数的总数</span><br><span class="line">	DWORD AddressOfFunctions ; &#x2F;&#x2F;导出函数地址数组</span><br><span class="line">	DWORD AddressOfNames ; &#x2F;&#x2F;函数名称地址数组</span><br><span class="line">	DWORD AddressOfNameOrdinals ; &#x2F;&#x2F;导出函数序号地址数组</span><br><span class="line">&#125;;IMAGE_EXPORT_DIRECTORY ENDS</span><br></pre></td></tr></table></figure>
+
+<p>**GetProcAddress()**：从库中获取函数地址的API，引用EAT来获取指定API的地址</p>
+<p>原理：</p>
+<p>1、通过AddressOfNames成员得到函数名称数组</p>
+<p>2、通过在函数名称数组中比较（strcmp）指定函数名称，得到指定函数名称的索引</p>
+<p>3、通过AddressOfNameOrdinals得到函数序号数组</p>
+<p>4、通过指定函数名称的索引获取指定函数的序号</p>
+<p>5、通过AddressOfFunctions得到函数地址数组</p>
+<p>6、通过指定函数的序号用作函数地址数组的索引，得到指定函数的起始地址</p>
+]]></content>
+      <categories>
+        <category>笔记</category>
+      </categories>
+      <tags>
+        <tag>PE</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>VNCTF2021-Reverse-wp</title>
+    <url>/2021/04/13/VNCTF2021-Reverse-wp/</url>
+    <content><![CDATA[<p>VNCTF2021-Reverse-wp</p>
+<a id="more"></a>
+
+<h5 id="0x1-notsudoku"><a href="#0x1-notsudoku" class="headerlink" title="0x1 notsudoku"></a>0x1 notsudoku</h5><p>查看基本信息，发现upx壳，脱壳（upx -d）</p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413053005139.png" alt="image-20210413053005139"></p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413053047491.png" alt="image-20210413053047491"></p>
+<p>放到ida里看看，发现并没有明文字符串，而是一堆关于py的信息</p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413053232312.png" alt="image-20210413053232312"></p>
+<p>可以猜测是用py打包的</p>
+<p>所以尝试解包（使用最新版的pyinstxtractor.py，可以自动生成pyc文件，不用手工改magic value，这个2.pyc就是我们需要的</p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413053535763.png" alt="image-20210413053535763"></p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413053444736.png" alt="image-20210413053444736"></p>
+<p>但是经过查看和struct中的magic value并不相同，所以手动替换一下，使用py3.7和uncompyle6可以正常解出源码，py3.9会报错，py2也会报错，easy那个软件也会报错</p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413054918399.png" alt="image-20210413054918399"></p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413054757278.png" alt="image-20210413054757278"></p>
+<p>开始研究源码：</p>
+<p> <img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413055029915.png" alt="image-20210413055029915"></p>
+<p>替换掉一些日文：</p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413055104065.png" alt="image-20210413055104065"></p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413055129674.png" alt="image-20210413055129674"></p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413055212442.png" alt="image-20210413055212442"></p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413055149840.png" alt="image-20210413055149840"></p>
+<p>通过已给的数字提示以及题目，判断这是一个五阶幻方，然后要求我们按1的顺序输入每个字所在的横纵坐标</p>
+<p>根据此图我们就可以推出输入的字符串</p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413055310499.png" alt="image-20210413055310499"></p>
+<p>编写脚本，得到flag：e3a912c1e911ad82544af0c3d753f44f</p>
+<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413061037076.png" alt="image-20210413061037076"></p>
+]]></content>
+      <categories>
+        <category>ctf</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>django-webproject</title>
+    <url>/2021/03/05/django-webproject/</url>
+    <content><![CDATA[<h4 id="django网站搭建"><a href="#django网站搭建" class="headerlink" title="django网站搭建"></a>django网站搭建</h4><p>–关于我最近在干嘛–</p>
+<p>零基础开始的一个独立bootstrap+django网站搭建学习</p>
+<p>需求：增删改查+上传下载文件+导出数据到csv+筛选+搜索</p>
+<p>项目完整代码：<a href="https://github.com/0xkami/django-web">https://github.com/0xkami/django-web</a></p>
+<a id="more"></a>
+
+<h5 id="0x1-基础功能"><a href="#0x1-基础功能" class="headerlink" title="0x1 基础功能"></a>0x1 基础功能</h5><p>利用pycharm搭建一个django项目，可以成功开启最基础的访问</p>
+<p>前端使用bootstrap，模版使用的是clearmin，很简洁的一个管理平台</p>
+<h6 id="0x11-整体框架："><a href="#0x11-整体框架：" class="headerlink" title="0x11 整体框架："></a>0x11 整体框架：</h6><img src="/2021/03/05/django-webproject/image-20210301101823208.png" alt="image-20210301101823208">
+
+<p>urls.py:</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305143550833-4928991.png" alt="image-20210305143550833"></p>
+<h6 id="0x12-数据库设计："><a href="#0x12-数据库设计：" class="headerlink" title="0x12 数据库设计："></a>0x12 数据库设计：</h6><p>在电脑上装好sql，使用navicat创建连接，在django项目中创建对于数据库并迁移</p>
+<p>以下就是需要存到数据库中的信息字段：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210301102403994-4928991.png" alt="image-20210301102403994"></p>
+<p>在整体项目（和url文件在同一文件夹下）的settings中添加数据库的信息：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210301102612299-4928991.png" alt="image-20210301102612299"></p>
+<p>在项目命令行运行 <code>python manage.py makemigrations</code>和<code>python manage.py migrate </code>，在navicat就能看到创建好的数据库</p>
+<p><img src="/2021/03/05/django-webproject/image-20210301104219610-4928991.png" alt="image-20210301104219610"></p>
+<h6 id="0x13-基础展示信息页面：（-分页）"><a href="#0x13-基础展示信息页面：（-分页）" class="headerlink" title="0x13 基础展示信息页面：（+分页）"></a>0x13 基础展示信息页面：（+分页）</h6><p>在数据库中插入一些信息，然后想要在某个页面中以表格的形式展示它的部分内容</p>
+<p>重点代码：<code>data_sum = vul_info.objects.order_by(&#39;vul_id&#39;)</code>，vul_info是model中的类名，order_by可以根据固定字段来进行排序</p>
+<p>view.py中此功能完整代码：（加了分页的功能）</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">@require_http_methods([&quot;GET&quot;, ])</span><br><span class="line">def vulinfo(request):</span><br><span class="line">    data_sum &#x3D; vul_info.objects.order_by(&#39;vul_id&#39;) </span><br><span class="line">    paginator &#x3D; Paginator(data_sum, 6)  # 每页6条记录</span><br><span class="line">    page &#x3D; request.GET.get(&#39;page&#39;, 1)</span><br><span class="line">    currentpage &#x3D; int(page)</span><br><span class="line">    all_page_num &#x3D; paginator.num_pages</span><br><span class="line">    try:</span><br><span class="line">        # 获取当前页码的记录</span><br><span class="line">        data_sum &#x3D; paginator.page(page)</span><br><span class="line">    except PageNotAnInteger:</span><br><span class="line">        # 如果用户输入的页码不是整数时,显示第1页的内容</span><br><span class="line">        data_sum &#x3D; paginator.page(1)</span><br><span class="line">    except EmptyPage:</span><br><span class="line">        # 如果用户输入的页数不在系统的页码列表中时,显示最后一页的内容</span><br><span class="line">        data_sum &#x3D; paginator.page(paginator.num_pages)</span><br><span class="line"></span><br><span class="line">    info &#x3D; &#123;</span><br><span class="line">        &quot;vuls&quot;: data_sum, # 定义了返回的数据名，在前端可以利用for循环来读取数据库里的内容</span><br><span class="line">        &quot;currentpage&quot;: currentpage,</span><br><span class="line">        &quot;all_page_num&quot;: all_page_num</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return render(request, &#39;vulinfo.html&#39;, info) # vulinfo.html是前端页面的名字</span><br></pre></td></tr></table></figure>
+
+<p>urls.py:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">path(r&#39;^vulinfo&#x2F;(?P&lt;pageNumber&gt;\d+)&#39;, views.vulinfo, name&#x3D;&#39;vulinfo&#39;)</span><br></pre></td></tr></table></figure>
+
+<p>前端页面：</p>
+<p>通过for循环，可以返回需要的数据，同时做了一个详细页面点击的链接</p>
+<p><img src="/2021/03/05/django-webproject/image-20210301111120033-4928991.png" alt="image-20210301111120033"></p>
+<p>效果图如下：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210301111200294-4928991.png" alt="image-20210301111200294"></p>
+<h6 id="0x14-提交信息页面：（-上传文件）"><a href="#0x14-提交信息页面：（-上传文件）" class="headerlink" title="0x14 提交信息页面：（+上传文件）"></a>0x14 提交信息页面：（+上传文件）</h6><p>使用forms进行信息的提交，在forms中进行定义：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210301114000246-4928991.png" alt="image-20210301114000246"></p>
+<p>view.py：（加了上传文件的功能）</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">@csrf_exempt</span><br><span class="line">@require_http_methods([&quot;GET&quot;, &quot;POST&quot;])</span><br><span class="line">def vul_upload(request):</span><br><span class="line">    if request.method &#x3D;&#x3D; &quot;POST&quot;:</span><br><span class="line">        form &#x3D; VulUploadForm(request.POST) # 获取form的内容</span><br><span class="line">        print(request.POST)</span><br><span class="line">        </span><br><span class="line">				# 上传文件功能</span><br><span class="line">        file_obj &#x3D; request.FILES.get(&quot;poc_file&quot;, None)</span><br><span class="line">        destination &#x3D; open(os.path.join(&quot;#输入上传文件的地址&quot;, request.POST.get(&quot;poc_file&quot;)),&#39;wb+&#39;)</span><br><span class="line">        for i in file_obj.chunks():</span><br><span class="line">            destination.write(i)</span><br><span class="line">        destination.close()</span><br><span class="line">        print(form)</span><br><span class="line"></span><br><span class="line">        if form.is_valid():</span><br><span class="line">            form.save()</span><br><span class="line">            return HttpResponse(&quot;新增成功&quot;)</span><br><span class="line">            content &#x3D; &#123;</span><br><span class="line">                &quot;form&quot;: form</span><br><span class="line">            &#125;</span><br><span class="line">            return render(request, &quot;insert.html&quot;, content)</span><br><span class="line">        else:</span><br><span class="line">            return HttpResponse(&#39;Sorry...&#39;)</span><br><span class="line">    return render(request, &#39;insert.html&#39;)</span><br></pre></td></tr></table></figure>
+
+<p>效果图如下：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305141424306-4928991.png" alt="image-20210305141424306"></p>
+<p>下拉框和日期选择实现：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305141616584-4928991.png" alt="image-20210305141616584"></p>
+<h6 id="0x15-详细信息页面："><a href="#0x15-详细信息页面：" class="headerlink" title="0x15 详细信息页面："></a>0x15 详细信息页面：</h6><p>展示所有数据库的数据，并对一部分数据提供修改的功能：</p>
+<p>效果图如下：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305141656027-4928991.png" alt="image-20210305141656027"></p>
+<p>信息展示的前端同基础展示信息页面</p>
+<p>修改功能使用了模态框+js</p>
+<p>view.py:</p>
+<p>通过js实现post，传输前端数据，获取对应的vul_id和要更新的数据</p>
+<p>主要语句：vul_info.objects.filter(vul_id=xx).update(snort=xx)</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def update_snort(request):</span><br><span class="line">    if request.method &#x3D;&#x3D; &quot;POST&quot;:</span><br><span class="line">        snort_info &#x3D; request.POST.get(&#39;snort&#39;)</span><br><span class="line">        snort_detail &#x3D; request.POST.get(&#39;snort_detail&#39;)</span><br><span class="line">        vulid &#x3D; request.POST.get(&#39;vul_id&#39;)</span><br><span class="line">        vul_info.objects.filter(vul_id&#x3D;vulid).update(snort&#x3D;snort_info)</span><br><span class="line">        vul_info.objects.filter(vul_id&#x3D;vulid).update(snort_detail&#x3D;snort_detail)</span><br><span class="line">        return HttpResponse(&#39;save success!&#39;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def update_track(request):</span><br><span class="line">    if request.method &#x3D;&#x3D; &quot;POST&quot;:</span><br><span class="line">        track_info &#x3D; request.POST.get(&#39;track_stauts&#39;, &#39;&#39;)</span><br><span class="line">        vulid &#x3D; request.POST.get(&#39;vul_id&#39;)</span><br><span class="line">        print(vulid)</span><br><span class="line">        vul_info.objects.filter(vul_id&#x3D;vulid).update(track_stauts&#x3D;track_info)</span><br><span class="line">        return HttpResponse(&#39;save success!&#39;)</span><br></pre></td></tr></table></figure>
+
+<p>前端：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305142711997-4928991.png" alt="image-20210305142711997"></p>
+<p>js:</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305142818341-4928991.png" alt="image-20210305142818341"></p>
+<p>效果图：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305142905738-4928991.png" alt="image-20210305142905738"></p>
+<p>至此基础功能都已经实现</p>
+<h5 id="0x2-附加功能"><a href="#0x2-附加功能" class="headerlink" title="0x2 附加功能"></a>0x2 附加功能</h5><h6 id="0x21-搜索功能"><a href="#0x21-搜索功能" class="headerlink" title="0x21 搜索功能"></a>0x21 搜索功能</h6><p>使用q搜索，提供名字\cve\cnnvd的搜索</p>
+<p>view.py：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def search(request):</span><br><span class="line">    q &#x3D; request.GET.get(&#39;q&#39;)</span><br><span class="line">    search_list &#x3D; vul_info.objects.filter(Q(name__icontains&#x3D;q) | Q(cve__icontains&#x3D;q) | Q(cnnvd__icontains&#x3D;q) )</span><br><span class="line">    error_msg &#x3D; &#39;No result&#39;</span><br><span class="line">    return render(request, &#39;vulinfo.html&#39;, &#123;&#39;vuls&#39;: search_list,</span><br><span class="line">                                            &#39;error_msg&#39;: error_msg,</span><br><span class="line">                                            &#125;)</span><br></pre></td></tr></table></figure>
+
+<p>前端：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305143500136-4928991.png" alt="image-20210305143500136"></p>
+<p>效果：</p>
+<p>在这里输入关键字即可：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305143657723-4928991.png" alt="image-20210305143657723"></p>
+<h6 id="0x22-下拉框筛选显示"><a href="#0x22-下拉框筛选显示" class="headerlink" title="0x22 下拉框筛选显示"></a>0x22 下拉框筛选显示</h6><p>事先预定好了一些关键筛选，点击即可跳转对应的筛选页面：</p>
+<p>筛选页面view.py：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def filter_1(request):</span><br><span class="line">    search_lists &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;1) &amp; Q(protection_status_sac&#x3D;1))</span><br><span class="line">    error_msg &#x3D; &#39;No result&#39;</span><br><span class="line">    return render(request, &#39;vulinfo.html&#39;, &#123;&#39;vuls&#39;: search_lists,</span><br><span class="line">                                            &#39;error_msg&#39;: error_msg,</span><br><span class="line">                                            &#125;)</span><br></pre></td></tr></table></figure>
+
+<p>前端：下拉框使用dropdown，点击后就会跳转</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305143848554-4928991.png" alt="image-20210305143848554"></p>
+<p>效果图：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305143711042-4928991.png" alt="image-20210305143711042"></p>
+<h6 id="0x23-导出"><a href="#0x23-导出" class="headerlink" title="0x23 导出"></a>0x23 导出</h6><p>前端写了一个导出按钮，点击即可输出为一个csv文件，支持不同筛选页面的输出</p>
+<p>view.py:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def export(request):</span><br><span class="line">    vul_lis &#x3D; vul_info.objects.all()</span><br><span class="line">    response &#x3D; HttpResponse(content_type&#x3D;&#39;text&#x2F;csv&#39;)</span><br><span class="line">    time_now &#x3D; time.strftime(&#39;%Y%m%d&#39;)</span><br><span class="line">    filename &#x3D; &#39;vul_&#39; + time_now</span><br><span class="line">    response.write(codecs.BOM_UTF8)</span><br><span class="line">    response[&#39;Content-Disposition&#39;] &#x3D; f&#39;attachment; filename&#x3D;&quot;&#123;filename&#125;.csv&quot;&#39;</span><br><span class="line">    writer &#x3D; csv.writer(response)</span><br><span class="line">    writer.writerow([&#39;vul_id&#39;, &#39;name&#39;, &#39;track&#39;, &#39;poc&#39;,</span><br><span class="line">                     &#39;snort&#39;, &#39;cve&#39;, &#39;cnnvd&#39;,</span><br><span class="line">                     &#39;ips&#39;, &#39;sac&#39;, &#39;note&#39;, &#39;update-time&#39;])</span><br><span class="line">    for vul in vul_lis:</span><br><span class="line">        writer.writerow([vul.vul_id, vul.name, vul.track_stauts, vul.poc, vul.snort, vul.cve, vul.cnnvd,</span><br><span class="line">                         vul.protection_status_ips, vul.protection_status_sac, vul.note, vul.updated_time])</span><br><span class="line">    return response</span><br></pre></td></tr></table></figure>
+
+<p>前端：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305144111506-4928991.png" alt="image-20210305144111506"></p>
+<p>效果图：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305144435191-4928991.png" alt="image-20210305144435191"></p>
+<h6 id="0x24-信息汇总页面"><a href="#0x24-信息汇总页面" class="headerlink" title="0x24 信息汇总页面"></a>0x24 信息汇总页面</h6><p>使用了c3表格，有模板</p>
+<p>view.py：传输了一些数据到前端</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def index(request):</span><br><span class="line">    sum &#x3D; vul_info.objects.all().count()</span><br><span class="line">    high &#x3D; vul_info.objects.filter(severity&#x3D;&#39;2&#39;).count()</span><br><span class="line">    med &#x3D; vul_info.objects.filter(severity&#x3D;&#39;1&#39;).count()</span><br><span class="line">    low &#x3D; vul_info.objects.filter(severity&#x3D;&#39;0&#39;).count()</span><br><span class="line">    wgzs &#x3D; vul_info.objects.filter(track_stauts&#x3D;&#39;0&#39;).count()</span><br><span class="line">    gzzs &#x3D; vul_info.objects.filter(track_stauts&#x3D;&#39;1&#39;).count()</span><br><span class="line">    ygzs &#x3D; vul_info.objects.filter(track_stauts&#x3D;&#39;2&#39;).count()</span><br><span class="line">    tgips &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;1) &amp; Q(protection_status_sac&#x3D;1)).count()</span><br><span class="line">    tg &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;0) &amp; Q(protection_status_sac&#x3D;1)).count()</span><br><span class="line">    ips &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;1) &amp; Q(protection_status_sac&#x3D;0)).count()</span><br><span class="line">    ntgips &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;0) &amp; Q(protection_status_sac&#x3D;0)).count()</span><br><span class="line">    d &#x3D; int(tgips &#x2F; sum * 100)</span><br><span class="line">    e &#x3D; int(tg &#x2F; sum * 100)</span><br><span class="line">    f &#x3D; int(ips &#x2F; sum * 100)</span><br><span class="line">    g &#x3D; int(ntgips &#x2F; sum * 100)</span><br><span class="line">    a &#x3D; int(wgzs &#x2F; sum * 100)</span><br><span class="line">    b &#x3D; int(gzzs &#x2F; sum * 100)</span><br><span class="line">    c &#x3D; int(ygzs &#x2F; sum * 100)</span><br><span class="line"></span><br><span class="line">    return render(request, &#39;index.html&#39;, &#123;&#39;sum&#39;: sum, &#39;high&#39;: high, &#39;med&#39;: med, &#39;low&#39;: low,</span><br><span class="line">                                          &#39;wgz&#39;: a, &#39;gzz&#39;: b, &#39;ygz&#39;: c,</span><br><span class="line">                                          &#39;wgzs&#39;: wgzs, &#39;gzzs&#39;: gzzs, &#39;ygzs&#39;: ygzs,</span><br><span class="line">                                          &#39;tgips&#39;: d, &#39;tg&#39;: e, &#39;ips&#39;: f,&#39;ntgips&#39;: g,</span><br><span class="line">                                          &#39;tgipss&#39;: tgips, &#39;tgs&#39;: tg, &#39;ipss&#39;: ips,&#39;ntgipss&#39;: ntgips&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>效果图：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305144403691-4928991.png" alt="image-20210305144403691"></p>
+<h6 id="0x25-文件下载"><a href="#0x25-文件下载" class="headerlink" title="0x25 文件下载"></a>0x25 文件下载</h6><p>单个poc文件下载功能，直接在页面上做了下载链接，点击即可下载对应poc：</p>
+<p>view.py：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def download_file(request, vul_id):</span><br><span class="line">    search_lists &#x3D; vul_info.objects.get(vul_id&#x3D;vul_id)</span><br><span class="line">    file_name &#x3D; search_lists.poc_file</span><br><span class="line">    the_file_name &#x3D; &#39;#文件存储的地址&#39;+ file_name</span><br><span class="line">    file &#x3D; open(the_file_name, &#39;rb&#39;)</span><br><span class="line">    response &#x3D; StreamingHttpResponse(file)</span><br><span class="line">    response[&#39;Content-Type&#39;] &#x3D; &#39;application&#x2F;octet-stream&#39;</span><br><span class="line">    response[&#39;Content-Disposition&#39;] &#x3D; &#39;attachement;filename&#x3D;&quot;&#123;0&#125;&quot;&#39;.format(file_name)</span><br><span class="line">    return response</span><br></pre></td></tr></table></figure>
+
+<p>前端：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305144648161-4928991.png" alt="image-20210305144648161"></p>
+<p>效果图：</p>
+<p><img src="/2021/03/05/django-webproject/image-20210305144804727-4928991.png" alt="image-20210305144804727"></p>
+]]></content>
+      <tags>
+        <tag>django</tag>
+        <tag>python-web</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>funnyre-花指令与符号执行angr</title>
     <url>/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/</url>
     <content><![CDATA[<p>从funnyre的题中学习花指令和符号执行angr</p>
@@ -946,41 +1153,6 @@
         <tag>花指令</tag>
         <tag>angr</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>VNCTF2021-Reverse-wp</title>
-    <url>/2021/04/13/VNCTF2021-Reverse-wp/</url>
-    <content><![CDATA[<p>VNCTF2021-Reverse-wp</p>
-<a id="more"></a>
-
-<h5 id="0x1-notsudoku"><a href="#0x1-notsudoku" class="headerlink" title="0x1 notsudoku"></a>0x1 notsudoku</h5><p>查看基本信息，发现upx壳，脱壳（upx -d）</p>
-<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413053005139.png" alt="image-20210413053005139"></p>
-<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413053047491.png" alt="image-20210413053047491"></p>
-<p>放到ida里看看，发现并没有明文字符串，而是一堆关于py的信息</p>
-<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413053232312.png" alt="image-20210413053232312"></p>
-<p>可以猜测是用py打包的</p>
-<p>所以尝试解包（使用最新版的pyinstxtractor.py，可以自动生成pyc文件，不用手工改magic value，这个2.pyc就是我们需要的</p>
-<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413053535763.png" alt="image-20210413053535763"></p>
-<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413053444736.png" alt="image-20210413053444736"></p>
-<p>但是经过查看和struct中的magic value并不相同，所以手动替换一下，使用py3.7和uncompyle6可以正常解出源码，py3.9会报错，py2也会报错，easy那个软件也会报错</p>
-<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413054918399.png" alt="image-20210413054918399"></p>
-<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413054757278.png" alt="image-20210413054757278"></p>
-<p>开始研究源码：</p>
-<p> <img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413055029915.png" alt="image-20210413055029915"></p>
-<p>替换掉一些日文：</p>
-<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413055104065.png" alt="image-20210413055104065"></p>
-<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413055129674.png" alt="image-20210413055129674"></p>
-<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413055212442.png" alt="image-20210413055212442"></p>
-<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413055149840.png" alt="image-20210413055149840"></p>
-<p>通过已给的数字提示以及题目，判断这是一个五阶幻方，然后要求我们按1的顺序输入每个字所在的横纵坐标</p>
-<p>根据此图我们就可以推出输入的字符串</p>
-<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413055310499.png" alt="image-20210413055310499"></p>
-<p>编写脚本，得到flag：e3a912c1e911ad82544af0c3d753f44f</p>
-<p><img src="/2021/04/13/VNCTF2021-Reverse-wp/image-20210413061037076.png" alt="image-20210413061037076"></p>
-]]></content>
-      <categories>
-        <category>ctf</category>
-      </categories>
   </entry>
   <entry>
     <title>mac+gitbook笔记环境搭建</title>
@@ -1115,112 +1287,6 @@
 <p>2、换了个更好的公司</p>
 <p><img src="/2021/06/10/%E4%B8%96%E7%95%8C%E7%BA%BF%E5%81%8F%E7%A7%BB-2021-6-10/image-20210610145500746.png" alt="image-20210610145500746"></p>
 ]]></content>
-  </entry>
-  <entry>
-    <title>django-webproject</title>
-    <url>/2021/03/05/django-webproject/</url>
-    <content><![CDATA[<h4 id="django网站搭建"><a href="#django网站搭建" class="headerlink" title="django网站搭建"></a>django网站搭建</h4><p>–关于我最近在干嘛–</p>
-<p>零基础开始的一个独立bootstrap+django网站搭建学习</p>
-<p>需求：增删改查+上传下载文件+导出数据到csv+筛选+搜索</p>
-<p>项目完整代码：<a href="https://github.com/0xkami/django-web">https://github.com/0xkami/django-web</a></p>
-<a id="more"></a>
-
-<h5 id="0x1-基础功能"><a href="#0x1-基础功能" class="headerlink" title="0x1 基础功能"></a>0x1 基础功能</h5><p>利用pycharm搭建一个django项目，可以成功开启最基础的访问</p>
-<p>前端使用bootstrap，模版使用的是clearmin，很简洁的一个管理平台</p>
-<h6 id="0x11-整体框架："><a href="#0x11-整体框架：" class="headerlink" title="0x11 整体框架："></a>0x11 整体框架：</h6><img src="/2021/03/05/django-webproject/image-20210301101823208.png" alt="image-20210301101823208">
-
-<p>urls.py:</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305143550833-4928991.png" alt="image-20210305143550833"></p>
-<h6 id="0x12-数据库设计："><a href="#0x12-数据库设计：" class="headerlink" title="0x12 数据库设计："></a>0x12 数据库设计：</h6><p>在电脑上装好sql，使用navicat创建连接，在django项目中创建对于数据库并迁移</p>
-<p>以下就是需要存到数据库中的信息字段：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210301102403994-4928991.png" alt="image-20210301102403994"></p>
-<p>在整体项目（和url文件在同一文件夹下）的settings中添加数据库的信息：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210301102612299-4928991.png" alt="image-20210301102612299"></p>
-<p>在项目命令行运行 <code>python manage.py makemigrations</code>和<code>python manage.py migrate </code>，在navicat就能看到创建好的数据库</p>
-<p><img src="/2021/03/05/django-webproject/image-20210301104219610-4928991.png" alt="image-20210301104219610"></p>
-<h6 id="0x13-基础展示信息页面：（-分页）"><a href="#0x13-基础展示信息页面：（-分页）" class="headerlink" title="0x13 基础展示信息页面：（+分页）"></a>0x13 基础展示信息页面：（+分页）</h6><p>在数据库中插入一些信息，然后想要在某个页面中以表格的形式展示它的部分内容</p>
-<p>重点代码：<code>data_sum = vul_info.objects.order_by(&#39;vul_id&#39;)</code>，vul_info是model中的类名，order_by可以根据固定字段来进行排序</p>
-<p>view.py中此功能完整代码：（加了分页的功能）</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">@require_http_methods([&quot;GET&quot;, ])</span><br><span class="line">def vulinfo(request):</span><br><span class="line">    data_sum &#x3D; vul_info.objects.order_by(&#39;vul_id&#39;) </span><br><span class="line">    paginator &#x3D; Paginator(data_sum, 6)  # 每页6条记录</span><br><span class="line">    page &#x3D; request.GET.get(&#39;page&#39;, 1)</span><br><span class="line">    currentpage &#x3D; int(page)</span><br><span class="line">    all_page_num &#x3D; paginator.num_pages</span><br><span class="line">    try:</span><br><span class="line">        # 获取当前页码的记录</span><br><span class="line">        data_sum &#x3D; paginator.page(page)</span><br><span class="line">    except PageNotAnInteger:</span><br><span class="line">        # 如果用户输入的页码不是整数时,显示第1页的内容</span><br><span class="line">        data_sum &#x3D; paginator.page(1)</span><br><span class="line">    except EmptyPage:</span><br><span class="line">        # 如果用户输入的页数不在系统的页码列表中时,显示最后一页的内容</span><br><span class="line">        data_sum &#x3D; paginator.page(paginator.num_pages)</span><br><span class="line"></span><br><span class="line">    info &#x3D; &#123;</span><br><span class="line">        &quot;vuls&quot;: data_sum, # 定义了返回的数据名，在前端可以利用for循环来读取数据库里的内容</span><br><span class="line">        &quot;currentpage&quot;: currentpage,</span><br><span class="line">        &quot;all_page_num&quot;: all_page_num</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return render(request, &#39;vulinfo.html&#39;, info) # vulinfo.html是前端页面的名字</span><br></pre></td></tr></table></figure>
-
-<p>urls.py:</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">path(r&#39;^vulinfo&#x2F;(?P&lt;pageNumber&gt;\d+)&#39;, views.vulinfo, name&#x3D;&#39;vulinfo&#39;)</span><br></pre></td></tr></table></figure>
-
-<p>前端页面：</p>
-<p>通过for循环，可以返回需要的数据，同时做了一个详细页面点击的链接</p>
-<p><img src="/2021/03/05/django-webproject/image-20210301111120033-4928991.png" alt="image-20210301111120033"></p>
-<p>效果图如下：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210301111200294-4928991.png" alt="image-20210301111200294"></p>
-<h6 id="0x14-提交信息页面：（-上传文件）"><a href="#0x14-提交信息页面：（-上传文件）" class="headerlink" title="0x14 提交信息页面：（+上传文件）"></a>0x14 提交信息页面：（+上传文件）</h6><p>使用forms进行信息的提交，在forms中进行定义：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210301114000246-4928991.png" alt="image-20210301114000246"></p>
-<p>view.py：（加了上传文件的功能）</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">@csrf_exempt</span><br><span class="line">@require_http_methods([&quot;GET&quot;, &quot;POST&quot;])</span><br><span class="line">def vul_upload(request):</span><br><span class="line">    if request.method &#x3D;&#x3D; &quot;POST&quot;:</span><br><span class="line">        form &#x3D; VulUploadForm(request.POST) # 获取form的内容</span><br><span class="line">        print(request.POST)</span><br><span class="line">        </span><br><span class="line">				# 上传文件功能</span><br><span class="line">        file_obj &#x3D; request.FILES.get(&quot;poc_file&quot;, None)</span><br><span class="line">        destination &#x3D; open(os.path.join(&quot;#输入上传文件的地址&quot;, request.POST.get(&quot;poc_file&quot;)),&#39;wb+&#39;)</span><br><span class="line">        for i in file_obj.chunks():</span><br><span class="line">            destination.write(i)</span><br><span class="line">        destination.close()</span><br><span class="line">        print(form)</span><br><span class="line"></span><br><span class="line">        if form.is_valid():</span><br><span class="line">            form.save()</span><br><span class="line">            return HttpResponse(&quot;新增成功&quot;)</span><br><span class="line">            content &#x3D; &#123;</span><br><span class="line">                &quot;form&quot;: form</span><br><span class="line">            &#125;</span><br><span class="line">            return render(request, &quot;insert.html&quot;, content)</span><br><span class="line">        else:</span><br><span class="line">            return HttpResponse(&#39;Sorry...&#39;)</span><br><span class="line">    return render(request, &#39;insert.html&#39;)</span><br></pre></td></tr></table></figure>
-
-<p>效果图如下：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305141424306-4928991.png" alt="image-20210305141424306"></p>
-<p>下拉框和日期选择实现：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305141616584-4928991.png" alt="image-20210305141616584"></p>
-<h6 id="0x15-详细信息页面："><a href="#0x15-详细信息页面：" class="headerlink" title="0x15 详细信息页面："></a>0x15 详细信息页面：</h6><p>展示所有数据库的数据，并对一部分数据提供修改的功能：</p>
-<p>效果图如下：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305141656027-4928991.png" alt="image-20210305141656027"></p>
-<p>信息展示的前端同基础展示信息页面</p>
-<p>修改功能使用了模态框+js</p>
-<p>view.py:</p>
-<p>通过js实现post，传输前端数据，获取对应的vul_id和要更新的数据</p>
-<p>主要语句：vul_info.objects.filter(vul_id=xx).update(snort=xx)</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def update_snort(request):</span><br><span class="line">    if request.method &#x3D;&#x3D; &quot;POST&quot;:</span><br><span class="line">        snort_info &#x3D; request.POST.get(&#39;snort&#39;)</span><br><span class="line">        snort_detail &#x3D; request.POST.get(&#39;snort_detail&#39;)</span><br><span class="line">        vulid &#x3D; request.POST.get(&#39;vul_id&#39;)</span><br><span class="line">        vul_info.objects.filter(vul_id&#x3D;vulid).update(snort&#x3D;snort_info)</span><br><span class="line">        vul_info.objects.filter(vul_id&#x3D;vulid).update(snort_detail&#x3D;snort_detail)</span><br><span class="line">        return HttpResponse(&#39;save success!&#39;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def update_track(request):</span><br><span class="line">    if request.method &#x3D;&#x3D; &quot;POST&quot;:</span><br><span class="line">        track_info &#x3D; request.POST.get(&#39;track_stauts&#39;, &#39;&#39;)</span><br><span class="line">        vulid &#x3D; request.POST.get(&#39;vul_id&#39;)</span><br><span class="line">        print(vulid)</span><br><span class="line">        vul_info.objects.filter(vul_id&#x3D;vulid).update(track_stauts&#x3D;track_info)</span><br><span class="line">        return HttpResponse(&#39;save success!&#39;)</span><br></pre></td></tr></table></figure>
-
-<p>前端：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305142711997-4928991.png" alt="image-20210305142711997"></p>
-<p>js:</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305142818341-4928991.png" alt="image-20210305142818341"></p>
-<p>效果图：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305142905738-4928991.png" alt="image-20210305142905738"></p>
-<p>至此基础功能都已经实现</p>
-<h5 id="0x2-附加功能"><a href="#0x2-附加功能" class="headerlink" title="0x2 附加功能"></a>0x2 附加功能</h5><h6 id="0x21-搜索功能"><a href="#0x21-搜索功能" class="headerlink" title="0x21 搜索功能"></a>0x21 搜索功能</h6><p>使用q搜索，提供名字\cve\cnnvd的搜索</p>
-<p>view.py：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def search(request):</span><br><span class="line">    q &#x3D; request.GET.get(&#39;q&#39;)</span><br><span class="line">    search_list &#x3D; vul_info.objects.filter(Q(name__icontains&#x3D;q) | Q(cve__icontains&#x3D;q) | Q(cnnvd__icontains&#x3D;q) )</span><br><span class="line">    error_msg &#x3D; &#39;No result&#39;</span><br><span class="line">    return render(request, &#39;vulinfo.html&#39;, &#123;&#39;vuls&#39;: search_list,</span><br><span class="line">                                            &#39;error_msg&#39;: error_msg,</span><br><span class="line">                                            &#125;)</span><br></pre></td></tr></table></figure>
-
-<p>前端：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305143500136-4928991.png" alt="image-20210305143500136"></p>
-<p>效果：</p>
-<p>在这里输入关键字即可：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305143657723-4928991.png" alt="image-20210305143657723"></p>
-<h6 id="0x22-下拉框筛选显示"><a href="#0x22-下拉框筛选显示" class="headerlink" title="0x22 下拉框筛选显示"></a>0x22 下拉框筛选显示</h6><p>事先预定好了一些关键筛选，点击即可跳转对应的筛选页面：</p>
-<p>筛选页面view.py：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def filter_1(request):</span><br><span class="line">    search_lists &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;1) &amp; Q(protection_status_sac&#x3D;1))</span><br><span class="line">    error_msg &#x3D; &#39;No result&#39;</span><br><span class="line">    return render(request, &#39;vulinfo.html&#39;, &#123;&#39;vuls&#39;: search_lists,</span><br><span class="line">                                            &#39;error_msg&#39;: error_msg,</span><br><span class="line">                                            &#125;)</span><br></pre></td></tr></table></figure>
-
-<p>前端：下拉框使用dropdown，点击后就会跳转</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305143848554-4928991.png" alt="image-20210305143848554"></p>
-<p>效果图：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305143711042-4928991.png" alt="image-20210305143711042"></p>
-<h6 id="0x23-导出"><a href="#0x23-导出" class="headerlink" title="0x23 导出"></a>0x23 导出</h6><p>前端写了一个导出按钮，点击即可输出为一个csv文件，支持不同筛选页面的输出</p>
-<p>view.py:</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def export(request):</span><br><span class="line">    vul_lis &#x3D; vul_info.objects.all()</span><br><span class="line">    response &#x3D; HttpResponse(content_type&#x3D;&#39;text&#x2F;csv&#39;)</span><br><span class="line">    time_now &#x3D; time.strftime(&#39;%Y%m%d&#39;)</span><br><span class="line">    filename &#x3D; &#39;vul_&#39; + time_now</span><br><span class="line">    response.write(codecs.BOM_UTF8)</span><br><span class="line">    response[&#39;Content-Disposition&#39;] &#x3D; f&#39;attachment; filename&#x3D;&quot;&#123;filename&#125;.csv&quot;&#39;</span><br><span class="line">    writer &#x3D; csv.writer(response)</span><br><span class="line">    writer.writerow([&#39;vul_id&#39;, &#39;name&#39;, &#39;track&#39;, &#39;poc&#39;,</span><br><span class="line">                     &#39;snort&#39;, &#39;cve&#39;, &#39;cnnvd&#39;,</span><br><span class="line">                     &#39;ips&#39;, &#39;sac&#39;, &#39;note&#39;, &#39;update-time&#39;])</span><br><span class="line">    for vul in vul_lis:</span><br><span class="line">        writer.writerow([vul.vul_id, vul.name, vul.track_stauts, vul.poc, vul.snort, vul.cve, vul.cnnvd,</span><br><span class="line">                         vul.protection_status_ips, vul.protection_status_sac, vul.note, vul.updated_time])</span><br><span class="line">    return response</span><br></pre></td></tr></table></figure>
-
-<p>前端：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305144111506-4928991.png" alt="image-20210305144111506"></p>
-<p>效果图：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305144435191-4928991.png" alt="image-20210305144435191"></p>
-<h6 id="0x24-信息汇总页面"><a href="#0x24-信息汇总页面" class="headerlink" title="0x24 信息汇总页面"></a>0x24 信息汇总页面</h6><p>使用了c3表格，有模板</p>
-<p>view.py：传输了一些数据到前端</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def index(request):</span><br><span class="line">    sum &#x3D; vul_info.objects.all().count()</span><br><span class="line">    high &#x3D; vul_info.objects.filter(severity&#x3D;&#39;2&#39;).count()</span><br><span class="line">    med &#x3D; vul_info.objects.filter(severity&#x3D;&#39;1&#39;).count()</span><br><span class="line">    low &#x3D; vul_info.objects.filter(severity&#x3D;&#39;0&#39;).count()</span><br><span class="line">    wgzs &#x3D; vul_info.objects.filter(track_stauts&#x3D;&#39;0&#39;).count()</span><br><span class="line">    gzzs &#x3D; vul_info.objects.filter(track_stauts&#x3D;&#39;1&#39;).count()</span><br><span class="line">    ygzs &#x3D; vul_info.objects.filter(track_stauts&#x3D;&#39;2&#39;).count()</span><br><span class="line">    tgips &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;1) &amp; Q(protection_status_sac&#x3D;1)).count()</span><br><span class="line">    tg &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;0) &amp; Q(protection_status_sac&#x3D;1)).count()</span><br><span class="line">    ips &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;1) &amp; Q(protection_status_sac&#x3D;0)).count()</span><br><span class="line">    ntgips &#x3D; vul_info.objects.filter(Q(protection_status_ips&#x3D;0) &amp; Q(protection_status_sac&#x3D;0)).count()</span><br><span class="line">    d &#x3D; int(tgips &#x2F; sum * 100)</span><br><span class="line">    e &#x3D; int(tg &#x2F; sum * 100)</span><br><span class="line">    f &#x3D; int(ips &#x2F; sum * 100)</span><br><span class="line">    g &#x3D; int(ntgips &#x2F; sum * 100)</span><br><span class="line">    a &#x3D; int(wgzs &#x2F; sum * 100)</span><br><span class="line">    b &#x3D; int(gzzs &#x2F; sum * 100)</span><br><span class="line">    c &#x3D; int(ygzs &#x2F; sum * 100)</span><br><span class="line"></span><br><span class="line">    return render(request, &#39;index.html&#39;, &#123;&#39;sum&#39;: sum, &#39;high&#39;: high, &#39;med&#39;: med, &#39;low&#39;: low,</span><br><span class="line">                                          &#39;wgz&#39;: a, &#39;gzz&#39;: b, &#39;ygz&#39;: c,</span><br><span class="line">                                          &#39;wgzs&#39;: wgzs, &#39;gzzs&#39;: gzzs, &#39;ygzs&#39;: ygzs,</span><br><span class="line">                                          &#39;tgips&#39;: d, &#39;tg&#39;: e, &#39;ips&#39;: f,&#39;ntgips&#39;: g,</span><br><span class="line">                                          &#39;tgipss&#39;: tgips, &#39;tgs&#39;: tg, &#39;ipss&#39;: ips,&#39;ntgipss&#39;: ntgips&#125;)</span><br></pre></td></tr></table></figure>
-
-<p>效果图：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305144403691-4928991.png" alt="image-20210305144403691"></p>
-<h6 id="0x25-文件下载"><a href="#0x25-文件下载" class="headerlink" title="0x25 文件下载"></a>0x25 文件下载</h6><p>单个poc文件下载功能，直接在页面上做了下载链接，点击即可下载对应poc：</p>
-<p>view.py：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def download_file(request, vul_id):</span><br><span class="line">    search_lists &#x3D; vul_info.objects.get(vul_id&#x3D;vul_id)</span><br><span class="line">    file_name &#x3D; search_lists.poc_file</span><br><span class="line">    the_file_name &#x3D; &#39;#文件存储的地址&#39;+ file_name</span><br><span class="line">    file &#x3D; open(the_file_name, &#39;rb&#39;)</span><br><span class="line">    response &#x3D; StreamingHttpResponse(file)</span><br><span class="line">    response[&#39;Content-Type&#39;] &#x3D; &#39;application&#x2F;octet-stream&#39;</span><br><span class="line">    response[&#39;Content-Disposition&#39;] &#x3D; &#39;attachement;filename&#x3D;&quot;&#123;0&#125;&quot;&#39;.format(file_name)</span><br><span class="line">    return response</span><br></pre></td></tr></table></figure>
-
-<p>前端：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305144648161-4928991.png" alt="image-20210305144648161"></p>
-<p>效果图：</p>
-<p><img src="/2021/03/05/django-webproject/image-20210305144804727-4928991.png" alt="image-20210305144804727"></p>
-]]></content>
-      <tags>
-        <tag>django</tag>
-        <tag>python-web</tag>
-      </tags>
   </entry>
   <entry>
     <title>加密与解密笔记--更新中</title>
