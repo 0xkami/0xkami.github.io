@@ -137,6 +137,44 @@
       </tags>
   </entry>
   <entry>
+    <title>0x01python-spider-exploit-db</title>
+    <url>/2020/12/03/0x01python-spider-exploit-db/</url>
+    <content><![CDATA[<p>在一次寻找大批量的久远漏洞的poc的时候，我这个python小白决定顺手写个exploit-db的爬虫</p>
+<a id="more"></a>
+
+<p>这类爬虫的项目其实还是有蛮多可以参考的</p>
+<p>我的主要需求：已知cve号，搜索是否有poc并返回poc页面</p>
+<p>先进行一次搜索流程</p>
+<p>在输入框输入cve号，页面就会显示出链接</p>
+<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105144411007.png" alt="image-20210105144411007"></p>
+<p>点击后，这个就是我们需要的poc的url：<a href="https://www.exploit-db.com/exploits/49068">https://www.exploit-db.com/exploits/49068</a></p>
+<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105144437086.png" alt="image-20210105144437086"></p>
+<p>多尝试几个就可以知道poc的url就是”<a href="https://www.exploit-db.com/exploits/+%E6%9F%90%E6%95%B0%E5%AD%97&quot;%EF%BC%8C%E9%82%A3%E4%B9%88%E8%BF%99%E4%B8%AA%E6%9F%90%E6%95%B0%E5%AD%97%E5%B0%B1%E6%98%AF%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81%E8%BF%94%E5%9B%9E%E7%9A%84">https://www.exploit-db.com/exploits/+某数字&quot;，那么这个某数字就是我们需要返回的</a></p>
+<p>抓包，得到请求包，找到对应的cve号输入的位置search[value]，修改为我们可以输入的参数</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">url &#x3D; &#39;https:&#x2F;&#x2F;www.exploit-db.com&#x2F;?draw&#x3D;2&amp;columns[0][data]&#x3D;date_published&amp;columns[0][name]&#x3D;date_published&amp;columns[0][searchable]&#x3D;true&amp;columns[0][orderable]&#x3D;true&amp;columns[0][search][value]&#x3D;&amp;columns[0][search][regex]&#x3D;false&amp;columns[1][data]&#x3D;download&amp;columns[1][name]&#x3D;download&amp;columns[1][searchable]&#x3D;false&amp;columns[1][orderable]&#x3D;false&amp;columns[1][search][value]&#x3D;&amp;columns[1][search][regex]&#x3D;false&amp;columns[2][data]&#x3D;application_md5&amp;columns[2][name]&#x3D;application_md5&amp;columns[2][searchable]&#x3D;true&amp;columns[2][orderable]&#x3D;false&amp;columns[2][search][value]&#x3D;&amp;columns[2][search][regex]&#x3D;false&amp;columns[3][data]&#x3D;verified&amp;columns[3][name]&#x3D;verified&amp;columns[3][searchable]&#x3D;true&amp;columns[3][orderable]&#x3D;false&amp;columns[3][search][value]&#x3D;&amp;columns[3][search][regex]&#x3D;false&amp;columns[4][data]&#x3D;description&amp;columns[4][name]&#x3D;description&amp;columns[4][searchable]&#x3D;true&amp;columns[4][orderable]&#x3D;false&amp;columns[4][search][value]&#x3D;&amp;columns[4][search][regex]&#x3D;false&amp;columns[5][data]&#x3D;type_id&amp;columns[5][name]&#x3D;type_id&amp;columns[5][searchable]&#x3D;true&amp;columns[5][orderable]&#x3D;false&amp;columns[5][search][value]&#x3D;&amp;columns[5][search][regex]&#x3D;false&amp;columns[6][data]&#x3D;platform_id&amp;columns[6][name]&#x3D;platform_id&amp;columns[6][searchable]&#x3D;true&amp;columns[6][orderable]&#x3D;false&amp;columns[6][search][value]&#x3D;&amp;columns[6][search][regex]&#x3D;false&amp;columns[7][data]&#x3D;author_id&amp;columns[7][name]&#x3D;author_id&amp;columns[7][searchable]&#x3D;false&amp;columns[7][orderable]&#x3D;false&amp;columns[7][search][value]&#x3D;&amp;columns[7][search][regex]&#x3D;false&amp;columns[8][data]&#x3D;code&amp;columns[8][name]&#x3D;code.code&amp;columns[8][searchable]&#x3D;true&amp;columns[8][orderable]&#x3D;true&amp;columns[8][search][value]&#x3D;&amp;columns[8][search][regex]&#x3D;false&amp;columns[9][data]&#x3D;id&amp;columns[9][name]&#x3D;id&amp;columns[9][searchable]&#x3D;false&amp;columns[9][orderable]&#x3D;true&amp;columns[9][search][value]&#x3D;&amp;columns[9][search][regex]&#x3D;false&amp;order[0][column]&#x3D;9&amp;order[0][dir]&#x3D;desc&amp;start&#x3D;0&amp;length&#x3D;15&amp;search[value]&#x3D;%s&amp;search[regex]&#x3D;false&amp;author&#x3D;&amp;port&#x3D;&amp;type&#x3D;&amp;tag&#x3D;&amp;platform&#x3D;&amp;_&#x3D;1606893892234&#39;%s</span><br></pre></td></tr></table></figure>
+
+<p>刚开始直接获取的是返回的页面的html，但是没有相关数字的信息，一度以为自己写错了，毕竟这算是我第二次写爬虫。后来查看页面源代码，确实没有相关的信息，跑去问gps(前端，才知道是拿了接口返回的数据，塞到网页里</p>
+<p>f12后发现在json数据包里</p>
+<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105145116203.png" alt="image-20210105145116203"></p>
+<p>于是开始研究怎么获取json包的数据</p>
+<p>重点函数：spider_request.json()</p>
+<p>但是一开始使用这个函数一直报错，提示没有返回json，确认了下请求头也没有错误</p>
+<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105150842464.png" alt="image-20210105150842464"></p>
+<p>改了很久，最后将header改为这样就可以了</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">header &#x3D; &#123;</span><br><span class="line">    &#39;Accept&#39;: &#39;application&#x2F;json, text&#x2F;javascript, *&#x2F;*; q&#x3D;0.01&#39;,</span><br><span class="line">    &#39;Sec-Fetch-Mode&#39;: &#39;cors&#39;,</span><br><span class="line">    &#39;User-Agent&#39;: random.choice(ua_list),</span><br><span class="line">    &#39;X-Requested-With&#39;: &#39;XMLHttpRequest&#39;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行效果：</p>
+<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105151415897.png" alt="image-20210105151415897"></p>
+<p>项目地址：<a href="https://github.com/0xkami/expolit-db-spider">https://github.com/0xkami/expolit-db-spider</a></p>
+]]></content>
+      <categories>
+        <category>python</category>
+      </categories>
+      <tags>
+        <tag>exploit-db</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>0x01第一个docker漏洞环境搭建复现fastjson</title>
     <url>/2020/09/03/0x01%E7%AC%AC%E4%B8%80%E4%B8%AAdocker%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%A4%8D%E7%8E%B0fastjson/</url>
     <content><![CDATA[<h4 id="第一个docker漏洞环境搭建复现"><a href="#第一个docker漏洞环境搭建复现" class="headerlink" title="第一个docker漏洞环境搭建复现"></a>第一个docker漏洞环境搭建复现</h4><p>由于某原因要进行fastjson漏洞的复现，已获得脚本及exp</p>
@@ -183,44 +221,6 @@
       </tags>
   </entry>
   <entry>
-    <title>0x01python-spider-exploit-db</title>
-    <url>/2020/12/03/0x01python-spider-exploit-db/</url>
-    <content><![CDATA[<p>在一次寻找大批量的久远漏洞的poc的时候，我这个python小白决定顺手写个exploit-db的爬虫</p>
-<a id="more"></a>
-
-<p>这类爬虫的项目其实还是有蛮多可以参考的</p>
-<p>我的主要需求：已知cve号，搜索是否有poc并返回poc页面</p>
-<p>先进行一次搜索流程</p>
-<p>在输入框输入cve号，页面就会显示出链接</p>
-<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105144411007.png" alt="image-20210105144411007"></p>
-<p>点击后，这个就是我们需要的poc的url：<a href="https://www.exploit-db.com/exploits/49068">https://www.exploit-db.com/exploits/49068</a></p>
-<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105144437086.png" alt="image-20210105144437086"></p>
-<p>多尝试几个就可以知道poc的url就是”<a href="https://www.exploit-db.com/exploits/+%E6%9F%90%E6%95%B0%E5%AD%97&quot;%EF%BC%8C%E9%82%A3%E4%B9%88%E8%BF%99%E4%B8%AA%E6%9F%90%E6%95%B0%E5%AD%97%E5%B0%B1%E6%98%AF%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81%E8%BF%94%E5%9B%9E%E7%9A%84">https://www.exploit-db.com/exploits/+某数字&quot;，那么这个某数字就是我们需要返回的</a></p>
-<p>抓包，得到请求包，找到对应的cve号输入的位置search[value]，修改为我们可以输入的参数</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">url &#x3D; &#39;https:&#x2F;&#x2F;www.exploit-db.com&#x2F;?draw&#x3D;2&amp;columns[0][data]&#x3D;date_published&amp;columns[0][name]&#x3D;date_published&amp;columns[0][searchable]&#x3D;true&amp;columns[0][orderable]&#x3D;true&amp;columns[0][search][value]&#x3D;&amp;columns[0][search][regex]&#x3D;false&amp;columns[1][data]&#x3D;download&amp;columns[1][name]&#x3D;download&amp;columns[1][searchable]&#x3D;false&amp;columns[1][orderable]&#x3D;false&amp;columns[1][search][value]&#x3D;&amp;columns[1][search][regex]&#x3D;false&amp;columns[2][data]&#x3D;application_md5&amp;columns[2][name]&#x3D;application_md5&amp;columns[2][searchable]&#x3D;true&amp;columns[2][orderable]&#x3D;false&amp;columns[2][search][value]&#x3D;&amp;columns[2][search][regex]&#x3D;false&amp;columns[3][data]&#x3D;verified&amp;columns[3][name]&#x3D;verified&amp;columns[3][searchable]&#x3D;true&amp;columns[3][orderable]&#x3D;false&amp;columns[3][search][value]&#x3D;&amp;columns[3][search][regex]&#x3D;false&amp;columns[4][data]&#x3D;description&amp;columns[4][name]&#x3D;description&amp;columns[4][searchable]&#x3D;true&amp;columns[4][orderable]&#x3D;false&amp;columns[4][search][value]&#x3D;&amp;columns[4][search][regex]&#x3D;false&amp;columns[5][data]&#x3D;type_id&amp;columns[5][name]&#x3D;type_id&amp;columns[5][searchable]&#x3D;true&amp;columns[5][orderable]&#x3D;false&amp;columns[5][search][value]&#x3D;&amp;columns[5][search][regex]&#x3D;false&amp;columns[6][data]&#x3D;platform_id&amp;columns[6][name]&#x3D;platform_id&amp;columns[6][searchable]&#x3D;true&amp;columns[6][orderable]&#x3D;false&amp;columns[6][search][value]&#x3D;&amp;columns[6][search][regex]&#x3D;false&amp;columns[7][data]&#x3D;author_id&amp;columns[7][name]&#x3D;author_id&amp;columns[7][searchable]&#x3D;false&amp;columns[7][orderable]&#x3D;false&amp;columns[7][search][value]&#x3D;&amp;columns[7][search][regex]&#x3D;false&amp;columns[8][data]&#x3D;code&amp;columns[8][name]&#x3D;code.code&amp;columns[8][searchable]&#x3D;true&amp;columns[8][orderable]&#x3D;true&amp;columns[8][search][value]&#x3D;&amp;columns[8][search][regex]&#x3D;false&amp;columns[9][data]&#x3D;id&amp;columns[9][name]&#x3D;id&amp;columns[9][searchable]&#x3D;false&amp;columns[9][orderable]&#x3D;true&amp;columns[9][search][value]&#x3D;&amp;columns[9][search][regex]&#x3D;false&amp;order[0][column]&#x3D;9&amp;order[0][dir]&#x3D;desc&amp;start&#x3D;0&amp;length&#x3D;15&amp;search[value]&#x3D;%s&amp;search[regex]&#x3D;false&amp;author&#x3D;&amp;port&#x3D;&amp;type&#x3D;&amp;tag&#x3D;&amp;platform&#x3D;&amp;_&#x3D;1606893892234&#39;%s</span><br></pre></td></tr></table></figure>
-
-<p>刚开始直接获取的是返回的页面的html，但是没有相关数字的信息，一度以为自己写错了，毕竟这算是我第二次写爬虫。后来查看页面源代码，确实没有相关的信息，跑去问gps(前端，才知道是拿了接口返回的数据，塞到网页里</p>
-<p>f12后发现在json数据包里</p>
-<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105145116203.png" alt="image-20210105145116203"></p>
-<p>于是开始研究怎么获取json包的数据</p>
-<p>重点函数：spider_request.json()</p>
-<p>但是一开始使用这个函数一直报错，提示没有返回json，确认了下请求头也没有错误</p>
-<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105150842464.png" alt="image-20210105150842464"></p>
-<p>改了很久，最后将header改为这样就可以了</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">header &#x3D; &#123;</span><br><span class="line">    &#39;Accept&#39;: &#39;application&#x2F;json, text&#x2F;javascript, *&#x2F;*; q&#x3D;0.01&#39;,</span><br><span class="line">    &#39;Sec-Fetch-Mode&#39;: &#39;cors&#39;,</span><br><span class="line">    &#39;User-Agent&#39;: random.choice(ua_list),</span><br><span class="line">    &#39;X-Requested-With&#39;: &#39;XMLHttpRequest&#39;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行效果：</p>
-<p><img src="/2020/12/03/0x01python-spider-exploit-db/image-20210105151415897.png" alt="image-20210105151415897"></p>
-<p>项目地址：<a href="https://github.com/0xkami/expolit-db-spider">https://github.com/0xkami/expolit-db-spider</a></p>
-]]></content>
-      <categories>
-        <category>python</category>
-      </categories>
-      <tags>
-        <tag>exploit-db</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>0x02CVE-2020-1472漏洞复现</title>
     <url>/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</url>
     <content><![CDATA[<h4 id="CVE-2020-1472漏洞复现"><a href="#CVE-2020-1472漏洞复现" class="headerlink" title="CVE-2020-1472漏洞复现"></a>CVE-2020-1472漏洞复现</h4><p>用了大半天时间，开局一张图，复现全靠蒙：</p>
@@ -262,6 +262,108 @@
         <tag>netlogon</tag>
         <tag>域</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>0x02xctf新手训练题</title>
+    <url>/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/</url>
+    <content><![CDATA[<h4 id="xctf新手训练题"><a href="#xctf新手训练题" class="headerlink" title="xctf新手训练题"></a>xctf新手训练题</h4><a id="more"></a>
+
+<h5 id="0x1-open-source"><a href="#0x1-open-source" class="headerlink" title="0x1 open-source"></a>0x1 open-source</h5><p>下载文件后可以直接看源码</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022173337438.png" alt="image-20201022173337438"></p>
+<p>要求是输入4个参数，第一个参数为’0xcafe’，第二个参数是符合判定条件的int值，第三个参数是’h4cky0u’，然后进行一些数据操作得到hash，并用十六进制方式输出（%x）</p>
+<p>编写脚本实现，得到flag为0xc0ffee</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201021172112641.png" alt="image-20201021172112641"></p>
+<h5 id="0x2-simple-unpack"><a href="#0x2-simple-unpack" class="headerlink" title="0x2 simple-unpack"></a>0x2 simple-unpack</h5><p>提示是加了壳的二进制文件，查壳</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022173809443.png" alt="image-20201022173809443"></p>
+<p>一开始不知道怎么脱二进制文件的壳，参考：<a href="https://bbs.pediy.com/thread-157645.htm">https://bbs.pediy.com/thread-157645.htm</a></p>
+<p>到软件中提示的地址下载脱壳程序进行脱壳（<a href="https://github.com/upx/upx/releases%EF%BC%89">https://github.com/upx/upx/releases）</a></p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022173853002.png" alt="image-20201022173853002"></p>
+<p>脱壳成功后用IDA查看，即得到flag</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022174038951.png" alt="image-20201022174038951"></p>
+<h5 id="0x3-logmein"><a href="#0x3-logmein" class="headerlink" title="0x3 logmein"></a>0x3 logmein</h5><p>查看下载的文件</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022174115535.png" alt="image-20201022174115535"></p>
+<p>用IDA找到对应关键字进行分析</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022174143070.png" alt="image-20201022174143070"></p>
+<p>重点函数：</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201023171541380.png" alt="image-20201023171541380"></p>
+<p>编写脚本即可</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201023171351848.png" alt="image-20201023171351848"></p>
+<p>注意：小端模式</p>
+<h5 id="0x4-insanity"><a href="#0x4-insanity" class="headerlink" title="0x4 insanity"></a>0x4 insanity</h5><p>下载文件后直接编辑器就能查看到flag</p>
+<h5 id="0x5-getit"><a href="#0x5-getit" class="headerlink" title="0x5 getit"></a>0x5 getit</h5><p>IDA中反编译</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022174234603.png" alt="image-20201022174234603"></p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022174338459.png" alt="image-20201022174338459"></p>
+<p>可以看到t就是flag，我们需要知道？的数值，编写脚本即可得到flag</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022111119084.png" alt="image-20201022111119084"></p>
+<p>此题注意：python中字符串是不可以直接操作修改的，可以先改为列表，然后重新生成</p>
+<h5 id="0x6-python-trade"><a href="#0x6-python-trade" class="headerlink" title="0x6 python-trade"></a>0x6 python-trade</h5><p>.pyc后缀的文件，直接用EasyPythonDecompiler解了，获得源码</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/24CD274DE2E7A49AC28DC75BFF631FA2.png" alt="24CD274DE2E7A49AC28DC75BFF631FA2"></p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/CF034599DBEAC7285F7E5C9C744EBB6D.png" alt="CF034599DBEAC7285F7E5C9C744EBB6D"></p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/BB56738DB65555D9FF8F1424320439CB.png" alt="BB56738DB65555D9FF8F1424320439CB"></p>
+<p>可以看到操作：对输入的字符串进行自定义的encode操作然后用base64加密</p>
+<p>编写脚本解码即得flag</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022113051197.png" alt="image-20201022113051197"></p>
+<h5 id="0x7-re1"><a href="#0x7-re1" class="headerlink" title="0x7 re1"></a>0x7 re1</h5><p>放进IDA查看</p>
+<p>查看主函数，可以看到只要输入的字符串和v5相同就可以了，找到对应v5的值即可得flag</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022183057868.png" alt="image-20201022183057868"></p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022175340918.png" alt="image-20201022175340918"></p>
+<h5 id="0x8-Hello-CTF"><a href="#0x8-Hello-CTF" class="headerlink" title="0x8 Hello,CTF"></a>0x8 Hello,CTF</h5><p>用IDA打开，找到主要函数</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022175837176.png" alt="image-20201022175837176"></p>
+<p>从下面的循环判定值为17和上面v13的长度为34猜测出两位代表一个字符</p>
+<p>十六进制转ASCII即可得flag</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022175959301.png" alt="image-20201022175959301"></p>
+<h5 id="0x9-no-string-attached"><a href="#0x9-no-string-attached" class="headerlink" title="0x9 no-string-attached"></a>0x9 no-string-attached</h5><p>IDA中查看主函数</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180039861.png" alt="image-20201022180039861"></p>
+<p>进入每个函数看看</p>
+<p>先看banner()</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180101213.png" alt="image-20201022180101213"></p>
+<p>就是打印一些东西，查看对应打印的数值（unk_80488B0和8048960）</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180251090.png" alt="image-20201022180251090"></p>
+<p>可以看到是两个字符串，就是一些欢迎的信息之类的</p>
+<p>查看下一个，也是打印一些信息，需要你输入字符串</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180356018.png" alt="image-20201022180356018"></p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180449834.png" alt="image-20201022180449834"></p>
+<p>再看下一个，是主函数了，只要输入的函数和s2相同即可，s2是两个输入进行decrypt操作后得到的值</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180527832.png" alt="image-20201022180527832"></p>
+<p>看decrypt,对两个宽字节进行了操作。编写脚本实现功能即可得flag</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180623954.png" alt="image-20201022180623954"></p>
+<p> <img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022141847145.png" alt="image-20201022141847145"></p>
+<h5 id="0xA-csaw2013reversing2"><a href="#0xA-csaw2013reversing2" class="headerlink" title="0xA csaw2013reversing2"></a>0xA csaw2013reversing2</h5><p>IDA中看主函数</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180506157.png" alt="image-20201022180506157"></p>
+<p>通过运行程序，发现并不会进入if的判定。</p>
+<p>lpMem+1就是我们需要知道的乱码消息</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181008895.png" alt="image-20201022181008895"></p>
+<p>可以知道通过memcpy_s操作将unk_409B10的数据给了lpMem</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181020276.png" alt="image-20201022181020276"></p>
+<p>查看sub_401000</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181112925.png" alt="image-20201022181112925"></p>
+<p>是对lpMem进行了一些操作的，猜测是由于并没有运行，所以出现乱码</p>
+<p>用IDA动态调试（debugger），下断点</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181352168.png" alt="image-20201022181352168"></p>
+<p>跳过进入判定后的ExitProcess()，直接跳到下面弹出messageboxA的地方，就能得到flag了</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181317768.png" alt="image-20201022181317768"></p>
+<h5 id="0xB-maze"><a href="#0xB-maze" class="headerlink" title="0xB maze"></a>0xB maze</h5><p>看题目就知道是一个迷宫题</p>
+<p>IDA中找主函数</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181455862.png" alt="image-20201022181455862"></p>
+<p>看到这四个不同函数的判断，猜测应该就是上下左右了</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181522773.png" alt="image-20201022181522773"></p>
+<p>分别点进去查看，得知’O’为左，’o’为右，’.’为上，’0’为下，并且在函数中有规定了8这个边界值</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181719854.png" alt="image-20201022181719854"></p>
+<p>接下来找迷宫和终点</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181743142.png" alt="image-20201022181743142"></p>
+<p>通过最终判定的条件，可以知道终点是’#’</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181833592.png" alt="image-20201022181833592"></p>
+<p>601060就是需要找的迷宫</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022183115702.png" alt="image-20201022183115702"></p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022183129721.png" alt="image-20201022183129721"></p>
+<p>在HEX界面查看</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181923615.png" alt="image-20201022181923615"></p>
+<p>根据边界值8重新排列，23就是终点，只走20即可得flag</p>
+<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022182143651.png" alt="image-20201022182143651"></p>
+]]></content>
+      <categories>
+        <category>ctf</category>
+      </categories>
   </entry>
   <entry>
     <title>0x03CVE-2020-14644 weblogic iiop反序列化漏洞分析</title>
@@ -451,108 +553,6 @@
 <p>那么我们就可以编写脚本，最终可得到flag，其中对j判断的0，9，10等数字就是从字符串第一次变换里得到的范围</p>
 <p><img src="/2020/11/03/0x03Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-1/image-20201103161208429.png" alt="image-20201103161208429"></p>
 <h5 id="第一页题目完成"><a href="#第一页题目完成" class="headerlink" title="第一页题目完成:"></a>第一页题目完成:</h5><p><img src="/2020/11/03/0x03Xctf%E8%BF%9B%E9%98%B6%E5%88%B7%E9%A2%98-1/image-20201103160209798.png" alt="image-20201103160209798"></p>
-]]></content>
-      <categories>
-        <category>ctf</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>0x02xctf新手训练题</title>
-    <url>/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/</url>
-    <content><![CDATA[<h4 id="xctf新手训练题"><a href="#xctf新手训练题" class="headerlink" title="xctf新手训练题"></a>xctf新手训练题</h4><a id="more"></a>
-
-<h5 id="0x1-open-source"><a href="#0x1-open-source" class="headerlink" title="0x1 open-source"></a>0x1 open-source</h5><p>下载文件后可以直接看源码</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022173337438.png" alt="image-20201022173337438"></p>
-<p>要求是输入4个参数，第一个参数为’0xcafe’，第二个参数是符合判定条件的int值，第三个参数是’h4cky0u’，然后进行一些数据操作得到hash，并用十六进制方式输出（%x）</p>
-<p>编写脚本实现，得到flag为0xc0ffee</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201021172112641.png" alt="image-20201021172112641"></p>
-<h5 id="0x2-simple-unpack"><a href="#0x2-simple-unpack" class="headerlink" title="0x2 simple-unpack"></a>0x2 simple-unpack</h5><p>提示是加了壳的二进制文件，查壳</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022173809443.png" alt="image-20201022173809443"></p>
-<p>一开始不知道怎么脱二进制文件的壳，参考：<a href="https://bbs.pediy.com/thread-157645.htm">https://bbs.pediy.com/thread-157645.htm</a></p>
-<p>到软件中提示的地址下载脱壳程序进行脱壳（<a href="https://github.com/upx/upx/releases%EF%BC%89">https://github.com/upx/upx/releases）</a></p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022173853002.png" alt="image-20201022173853002"></p>
-<p>脱壳成功后用IDA查看，即得到flag</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022174038951.png" alt="image-20201022174038951"></p>
-<h5 id="0x3-logmein"><a href="#0x3-logmein" class="headerlink" title="0x3 logmein"></a>0x3 logmein</h5><p>查看下载的文件</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022174115535.png" alt="image-20201022174115535"></p>
-<p>用IDA找到对应关键字进行分析</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022174143070.png" alt="image-20201022174143070"></p>
-<p>重点函数：</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201023171541380.png" alt="image-20201023171541380"></p>
-<p>编写脚本即可</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201023171351848.png" alt="image-20201023171351848"></p>
-<p>注意：小端模式</p>
-<h5 id="0x4-insanity"><a href="#0x4-insanity" class="headerlink" title="0x4 insanity"></a>0x4 insanity</h5><p>下载文件后直接编辑器就能查看到flag</p>
-<h5 id="0x5-getit"><a href="#0x5-getit" class="headerlink" title="0x5 getit"></a>0x5 getit</h5><p>IDA中反编译</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022174234603.png" alt="image-20201022174234603"></p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022174338459.png" alt="image-20201022174338459"></p>
-<p>可以看到t就是flag，我们需要知道？的数值，编写脚本即可得到flag</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022111119084.png" alt="image-20201022111119084"></p>
-<p>此题注意：python中字符串是不可以直接操作修改的，可以先改为列表，然后重新生成</p>
-<h5 id="0x6-python-trade"><a href="#0x6-python-trade" class="headerlink" title="0x6 python-trade"></a>0x6 python-trade</h5><p>.pyc后缀的文件，直接用EasyPythonDecompiler解了，获得源码</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/24CD274DE2E7A49AC28DC75BFF631FA2.png" alt="24CD274DE2E7A49AC28DC75BFF631FA2"></p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/CF034599DBEAC7285F7E5C9C744EBB6D.png" alt="CF034599DBEAC7285F7E5C9C744EBB6D"></p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/BB56738DB65555D9FF8F1424320439CB.png" alt="BB56738DB65555D9FF8F1424320439CB"></p>
-<p>可以看到操作：对输入的字符串进行自定义的encode操作然后用base64加密</p>
-<p>编写脚本解码即得flag</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022113051197.png" alt="image-20201022113051197"></p>
-<h5 id="0x7-re1"><a href="#0x7-re1" class="headerlink" title="0x7 re1"></a>0x7 re1</h5><p>放进IDA查看</p>
-<p>查看主函数，可以看到只要输入的字符串和v5相同就可以了，找到对应v5的值即可得flag</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022183057868.png" alt="image-20201022183057868"></p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022175340918.png" alt="image-20201022175340918"></p>
-<h5 id="0x8-Hello-CTF"><a href="#0x8-Hello-CTF" class="headerlink" title="0x8 Hello,CTF"></a>0x8 Hello,CTF</h5><p>用IDA打开，找到主要函数</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022175837176.png" alt="image-20201022175837176"></p>
-<p>从下面的循环判定值为17和上面v13的长度为34猜测出两位代表一个字符</p>
-<p>十六进制转ASCII即可得flag</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022175959301.png" alt="image-20201022175959301"></p>
-<h5 id="0x9-no-string-attached"><a href="#0x9-no-string-attached" class="headerlink" title="0x9 no-string-attached"></a>0x9 no-string-attached</h5><p>IDA中查看主函数</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180039861.png" alt="image-20201022180039861"></p>
-<p>进入每个函数看看</p>
-<p>先看banner()</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180101213.png" alt="image-20201022180101213"></p>
-<p>就是打印一些东西，查看对应打印的数值（unk_80488B0和8048960）</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180251090.png" alt="image-20201022180251090"></p>
-<p>可以看到是两个字符串，就是一些欢迎的信息之类的</p>
-<p>查看下一个，也是打印一些信息，需要你输入字符串</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180356018.png" alt="image-20201022180356018"></p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180449834.png" alt="image-20201022180449834"></p>
-<p>再看下一个，是主函数了，只要输入的函数和s2相同即可，s2是两个输入进行decrypt操作后得到的值</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180527832.png" alt="image-20201022180527832"></p>
-<p>看decrypt,对两个宽字节进行了操作。编写脚本实现功能即可得flag</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180623954.png" alt="image-20201022180623954"></p>
-<p> <img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022141847145.png" alt="image-20201022141847145"></p>
-<h5 id="0xA-csaw2013reversing2"><a href="#0xA-csaw2013reversing2" class="headerlink" title="0xA csaw2013reversing2"></a>0xA csaw2013reversing2</h5><p>IDA中看主函数</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022180506157.png" alt="image-20201022180506157"></p>
-<p>通过运行程序，发现并不会进入if的判定。</p>
-<p>lpMem+1就是我们需要知道的乱码消息</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181008895.png" alt="image-20201022181008895"></p>
-<p>可以知道通过memcpy_s操作将unk_409B10的数据给了lpMem</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181020276.png" alt="image-20201022181020276"></p>
-<p>查看sub_401000</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181112925.png" alt="image-20201022181112925"></p>
-<p>是对lpMem进行了一些操作的，猜测是由于并没有运行，所以出现乱码</p>
-<p>用IDA动态调试（debugger），下断点</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181352168.png" alt="image-20201022181352168"></p>
-<p>跳过进入判定后的ExitProcess()，直接跳到下面弹出messageboxA的地方，就能得到flag了</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181317768.png" alt="image-20201022181317768"></p>
-<h5 id="0xB-maze"><a href="#0xB-maze" class="headerlink" title="0xB maze"></a>0xB maze</h5><p>看题目就知道是一个迷宫题</p>
-<p>IDA中找主函数</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181455862.png" alt="image-20201022181455862"></p>
-<p>看到这四个不同函数的判断，猜测应该就是上下左右了</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181522773.png" alt="image-20201022181522773"></p>
-<p>分别点进去查看，得知’O’为左，’o’为右，’.’为上，’0’为下，并且在函数中有规定了8这个边界值</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181719854.png" alt="image-20201022181719854"></p>
-<p>接下来找迷宫和终点</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181743142.png" alt="image-20201022181743142"></p>
-<p>通过最终判定的条件，可以知道终点是’#’</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181833592.png" alt="image-20201022181833592"></p>
-<p>601060就是需要找的迷宫</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022183115702.png" alt="image-20201022183115702"></p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022183129721.png" alt="image-20201022183129721"></p>
-<p>在HEX界面查看</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022181923615.png" alt="image-20201022181923615"></p>
-<p>根据边界值8重新排列，23就是终点，只走20即可得flag</p>
-<p><img src="/2020/10/23/0x02xctf%E6%96%B0%E6%89%8B%E8%AE%AD%E7%BB%83%E9%A2%98/image-20201022182143651.png" alt="image-20201022182143651"></p>
 ]]></content>
       <categories>
         <category>ctf</category>
@@ -1041,6 +1041,29 @@
       </categories>
   </entry>
   <entry>
+    <title>0x07cve-2020-13933复现</title>
+    <url>/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="cve-2020-13933：Apache-shiro-权限绕过漏洞复现"><a href="#cve-2020-13933：Apache-shiro-权限绕过漏洞复现" class="headerlink" title="cve-2020-13933：Apache shiro 权限绕过漏洞复现"></a>cve-2020-13933：Apache shiro 权限绕过漏洞复现</h4><p>这个复现非常简单，先用IDEA+shiro搭环境</p>
+<p>参考：<a href="https://www.cnblogs.com/ph4nt0mer/p/13535999.html">https://www.cnblogs.com/ph4nt0mer/p/13535999.html</a></p>
+<a id="more"></a>
+
+<p>然后运行，访问，抓包即可</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200923095122117.png" alt="image-20200923095122117"></p>
+<p>访问test，成功</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183129207.png" alt="image-20200922183129207"></p>
+<p>要越权访问test文件夹下的内容，跳转到登录界面</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183151071.png" alt="image-20200922183151071"></p>
+<p>进行%3b的操作，绕过登录访问到了页面内容</p>
+<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183207361.png" alt="image-20200922183207361"></p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>apaches shiro</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>0x08cve-2020-15148 Yii2反序列化漏洞复现</title>
     <url>/2020/10/26/0x08cve-2020-15148-Yii2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</url>
     <content><![CDATA[<h4 id="cve-2020-15148-Yii2反序列化漏洞复现"><a href="#cve-2020-15148-Yii2反序列化漏洞复现" class="headerlink" title="cve-2020-15148 Yii2反序列化漏洞复现"></a>cve-2020-15148 Yii2反序列化漏洞复现</h4><p>参考：</p>
@@ -1097,29 +1120,6 @@
       </categories>
   </entry>
   <entry>
-    <title>0x07cve-2020-13933复现</title>
-    <url>/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h4 id="cve-2020-13933：Apache-shiro-权限绕过漏洞复现"><a href="#cve-2020-13933：Apache-shiro-权限绕过漏洞复现" class="headerlink" title="cve-2020-13933：Apache shiro 权限绕过漏洞复现"></a>cve-2020-13933：Apache shiro 权限绕过漏洞复现</h4><p>这个复现非常简单，先用IDEA+shiro搭环境</p>
-<p>参考：<a href="https://www.cnblogs.com/ph4nt0mer/p/13535999.html">https://www.cnblogs.com/ph4nt0mer/p/13535999.html</a></p>
-<a id="more"></a>
-
-<p>然后运行，访问，抓包即可</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200923095122117.png" alt="image-20200923095122117"></p>
-<p>访问test，成功</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183129207.png" alt="image-20200922183129207"></p>
-<p>要越权访问test文件夹下的内容，跳转到登录界面</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183151071.png" alt="image-20200922183151071"></p>
-<p>进行%3b的操作，绕过登录访问到了页面内容</p>
-<p><img src="/2020/10/23/0x07cve-2020-13933%E5%A4%8D%E7%8E%B0/image-20200922183207361.png" alt="image-20200922183207361"></p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>apaches shiro</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>0x0ACVE-2020-8617复现</title>
     <url>/2020/11/03/0x0ACVE-2020-8617%E5%A4%8D%E7%8E%B0/</url>
     <content><![CDATA[<h4 id="CVE-2020-8617复现"><a href="#CVE-2020-8617复现" class="headerlink" title="CVE-2020-8617复现"></a>CVE-2020-8617复现</h4><p>参考：<a href="https://github.com/knqyf263/CVE-2020-8617">https://github.com/knqyf263/CVE-2020-8617</a></p>
@@ -1140,46 +1140,6 @@
       </categories>
       <tags>
         <tag>pipenv</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>0x0Ccve-2019-10669</title>
-    <url>/2020/11/11/0x0Ccve-2019-10669/</url>
-    <content><![CDATA[<h4 id="CVE-2019-10669LibreNMS-命令注入漏洞"><a href="#CVE-2019-10669LibreNMS-命令注入漏洞" class="headerlink" title="CVE-2019-10669LibreNMS 命令注入漏洞"></a>CVE-2019-10669LibreNMS 命令注入漏洞</h4><a id="more"></a>
-
-<p>参考：<a href="https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md">https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md</a></p>
-<h5 id="0x1-漏洞复现"><a href="#0x1-漏洞复现" class="headerlink" title="0x1 漏洞复现"></a>0x1 漏洞复现</h5><p>这个漏洞的环境也是蛮麻烦的</p>
-<p>看到poc发现是集成的msf模块，然后到我的msf里一查，发现已经有了</p>
-<p>攻击环境就准备好了</p>
-<p>靶机环境：</p>
-<p>本来想下软件装，装了好几次不成功</p>
-<p>参考：<a href="https://cloud.tencent.com/developer/article/1518046">https://cloud.tencent.com/developer/article/1518046</a></p>
-<p>先下一个librenms的ubuntu版直接虚拟机跑</p>
-<p>然后根据参考改一下网卡的配置，在主机上访问对应的ip地址和端口就能访问web界面了</p>
-<p>此时在kali里跑msf，始终打不成功，看报错是没找到对应的collectd插件</p>
-<p>需要在ubuntu换源更新下载安装一条龙</p>
-<p>装好了之后根据官方配置（太简略，并不能成功（<a href="https://docs.librenms.org/Support/Configuration/#collectd">https://docs.librenms.org/Support/Configuration/#collectd</a></p>
-<p>最后找到github上一个配置才成功，此时页面上出现了collectd插件</p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100410102.png" alt="image-20201112100410102"></p>
-<p>也能打成功了</p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100430763.png" alt="image-20201112100430763"></p>
-<h5 id="0x2-漏洞原理"><a href="#0x2-漏洞原理" class="headerlink" title="0x2 漏洞原理"></a>0x2 漏洞原理</h5><p>漏洞点：html/includes/graphs/device/collectd.inc.php</p>
-<p>其中用户提供的参数from和to是用mysqli_escape_real_string函数（mres）过滤的，但是这个函数不能转义多个命令行语法字符，我们就可以注入命令到变量$rrd_cmd中，通过passthru()执行</p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/DED6A2E31D73FFB660CEFBF548FD1BD6.png" alt="DED6A2E31D73FFB660CEFBF548FD1BD6"></p>
-<p>passthru — 执行外部程序并且显示原始输出</p>
-<p>passthru ( string $command [, int &amp;$return_var ] ) : void </p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/B99C52DBA71F8893ED2EBA7059B778F5.jpg" alt="B99C52DBA71F8893ED2EBA7059B778F5"></p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205158282.png" alt="image-20201112205158282"></p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205315869.png" alt="image-20201112205315869"></p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412.jpg" alt="3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412"></p>
-<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205357269.png" alt="image-20201112205357269"></p>
-<p>escapeshellarg — 把字符串转码为可以在 shell 命令里使用的参数，escapeshellarg() 将给字符串增加一个单引号并且能引用或者转码任何已经存在的单引号，这样以确保能够直接将一个字符串传入 shell 函数，并且还是确保安全的。 </p>
-]]></content>
-      <categories>
-        <category>漏洞复现</category>
-      </categories>
-      <tags>
-        <tag>librenms</tag>
       </tags>
   </entry>
   <entry>
@@ -1224,6 +1184,46 @@
       <tags>
         <tag>kali</tag>
         <tag>metasploit</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>0x0Ccve-2019-10669</title>
+    <url>/2020/11/11/0x0Ccve-2019-10669/</url>
+    <content><![CDATA[<h4 id="CVE-2019-10669LibreNMS-命令注入漏洞"><a href="#CVE-2019-10669LibreNMS-命令注入漏洞" class="headerlink" title="CVE-2019-10669LibreNMS 命令注入漏洞"></a>CVE-2019-10669LibreNMS 命令注入漏洞</h4><a id="more"></a>
+
+<p>参考：<a href="https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md">https://github.com/cyberghost2h1/metasploit-framework/blob/c833487457be6c16be214048e3fb0e7ef2a23cdf/documentation/modules/exploit/linux/http/librenms_collectd_cmd_inject.md</a></p>
+<h5 id="0x1-漏洞复现"><a href="#0x1-漏洞复现" class="headerlink" title="0x1 漏洞复现"></a>0x1 漏洞复现</h5><p>这个漏洞的环境也是蛮麻烦的</p>
+<p>看到poc发现是集成的msf模块，然后到我的msf里一查，发现已经有了</p>
+<p>攻击环境就准备好了</p>
+<p>靶机环境：</p>
+<p>本来想下软件装，装了好几次不成功</p>
+<p>参考：<a href="https://cloud.tencent.com/developer/article/1518046">https://cloud.tencent.com/developer/article/1518046</a></p>
+<p>先下一个librenms的ubuntu版直接虚拟机跑</p>
+<p>然后根据参考改一下网卡的配置，在主机上访问对应的ip地址和端口就能访问web界面了</p>
+<p>此时在kali里跑msf，始终打不成功，看报错是没找到对应的collectd插件</p>
+<p>需要在ubuntu换源更新下载安装一条龙</p>
+<p>装好了之后根据官方配置（太简略，并不能成功（<a href="https://docs.librenms.org/Support/Configuration/#collectd">https://docs.librenms.org/Support/Configuration/#collectd</a></p>
+<p>最后找到github上一个配置才成功，此时页面上出现了collectd插件</p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100410102.png" alt="image-20201112100410102"></p>
+<p>也能打成功了</p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112100430763.png" alt="image-20201112100430763"></p>
+<h5 id="0x2-漏洞原理"><a href="#0x2-漏洞原理" class="headerlink" title="0x2 漏洞原理"></a>0x2 漏洞原理</h5><p>漏洞点：html/includes/graphs/device/collectd.inc.php</p>
+<p>其中用户提供的参数from和to是用mysqli_escape_real_string函数（mres）过滤的，但是这个函数不能转义多个命令行语法字符，我们就可以注入命令到变量$rrd_cmd中，通过passthru()执行</p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/DED6A2E31D73FFB660CEFBF548FD1BD6.png" alt="DED6A2E31D73FFB660CEFBF548FD1BD6"></p>
+<p>passthru — 执行外部程序并且显示原始输出</p>
+<p>passthru ( string $command [, int &amp;$return_var ] ) : void </p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/B99C52DBA71F8893ED2EBA7059B778F5.jpg" alt="B99C52DBA71F8893ED2EBA7059B778F5"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205158282.png" alt="image-20201112205158282"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205315869.png" alt="image-20201112205315869"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412.jpg" alt="3FF732E6A3DA2AF9AFBACCD7AD86A5CA-5185412"></p>
+<p><img src="/2020/11/11/0x0Ccve-2019-10669/image-20201112205357269.png" alt="image-20201112205357269"></p>
+<p>escapeshellarg — 把字符串转码为可以在 shell 命令里使用的参数，escapeshellarg() 将给字符串增加一个单引号并且能引用或者转码任何已经存在的单引号，这样以确保能够直接将一个字符串传入 shell 函数，并且还是确保安全的。 </p>
+]]></content>
+      <categories>
+        <category>漏洞复现</category>
+      </categories>
+      <tags>
+        <tag>librenms</tag>
       </tags>
   </entry>
   <entry>
@@ -1282,6 +1282,48 @@
       </tags>
   </entry>
   <entry>
+    <title>CTF-2020.6.12</title>
+    <url>/2020/06/12/CTF-2020.6.12/</url>
+    <content><![CDATA[<h4 id="git文件泄露导致源码泄露"><a href="#git文件泄露导致源码泄露" class="headerlink" title=".git文件泄露导致源码泄露"></a>.git文件泄露导致源码泄露</h4><p>首先，关于git：分布式版本控制系统（版本控制：记录每次文件的改动，并支持协作编辑）</p>
+<h5 id="0x1-一些用语解释："><a href="#0x1-一些用语解释：" class="headerlink" title="0x1 一些用语解释："></a>0x1 一些用语解释：</h5><a id="more"></a>
+
+<p>集中式：全部文件存在一个中央服务器中，需联网，修改时从中央服务器中取出修改完放回去。</p>
+<p>分布式：各个电脑里都有完整的版本库，修改后需推送，安全性高，可以有一个中央服务器用来方便大家交换修改的版本。</p>
+<p>版本库：仓库，目录，文件的修改删除git都可跟踪</p>
+<p>工作区和暂存区：工作区就是自身电脑可看到的目录，暂存区在版本库中，将工作区的文件添加到暂存区（git add），然后将暂存区的所有文件添加到master（git commit）。master也是分支，分支的作用是上传未写完的代码后不会让未写完的代码影响别人。</p>
+<h5 id="0x2-泄露原理："><a href="#0x2-泄露原理：" class="headerlink" title="0x2 泄露原理："></a>0x2 泄露原理：</h5><p>源码提交到远程托管网站后，从上面把源码pull到服务器时，忘记删除git文件。利用.git文件可以恢复网站的源码，源码里可能会有数据库信息。/使用git进行版本控制，对站点自动部署，配置不当会降.git文件夹直接部署到线上环境。</p>
+<p>详细解释：</p>
+<p>在一个目录中初始化后，会产生一个名叫.git的隐藏文件夹（版本库）</p>
+<p>当开发时采用以下流程时：</p>
+<p>1.初始化仓库 , 并将仓库托管在Coding或者Github上 , 便于远程协作/备份/部署<br>2.在本地进行网站开发 , 并定时提交commit , push到远程托管网站<br>3.当一个阶段的开发差不多的时候 , 需要远程登陆服务器 , 通过托管网站再将发行版网站pull到Web目录下（此时会将,git文件夹下载到服务器的web目录下）<br>4.网站正常运行</p>
+<p>攻击者可以利用web目录下载Git文件夹，然后就可以利用储存的版本控制信息，完全恢复网站后台的代码和目录结构以及获取数据库信息等。</p>
+<h5 id="0x3-利用："><a href="#0x3-利用：" class="headerlink" title="0x3 利用："></a>0x3 利用：</h5><p>1、githack等：同构泄露的.git文件夹下的文件，还原重建工程源代码</p>
+<p>2、爬虫爬取整个git目录</p>
+<h5 id="0x4-修复："><a href="#0x4-修复：" class="headerlink" title="0x4 修复："></a>0x4 修复：</h5><p>1、对.git目录的访问权限进行控制</p>
+<p>2、在每次Pull后删除.git文件夹</p>
+<h5 id="0x5-利用场景实践："><a href="#0x5-利用场景实践：" class="headerlink" title="0x5 利用场景实践："></a>0x5 利用场景实践：</h5><p>git_extract下载：<a href="https://github.com/lijiejie/GitHack">https://github.com/lijiejie/GitHack</a></p>
+<p>cmd命令：git_extract.py  <a href="http://xxxxx/.git/">http://xxxxx/.git/</a></p>
+<p>可扫描出.git漏洞</p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612152136482.png"></p>
+<p>点击后：</p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105110264.png"></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105221000.png"></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105306274.png"></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612154814555.png"></p>
+<p>放到beyond compare（<a href="http://www.scootersoftware.com/download.php%EF%BC%89%E9%87%8C%E5%AF%B9%E6%AF%94">http://www.scootersoftware.com/download.php）里对比</a></p>
+<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105349980.png"></p>
+<p>仔细看差别：</p>
+<p>flag{82efc37f1cd5d4636ea7cadcd5a814a2}</p>
+<p>提交即可</p>
+]]></content>
+      <categories>
+        <category>ctf</category>
+      </categories>
+      <tags>
+        <tag>git</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>0x10CVE-2021-1675复现</title>
     <url>/2021/07/05/0x10CVE-2021-1675%E5%A4%8D%E7%8E%B0/</url>
     <content><![CDATA[<p>又是一个域漏洞</p>
@@ -1331,48 +1373,6 @@
       </categories>
       <tags>
         <tag>spoolsv.exe</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CTF-2020.6.12</title>
-    <url>/2020/06/12/CTF-2020.6.12/</url>
-    <content><![CDATA[<h4 id="git文件泄露导致源码泄露"><a href="#git文件泄露导致源码泄露" class="headerlink" title=".git文件泄露导致源码泄露"></a>.git文件泄露导致源码泄露</h4><p>首先，关于git：分布式版本控制系统（版本控制：记录每次文件的改动，并支持协作编辑）</p>
-<h5 id="0x1-一些用语解释："><a href="#0x1-一些用语解释：" class="headerlink" title="0x1 一些用语解释："></a>0x1 一些用语解释：</h5><a id="more"></a>
-
-<p>集中式：全部文件存在一个中央服务器中，需联网，修改时从中央服务器中取出修改完放回去。</p>
-<p>分布式：各个电脑里都有完整的版本库，修改后需推送，安全性高，可以有一个中央服务器用来方便大家交换修改的版本。</p>
-<p>版本库：仓库，目录，文件的修改删除git都可跟踪</p>
-<p>工作区和暂存区：工作区就是自身电脑可看到的目录，暂存区在版本库中，将工作区的文件添加到暂存区（git add），然后将暂存区的所有文件添加到master（git commit）。master也是分支，分支的作用是上传未写完的代码后不会让未写完的代码影响别人。</p>
-<h5 id="0x2-泄露原理："><a href="#0x2-泄露原理：" class="headerlink" title="0x2 泄露原理："></a>0x2 泄露原理：</h5><p>源码提交到远程托管网站后，从上面把源码pull到服务器时，忘记删除git文件。利用.git文件可以恢复网站的源码，源码里可能会有数据库信息。/使用git进行版本控制，对站点自动部署，配置不当会降.git文件夹直接部署到线上环境。</p>
-<p>详细解释：</p>
-<p>在一个目录中初始化后，会产生一个名叫.git的隐藏文件夹（版本库）</p>
-<p>当开发时采用以下流程时：</p>
-<p>1.初始化仓库 , 并将仓库托管在Coding或者Github上 , 便于远程协作/备份/部署<br>2.在本地进行网站开发 , 并定时提交commit , push到远程托管网站<br>3.当一个阶段的开发差不多的时候 , 需要远程登陆服务器 , 通过托管网站再将发行版网站pull到Web目录下（此时会将,git文件夹下载到服务器的web目录下）<br>4.网站正常运行</p>
-<p>攻击者可以利用web目录下载Git文件夹，然后就可以利用储存的版本控制信息，完全恢复网站后台的代码和目录结构以及获取数据库信息等。</p>
-<h5 id="0x3-利用："><a href="#0x3-利用：" class="headerlink" title="0x3 利用："></a>0x3 利用：</h5><p>1、githack等：同构泄露的.git文件夹下的文件，还原重建工程源代码</p>
-<p>2、爬虫爬取整个git目录</p>
-<h5 id="0x4-修复："><a href="#0x4-修复：" class="headerlink" title="0x4 修复："></a>0x4 修复：</h5><p>1、对.git目录的访问权限进行控制</p>
-<p>2、在每次Pull后删除.git文件夹</p>
-<h5 id="0x5-利用场景实践："><a href="#0x5-利用场景实践：" class="headerlink" title="0x5 利用场景实践："></a>0x5 利用场景实践：</h5><p>git_extract下载：<a href="https://github.com/lijiejie/GitHack">https://github.com/lijiejie/GitHack</a></p>
-<p>cmd命令：git_extract.py  <a href="http://xxxxx/.git/">http://xxxxx/.git/</a></p>
-<p>可扫描出.git漏洞</p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612152136482.png"></p>
-<p>点击后：</p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105110264.png"></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105221000.png"></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105306274.png"></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20200612154814555.png"></p>
-<p>放到beyond compare（<a href="http://www.scootersoftware.com/download.php%EF%BC%89%E9%87%8C%E5%AF%B9%E6%AF%94">http://www.scootersoftware.com/download.php）里对比</a></p>
-<p><img src="/2020/06/12/CTF-2020.6.12/image-20201109105349980.png"></p>
-<p>仔细看差别：</p>
-<p>flag{82efc37f1cd5d4636ea7cadcd5a814a2}</p>
-<p>提交即可</p>
-]]></content>
-      <categories>
-        <category>ctf</category>
-      </categories>
-      <tags>
-        <tag>git</tag>
       </tags>
   </entry>
   <entry>
@@ -1577,101 +1577,6 @@
       </categories>
   </entry>
   <entry>
-    <title>dll注入工具实现</title>
-    <url>/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/</url>
-    <content><![CDATA[<h4 id="一个dll注入工具的实现"><a href="#一个dll注入工具的实现" class="headerlink" title="一个dll注入工具的实现"></a>一个dll注入工具的实现</h4><p>编译器：vs2019</p>
-<p>实现的功能：</p>
-<ul>
-<li>选择进程和dll文件，实现dll远程线程注入和卸载</li>
-</ul>
-<p>项目地址：<a href="https://github.com/0xkami/dllinject">https://github.com/0xkami/dllinject</a></p>
-<a id="more"></a>
-
-<h5 id="0x0-程序运行情况"><a href="#0x0-程序运行情况" class="headerlink" title="0x0 程序运行情况"></a>0x0 程序运行情况</h5><p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123155246897.png" alt="image-20211123155246897"></p>
-<p>选择一个进程</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123155356079.png" alt="image-20211123155356079"></p>
-<p>选择一个dll文件</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123155441554.png" alt="image-20211123155441554"></p>
-<p>点击注入</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123155459217.png" alt="image-20211123155459217"></p>
-<p>注入成功</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123155615052.png" alt="image-20211123155615052"></p>
-<p>卸载成功</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123155648715.png" alt="image-20211123155648715"></p>
-<h5 id="0x1-在vs2019中安装mfc"><a href="#0x1-在vs2019中安装mfc" class="headerlink" title="0x1 在vs2019中安装mfc"></a>0x1 在vs2019中安装mfc</h5><p>启动vs installer：</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123145743193.png" alt="image-20211123145743193"></p>
-<p>选择C++桌面开发中的mfc选择，直接安装即可</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123145809548.png" alt="image-20211123145809548"></p>
-<h5 id="0x2-创建一个基本的mfc项目"><a href="#0x2-创建一个基本的mfc项目" class="headerlink" title="0x2 创建一个基本的mfc项目"></a>0x2 创建一个基本的mfc项目</h5><p>选择mfc应用</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123143913306.png" alt="image-20211123143913306"></p>
-<p>有多种类型，可以了解一下然后选择对应的</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123144051651.png" alt="image-20211123144051651"></p>
-<p>生成完成后，界面如图</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123144123561.png" alt="image-20211123144123561"></p>
-<p>点击调试，即可运行一个最初的demo</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123144145966.png" alt="image-20211123144145966"></p>
-<h5 id="0x3-设计界面"><a href="#0x3-设计界面" class="headerlink" title="0x3 设计界面"></a>0x3 设计界面</h5><h6 id="0x31-设计界面"><a href="#0x31-设计界面" class="headerlink" title="0x31 设计界面"></a>0x31 设计界面</h6><p>打开资源文件</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123150210944.png" alt="image-20211123150210944"></p>
-<p>可以看到程序的界面，点击视图中的工具箱，调出按钮等控件集合</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123144244771.png" alt="image-20211123144244771"></p>
-<p>进行设计即可</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123144300259.png" alt="image-20211123144300259"></p>
-<h6 id="0x32-修改icon"><a href="#0x32-修改icon" class="headerlink" title="0x32 修改icon"></a>0x32 修改icon</h6><p>在资源中导入一个新的icon</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123154948321.png" alt="image-20211123154948321"></p>
-<p>在代码中修改为新的icon的id值</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123154911221.png" alt="image-20211123154911221"></p>
-<p>效果如下：</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123162100461.png" alt="image-20211123162100461"></p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123155201109.png" alt="image-20211123155201109"></p>
-<h5 id="0x4-编写功能"><a href="#0x4-编写功能" class="headerlink" title="0x4 编写功能"></a>0x4 编写功能</h5><p>想法是：</p>
-<p>1、进程是一个下拉框，打开程序的时候就会自动加载所有的进程信息，选择一个对应的进程</p>
-<p>2、dll文件有一个按钮，是文件选择功能，选择对应的dll文件</p>
-<p>3、点击dll注入和卸载按钮可以实现对应的功能</p>
-<h6 id="0x41-进程下拉框显示"><a href="#0x41-进程下拉框显示" class="headerlink" title="0x41 进程下拉框显示"></a>0x41 进程下拉框显示</h6><p>给下拉框添加一个变量，名字为combo1</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123144329059.png" alt="image-20211123144329059"></p>
-<p>点击下拉框，就可以进入到对应的代码位置</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123150615022.png" alt="image-20211123150615022"></p>
-<p>不过我没有在这里写代码，因为进程加载是在程序初始化的时候</p>
-<p>找到初始化时的代码，编写一个显示当前所有进程信息的功能</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123144517966.png" alt="image-20211123144517966"></p>
-<p>CreateToolhelp32Snapshot：获取指定进程的快照，以及这些进程使用的堆、模块和线程</p>
-<blockquote>
-<p><a href="https://docs.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-createtoolhelp32snapshot">https://docs.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-createtoolhelp32snapshot</a></p>
-</blockquote>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123144717863.png" alt="image-20211123144717863"></p>
-<h6 id="0x42-文件选择功能"><a href="#0x42-文件选择功能" class="headerlink" title="0x42 文件选择功能"></a>0x42 文件选择功能</h6><p>给显示dll文件路径的编辑框添加一个变量，名称为dllpath</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123144345787.png" alt="image-20211123144345787"></p>
-<p>点击对应的按钮，到对应的代码位置，编写一个文件选择的功能，并用SetDlgItemText显示在编辑框中</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123144848771.png" alt="image-20211123144848771"></p>
-<h6 id="0x43-dll注入功能"><a href="#0x43-dll注入功能" class="headerlink" title="0x43 dll注入功能"></a>0x43 dll注入功能</h6><p>点击dll注入按钮，进入代码界面</p>
-<p>远程线程注入和dll卸载的代码在之前已经实现过，可以直接复用（修改一些参数和小细节）</p>
-<p>只要获取到对应的进程id和dll文件的路径值即可</p>
-<p>dll注入按钮：</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123145110065.png" alt="image-20211123145110065"></p>
-<p>dll卸载功能代码：</p>
-<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123145615468.png" alt="image-20211123145615468"></p>
-<p>2021.11.25更新：</p>
-<p>dll进程代码有bug，获取不到完整的进程id</p>
-<p>修改如下：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">strpid &#x3D; strpid.Left(pos);</span><br></pre></td></tr></table></figure>
-
-<h5 id="0x5-过程中的问题"><a href="#0x5-过程中的问题" class="headerlink" title="0x5 过程中的问题"></a>0x5 过程中的问题</h5><h6 id="0x51-mfc项目刚创建后就无法成功运行"><a href="#0x51-mfc项目刚创建后就无法成功运行" class="headerlink" title="0x51 mfc项目刚创建后就无法成功运行"></a>0x51 mfc项目刚创建后就无法成功运行</h6><p>解决方法：尽量不要去单个组件里面选，容易缺少文件，重新安装</p>
-<h6 id="0x52-错误提示：CString类型没有合适的转换到LPCTSTR的函数等"><a href="#0x52-错误提示：CString类型没有合适的转换到LPCTSTR的函数等" class="headerlink" title="0x52 错误提示：CString类型没有合适的转换到LPCTSTR的函数等"></a>0x52 错误提示：CString类型没有合适的转换到LPCTSTR的函数等</h6><p>CString to LPCTSTR ：强制转换 LPCTSTR dllpath = (LPCTSTR)dllname;</p>
-<p>CString to Dword：dwpid = _ttoi(strpid);</p>
-<h6 id="0x53-截取字符串中的一部分"><a href="#0x53-截取字符串中的一部分" class="headerlink" title="0x53 截取字符串中的一部分"></a>0x53 截取字符串中的一部分</h6><p>CString的Left、mid、Right函数</p>
-<h6 id="0x54-无法添加信息到下拉控件中"><a href="#0x54-无法添加信息到下拉控件中" class="headerlink" title="0x54 无法添加信息到下拉控件中"></a>0x54 无法添加信息到下拉控件中</h6><p>下断点调试，看变量值</p>
-<p>Cstring的format函数很好用</p>
-<h6 id="0x55-资源视图显示错误在另一个编辑器中打开"><a href="#0x55-资源视图显示错误在另一个编辑器中打开" class="headerlink" title="0x55 资源视图显示错误在另一个编辑器中打开"></a>0x55 资源视图显示错误在另一个编辑器中打开</h6><p>关闭Resource.h文件就可以了</p>
-<h6 id="0x56-修改完icon之后exe的图标没有改"><a href="#0x56-修改完icon之后exe的图标没有改" class="headerlink" title="0x56 修改完icon之后exe的图标没有改"></a>0x56 修改完icon之后exe的图标没有改</h6><p>1、确认是否图标资源是最小的：一般mfc自动生成的IDR_MAINFRAME是128，自己添加的会大于128，顺序后延，编译时默认将ID最小的作为exe的图标。</p>
-<p>2、清理图标缓存：<a href="https://blog.csdn.net/langb2014/article/details/50644792">https://blog.csdn.net/langb2014/article/details/50644792</a></p>
-<h6 id="0x57-命令行带参数调试"><a href="#0x57-命令行带参数调试" class="headerlink" title="0x57 命令行带参数调试"></a>0x57 命令行带参数调试</h6><p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211125141527330.png" alt="image-20211125141527330"></p>
-<h6 id="0x58-错误提示：-wtoi未识别的标识符"><a href="#0x58-错误提示：-wtoi未识别的标识符" class="headerlink" title="0x58 错误提示：_wtoi未识别的标识符"></a>0x58 错误提示：_wtoi未识别的标识符</h6><p>添加头文件#include &lt;cstdlib&gt;</p>
-<h6 id="0x59-win64的计算器无法正常注入"><a href="#0x59-win64的计算器无法正常注入" class="headerlink" title="0x59 win64的计算器无法正常注入"></a>0x59 win64的计算器无法正常注入</h6><p><a href="https://bbs.pediy.com/thread-258333.htm">https://bbs.pediy.com/thread-258333.htm</a></p>
-<p>计算器在win10系统中是 App Containor（类似于沙箱的虚拟环境） 应用程序 ，这种应用程序会受制于一个特殊的系统用户 “ALL APPLICATION PACKAGES”，检查被加载的dll文件的访问控制列表可知，上述用户没有访问此文件的权限，故拒绝访问。</p>
-<p>解决方案：手动修改dll文件的访问控制列表，授予”ALL APPLICATION PACKAGES”读取和执行权限。</p>
-]]></content>
-  </entry>
-  <entry>
     <title>django-webproject</title>
     <url>/2021/03/05/django-webproject/</url>
     <content><![CDATA[<h4 id="django网站搭建"><a href="#django网站搭建" class="headerlink" title="django网站搭建"></a>django网站搭建</h4><p>–关于我最近在干嘛–</p>
@@ -1778,6 +1683,196 @@
       </tags>
   </entry>
   <entry>
+    <title>dll注入工具实现</title>
+    <url>/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/</url>
+    <content><![CDATA[<h4 id="一个dll注入工具的实现"><a href="#一个dll注入工具的实现" class="headerlink" title="一个dll注入工具的实现"></a>一个dll注入工具的实现</h4><p>编译器：vs2019</p>
+<p>实现的功能：</p>
+<ul>
+<li>选择进程和dll文件，实现dll远程线程注入和卸载</li>
+</ul>
+<p>项目地址：<a href="https://github.com/0xkami/dllinject">https://github.com/0xkami/dllinject</a></p>
+<a id="more"></a>
+
+<h5 id="0x0-程序运行情况"><a href="#0x0-程序运行情况" class="headerlink" title="0x0 程序运行情况"></a>0x0 程序运行情况</h5><p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123155246897.png" alt="image-20211123155246897"></p>
+<p>选择一个进程</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123155356079.png" alt="image-20211123155356079"></p>
+<p>选择一个dll文件</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123155441554.png" alt="image-20211123155441554"></p>
+<p>点击注入</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123155459217.png" alt="image-20211123155459217"></p>
+<p>注入成功</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123155615052.png" alt="image-20211123155615052"></p>
+<p>卸载成功</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123155648715.png" alt="image-20211123155648715"></p>
+<p>2021.11.25更新：</p>
+<p>1、dll进程代码有bug，获取不到完整的进程id</p>
+<p>2、添加dll和进程位数判断的功能</p>
+<p>修改如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">strpid &#x3D; strpid.Left(pos);</span><br></pre></td></tr></table></figure>
+
+<p>2021.11.30更新：</p>
+<p>1、优化程序逻辑</p>
+<p>2、添加菜单栏和全局注入卸载功能</p>
+<h5 id="0x1-在vs2019中安装mfc"><a href="#0x1-在vs2019中安装mfc" class="headerlink" title="0x1 在vs2019中安装mfc"></a>0x1 在vs2019中安装mfc</h5><p>启动vs installer：</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123145743193.png" alt="image-20211123145743193"></p>
+<p>选择C++桌面开发中的mfc选择，直接安装即可</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123145809548.png" alt="image-20211123145809548"></p>
+<h5 id="0x2-创建一个基本的mfc项目"><a href="#0x2-创建一个基本的mfc项目" class="headerlink" title="0x2 创建一个基本的mfc项目"></a>0x2 创建一个基本的mfc项目</h5><p>选择mfc应用</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123143913306.png" alt="image-20211123143913306"></p>
+<p>有多种类型，可以了解一下然后选择对应的</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123144051651.png" alt="image-20211123144051651"></p>
+<p>生成完成后，界面如图</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123144123561.png" alt="image-20211123144123561"></p>
+<p>点击调试，即可运行一个最初的demo</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123144145966.png" alt="image-20211123144145966"></p>
+<h5 id="0x3-设计界面"><a href="#0x3-设计界面" class="headerlink" title="0x3 设计界面"></a>0x3 设计界面</h5><h6 id="0x31-设计界面"><a href="#0x31-设计界面" class="headerlink" title="0x31 设计界面"></a>0x31 设计界面</h6><p>打开资源文件</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123150210944.png" alt="image-20211123150210944"></p>
+<p>可以看到程序的界面，点击视图中的工具箱，调出按钮等控件集合</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123144244771.png" alt="image-20211123144244771"></p>
+<p>进行设计即可</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123144300259.png" alt="image-20211123144300259"></p>
+<h6 id="0x32-修改icon"><a href="#0x32-修改icon" class="headerlink" title="0x32 修改icon"></a>0x32 修改icon</h6><p>在资源中导入一个新的icon</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123154948321.png" alt="image-20211123154948321"></p>
+<p>在代码中修改为新的icon的id值</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123154911221.png" alt="image-20211123154911221"></p>
+<p>效果如下：</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123162100461.png" alt="image-20211123162100461"></p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123155201109.png" alt="image-20211123155201109"></p>
+<h5 id="0x4-编写功能"><a href="#0x4-编写功能" class="headerlink" title="0x4 编写功能"></a>0x4 编写功能</h5><p>想法是：</p>
+<p>1、进程是一个下拉框，打开程序的时候就会自动加载所有的进程信息，选择一个对应的进程</p>
+<p>2、dll文件有一个按钮，是文件选择功能，选择对应的dll文件</p>
+<p>3、点击dll注入和卸载按钮可以实现对应的功能</p>
+<h6 id="0x41-进程下拉框显示"><a href="#0x41-进程下拉框显示" class="headerlink" title="0x41 进程下拉框显示"></a>0x41 进程下拉框显示</h6><p>给下拉框添加一个变量，名字为combo1</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123144329059.png" alt="image-20211123144329059"></p>
+<p>点击下拉框，就可以进入到对应的代码位置</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123150615022.png" alt="image-20211123150615022"></p>
+<p>不过我没有在这里写代码，因为进程加载是在程序初始化的时候</p>
+<p>找到初始化时的代码，编写一个显示当前所有进程信息的功能</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123144517966.png" alt="image-20211123144517966"></p>
+<p>CreateToolhelp32Snapshot：获取指定进程的快照，以及这些进程使用的堆、模块和线程</p>
+<blockquote>
+<p><a href="https://docs.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-createtoolhelp32snapshot">https://docs.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-createtoolhelp32snapshot</a></p>
+</blockquote>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123144717863.png" alt="image-20211123144717863"></p>
+<h6 id="0x42-文件选择功能"><a href="#0x42-文件选择功能" class="headerlink" title="0x42 文件选择功能"></a>0x42 文件选择功能</h6><p>给显示dll文件路径的编辑框添加一个变量，名称为dllpath</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123144345787.png" alt="image-20211123144345787"></p>
+<p>点击对应的按钮，到对应的代码位置，编写一个文件选择的功能，并用SetDlgItemText显示在编辑框中</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123144848771.png" alt="image-20211123144848771"></p>
+<h6 id="0x43-dll注入功能"><a href="#0x43-dll注入功能" class="headerlink" title="0x43 dll注入功能"></a>0x43 dll注入功能</h6><p>点击dll注入按钮，进入代码界面</p>
+<p>远程线程注入和dll卸载的代码在之前已经实现过，可以直接复用（修改一些参数和小细节）</p>
+<p>只要获取到对应的进程id和dll文件的路径值即可</p>
+<p>dll注入按钮：</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123145110065.png" alt="image-20211123145110065"></p>
+<p>dll卸载功能代码：</p>
+<p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211123145615468.png" alt="image-20211123145615468"></p>
+<h6 id="0x44-新增菜单键和新对话框"><a href="#0x44-新增菜单键和新对话框" class="headerlink" title="0x44 新增菜单键和新对话框"></a>0x44 新增菜单键和新对话框</h6><p>1、新建一个menu</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211130142741532.png" alt="image-20211130142741532"></p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211130142753048.png" alt="image-20211130142753048"></p>
+<p>2、设计界面</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211130142817567.png" alt="image-20211130142817567"></p>
+<p>3、添加到界面中</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211130142925626.png" alt="image-20211130142925626"></p>
+<p>4、链接到对应的窗口</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211130143004022.png" alt="image-20211130143004022"></p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211130143031848.png" alt="image-20211130143031848"></p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211130143054433.png" alt="image-20211130143054433"></p>
+<p>主界面是cinjectdlldlg类，我们需要在主界面的菜单中选择然后跳转到对应的对话框（以及类），因此要选择主界面的类创建方法，然后在里面新建一个要跳转的对话框的对象然后弹出</p>
+<p>5、新建一个对话框</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211130143318934.png" alt="image-20211130143318934"></p>
+<p>6、设计界面</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211130143340697.png" alt="image-20211130143340697"></p>
+<p>7、点击任意一个按钮，会生成一个类和对应的cpp，在里面写方法</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211130143456342.png" alt="image-20211130143456342"></p>
+<p>8、在injectdll中已经定义了一些函数，在新对话框中可以复用</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211130143553326.png" alt="image-20211130143553326"></p>
+<p>导入头</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#include &quot;injectdllDlg.h&quot;</span><br></pre></td></tr></table></figure>
+
+<p>定义对象即可调用</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211130143627031.png" alt="image-20211130143627031"></p>
+<h5 id><a href="#" class="headerlink" title></a></h5><h5 id="0x5-过程中的问题"><a href="#0x5-过程中的问题" class="headerlink" title="0x5 过程中的问题"></a>0x5 过程中的问题</h5><h6 id="0x51-mfc项目刚创建后就无法成功运行"><a href="#0x51-mfc项目刚创建后就无法成功运行" class="headerlink" title="0x51 mfc项目刚创建后就无法成功运行"></a>0x51 mfc项目刚创建后就无法成功运行</h6><p>解决方法：尽量不要去单个组件里面选，容易缺少文件，重新安装</p>
+<h6 id="0x52-错误提示：CString类型没有合适的转换到LPCTSTR的函数等"><a href="#0x52-错误提示：CString类型没有合适的转换到LPCTSTR的函数等" class="headerlink" title="0x52 错误提示：CString类型没有合适的转换到LPCTSTR的函数等"></a>0x52 错误提示：CString类型没有合适的转换到LPCTSTR的函数等</h6><p>CString to LPCTSTR ：强制转换 LPCTSTR dllpath = (LPCTSTR)dllname;</p>
+<p>CString to Dword：dwpid = _ttoi(strpid);</p>
+<h6 id="0x53-截取字符串中的一部分"><a href="#0x53-截取字符串中的一部分" class="headerlink" title="0x53 截取字符串中的一部分"></a>0x53 截取字符串中的一部分</h6><p>CString的Left、mid、Right函数</p>
+<h6 id="0x54-无法添加信息到下拉控件中"><a href="#0x54-无法添加信息到下拉控件中" class="headerlink" title="0x54 无法添加信息到下拉控件中"></a>0x54 无法添加信息到下拉控件中</h6><p>下断点调试，看变量值</p>
+<p>Cstring的format函数很好用</p>
+<h6 id="0x55-资源视图显示错误在另一个编辑器中打开"><a href="#0x55-资源视图显示错误在另一个编辑器中打开" class="headerlink" title="0x55 资源视图显示错误在另一个编辑器中打开"></a>0x55 资源视图显示错误在另一个编辑器中打开</h6><p>关闭Resource.h文件就可以了</p>
+<h6 id="0x56-修改完icon之后exe的图标没有改"><a href="#0x56-修改完icon之后exe的图标没有改" class="headerlink" title="0x56 修改完icon之后exe的图标没有改"></a>0x56 修改完icon之后exe的图标没有改</h6><p>1、确认是否图标资源是最小的：一般mfc自动生成的IDR_MAINFRAME是128，自己添加的会大于128，顺序后延，编译时默认将ID最小的作为exe的图标。</p>
+<p>2、清理图标缓存：<a href="https://blog.csdn.net/langb2014/article/details/50644792">https://blog.csdn.net/langb2014/article/details/50644792</a></p>
+<h6 id="0x57-命令行带参数调试"><a href="#0x57-命令行带参数调试" class="headerlink" title="0x57 命令行带参数调试"></a>0x57 命令行带参数调试</h6><p><img src="/2021/11/23/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211125141527330.png" alt="image-20211125141527330"></p>
+<h6 id="0x58-错误提示：-wtoi未识别的标识符"><a href="#0x58-错误提示：-wtoi未识别的标识符" class="headerlink" title="0x58 错误提示：_wtoi未识别的标识符"></a>0x58 错误提示：_wtoi未识别的标识符</h6><p>添加头文件#include &lt;cstdlib&gt;</p>
+<h6 id="0x59-win64的计算器无法正常注入"><a href="#0x59-win64的计算器无法正常注入" class="headerlink" title="0x59 win64的计算器无法正常注入"></a>0x59 win64的计算器无法正常注入</h6><p><a href="https://bbs.pediy.com/thread-258333.htm">https://bbs.pediy.com/thread-258333.htm</a></p>
+<p>计算器在win10系统中是 App Containor（类似于沙箱的虚拟环境） 应用程序 ，这种应用程序会受制于一个特殊的系统用户 “ALL APPLICATION PACKAGES”，检查被加载的dll文件的访问控制列表可知，上述用户没有访问此文件的权限，故拒绝访问。</p>
+<p>解决方案：手动修改dll文件的访问控制列表，授予”ALL APPLICATION PACKAGES”读取和执行权限。</p>
+<h6 id="0x5A-无法解析的外部符号"><a href="#0x5A-无法解析的外部符号" class="headerlink" title="0x5A 无法解析的外部符号"></a>0x5A 无法解析的外部符号</h6><p>找到对应函数需要的头文件，在项目－》配置属性－》链接器－》输入－》附加依赖项</p>
+<p>比如_GetProcessImageFileName()API，添加Psapi.lib即可</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211129162919455.png" alt="image-20211129162919455"></p>
+<h6 id="0x5B-xp下可执行文件的打包"><a href="#0x5B-xp下可执行文件的打包" class="headerlink" title="0x5B xp下可执行文件的打包"></a>0x5B xp下可执行文件的打包</h6><p><img src="/Users/kami/Desktop/hexo/source/_posts/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211129162951716.png" alt="image-20211129162951716"></p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211129163009566.png" alt="image-20211129163009566"></p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7%E5%AE%9E%E7%8E%B0/image-20211129163033196.png" alt="image-20211129163033196"></p>
+]]></content>
+  </entry>
+  <entry>
+    <title>mac+gitbook笔记环境搭建</title>
+    <url>/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</url>
+    <content><![CDATA[<h4 id="mac-gitbook笔记环境搭建"><a href="#mac-gitbook笔记环境搭建" class="headerlink" title="mac+gitbook笔记环境搭建"></a>mac+gitbook笔记环境搭建</h4><p>为了更方便看笔记以及总结漏洞复现情况，搭建了一个gitbook环境</p>
+<a id="more"></a>
+
+<p>ps：node版本为14时，安装gitbook会报错</p>
+<h5 id="0x1-nvm安装：用来管理node版本"><a href="#0x1-nvm安装：用来管理node版本" class="headerlink" title="0x1 nvm安装：用来管理node版本"></a>0x1 nvm安装：用来管理node版本</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;nvm-sh&#x2F;nvm.git</span><br><span class="line">cd nvm</span><br><span class="line">sh install.sh</span><br><span class="line">vim ~&#x2F;.bash_profile</span><br></pre></td></tr></table></figure>
+
+<p>在bash_profile中输入如下字段：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">export NVM_DIR&#x3D;&quot;$HOME&#x2F;.nvm&quot;</span><br><span class="line">[ -s &quot;$NVM_DIR&#x2F;nvm.sh&quot; ] &amp;&amp; \. &quot;$NVM_DIR&#x2F;nvm.sh&quot; </span><br><span class="line">[ -s &quot;$NVM_DIR&#x2F;bash_completion&quot; ] &amp;&amp; \. &quot;$NVM_DIR&#x2F;bash_completion&quot;</span><br></pre></td></tr></table></figure>
+
+<p>如图：</p>
+<p><img src="/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20210707144052355.png" alt="image-20210707144052355"></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">source ~&#x2F;.bash_profile</span><br><span class="line">nvm -v</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20210707144130595.png" alt="image-20210707144130595"></p>
+<p>安装v10版本：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nvm install v10</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20210707151354988.png" alt="image-20210707151354988"></p>
+<p>转换使用v10版本：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nvm use 10</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20210707151502733.png" alt="image-20210707151502733"></p>
+<h6 id="问题1："><a href="#问题1：" class="headerlink" title="问题1："></a>问题1：</h6><p>发现每次重新打开终端都要source ~/.bash_profile才能更改配置</p>
+<h6 id="解决："><a href="#解决：" class="headerlink" title="解决："></a>解决：</h6><p>zsh加载的是 ~/.zshrc文件</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim ~&#x2F;.zshrc</span><br></pre></td></tr></table></figure>
+
+<p>添加source ~/.bash_profile语句即可</p>
+<p><img src="/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20210707144557243.png" alt="image-20210707144557243"></p>
+<h5 id="0x2-安装gitbook："><a href="#0x2-安装gitbook：" class="headerlink" title="0x2 安装gitbook："></a>0x2 安装gitbook：</h5><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line">npm install -g gitbook-cli</span><br><span class="line">gitbook -V</span><br></pre></td></tr></table></figure>
+
+<p>运行完成如下图：（顺便其中gitbook真的会装好久，换了源还是没有很快</p>
+<p><img src="/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20210707163709690.png" alt="image-20210707163709690"></p>
+<h5 id="0x3-使用gitbook："><a href="#0x3-使用gitbook：" class="headerlink" title="0x3 使用gitbook："></a>0x3 使用gitbook：</h5><p>建好文件夹后cd进入，初始化gitbook：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">gitbook init</span><br></pre></td></tr></table></figure>
+
+<p>自主修改readme.md和summary.md</p>
+<p>summary.md（也就是目录）的内容如下：</p>
+<p><img src="/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20210708090946536.png" alt="image-20210708090946536"></p>
+<p>运行后大致如下图，introduction就是readme.md的内容</p>
+<p>左侧的目录就是summary.md的内容</p>
+<p><img src="/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20210708090518889.png" alt="image-20210708090518889"></p>
+<p>可以按个人所需安装一些有用的插件：</p>
+<p>建议直接npm，感觉gitbook install很慢</p>
+<p>比如加个页脚：</p>
+<p><img src="/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20210708091106973.png" alt="image-20210708091106973"></p>
+<p>然后在文件夹下生成一个book.json文件，在里面填写配置和插件信息</p>
+<p>我的book.json文件是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;title&quot; : &quot;kamivul&quot;,</span><br><span class="line">  &quot;author&quot; : &quot;0xkami&quot;,</span><br><span class="line">  &quot;description&quot; : &quot;漏洞复现记录&quot;,</span><br><span class="line">  &quot;language&quot; : &quot;zh-hans&quot;,</span><br><span class="line">  &quot;plugins&quot;: [&quot;chapter-fold&quot;,&quot;back-to-top-button&quot;,&quot;code&quot;,&quot;copy-code-button&quot;,&quot;-lunr&quot;, &quot;-search&quot;, &quot;search-pro&quot;,&quot;splitter&quot; ,&quot;tbfed-pagefooter&quot;],</span><br><span class="line">  &quot;pluginsConfig&quot;: &#123;</span><br><span class="line">        &quot;tbfed-pagefooter&quot;: &#123;</span><br><span class="line">            &quot;copyright&quot;:&quot;--by 0xkami&quot;,</span><br><span class="line">            &quot;modify_label&quot;: &quot;该文件修订时间：&quot;,</span><br><span class="line">            &quot;modify_format&quot;: &quot;YYYY-MM-DD HH:mm:ss&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>效果如图：</p>
+<p><img src="/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20210708091242739.png" alt="image-20210708091242739"></p>
+<h5 id="ps："><a href="#ps：" class="headerlink" title="ps："></a>ps：</h5><p>还不知道要不要绑到这个博客域名里，毕竟太菜了</p>
+]]></content>
+      <tags>
+        <tag>gitbook</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>funnyre-花指令与符号执行angr</title>
     <url>/2021/01/26/funnyre-%E8%8A%B1%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8Cangr/</url>
     <content><![CDATA[<p>从funnyre的题中学习花指令和符号执行angr</p>
@@ -1872,66 +1967,6 @@
       <tags>
         <tag>花指令</tag>
         <tag>angr</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>mac+gitbook笔记环境搭建</title>
-    <url>/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</url>
-    <content><![CDATA[<h4 id="mac-gitbook笔记环境搭建"><a href="#mac-gitbook笔记环境搭建" class="headerlink" title="mac+gitbook笔记环境搭建"></a>mac+gitbook笔记环境搭建</h4><p>为了更方便看笔记以及总结漏洞复现情况，搭建了一个gitbook环境</p>
-<a id="more"></a>
-
-<p>ps：node版本为14时，安装gitbook会报错</p>
-<h5 id="0x1-nvm安装：用来管理node版本"><a href="#0x1-nvm安装：用来管理node版本" class="headerlink" title="0x1 nvm安装：用来管理node版本"></a>0x1 nvm安装：用来管理node版本</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;nvm-sh&#x2F;nvm.git</span><br><span class="line">cd nvm</span><br><span class="line">sh install.sh</span><br><span class="line">vim ~&#x2F;.bash_profile</span><br></pre></td></tr></table></figure>
-
-<p>在bash_profile中输入如下字段：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">export NVM_DIR&#x3D;&quot;$HOME&#x2F;.nvm&quot;</span><br><span class="line">[ -s &quot;$NVM_DIR&#x2F;nvm.sh&quot; ] &amp;&amp; \. &quot;$NVM_DIR&#x2F;nvm.sh&quot; </span><br><span class="line">[ -s &quot;$NVM_DIR&#x2F;bash_completion&quot; ] &amp;&amp; \. &quot;$NVM_DIR&#x2F;bash_completion&quot;</span><br></pre></td></tr></table></figure>
-
-<p>如图：</p>
-<p><img src="/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20210707144052355.png" alt="image-20210707144052355"></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">source ~&#x2F;.bash_profile</span><br><span class="line">nvm -v</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20210707144130595.png" alt="image-20210707144130595"></p>
-<p>安装v10版本：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nvm install v10</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20210707151354988.png" alt="image-20210707151354988"></p>
-<p>转换使用v10版本：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nvm use 10</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20210707151502733.png" alt="image-20210707151502733"></p>
-<h6 id="问题1："><a href="#问题1：" class="headerlink" title="问题1："></a>问题1：</h6><p>发现每次重新打开终端都要source ~/.bash_profile才能更改配置</p>
-<h6 id="解决："><a href="#解决：" class="headerlink" title="解决："></a>解决：</h6><p>zsh加载的是 ~/.zshrc文件</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim ~&#x2F;.zshrc</span><br></pre></td></tr></table></figure>
-
-<p>添加source ~/.bash_profile语句即可</p>
-<p><img src="/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20210707144557243.png" alt="image-20210707144557243"></p>
-<h5 id="0x2-安装gitbook："><a href="#0x2-安装gitbook：" class="headerlink" title="0x2 安装gitbook："></a>0x2 安装gitbook：</h5><figure class="highlight rust"><table><tr><td class="code"><pre><span class="line">npm install -g gitbook-cli</span><br><span class="line">gitbook -V</span><br></pre></td></tr></table></figure>
-
-<p>运行完成如下图：（顺便其中gitbook真的会装好久，换了源还是没有很快</p>
-<p><img src="/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20210707163709690.png" alt="image-20210707163709690"></p>
-<h5 id="0x3-使用gitbook："><a href="#0x3-使用gitbook：" class="headerlink" title="0x3 使用gitbook："></a>0x3 使用gitbook：</h5><p>建好文件夹后cd进入，初始化gitbook：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">gitbook init</span><br></pre></td></tr></table></figure>
-
-<p>自主修改readme.md和summary.md</p>
-<p>summary.md（也就是目录）的内容如下：</p>
-<p><img src="/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20210708090946536.png" alt="image-20210708090946536"></p>
-<p>运行后大致如下图，introduction就是readme.md的内容</p>
-<p>左侧的目录就是summary.md的内容</p>
-<p><img src="/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20210708090518889.png" alt="image-20210708090518889"></p>
-<p>可以按个人所需安装一些有用的插件：</p>
-<p>建议直接npm，感觉gitbook install很慢</p>
-<p>比如加个页脚：</p>
-<p><img src="/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20210708091106973.png" alt="image-20210708091106973"></p>
-<p>然后在文件夹下生成一个book.json文件，在里面填写配置和插件信息</p>
-<p>我的book.json文件是这样的：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;title&quot; : &quot;kamivul&quot;,</span><br><span class="line">  &quot;author&quot; : &quot;0xkami&quot;,</span><br><span class="line">  &quot;description&quot; : &quot;漏洞复现记录&quot;,</span><br><span class="line">  &quot;language&quot; : &quot;zh-hans&quot;,</span><br><span class="line">  &quot;plugins&quot;: [&quot;chapter-fold&quot;,&quot;back-to-top-button&quot;,&quot;code&quot;,&quot;copy-code-button&quot;,&quot;-lunr&quot;, &quot;-search&quot;, &quot;search-pro&quot;,&quot;splitter&quot; ,&quot;tbfed-pagefooter&quot;],</span><br><span class="line">  &quot;pluginsConfig&quot;: &#123;</span><br><span class="line">        &quot;tbfed-pagefooter&quot;: &#123;</span><br><span class="line">            &quot;copyright&quot;:&quot;--by 0xkami&quot;,</span><br><span class="line">            &quot;modify_label&quot;: &quot;该文件修订时间：&quot;,</span><br><span class="line">            &quot;modify_format&quot;: &quot;YYYY-MM-DD HH:mm:ss&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>效果如图：</p>
-<p><img src="/2021/07/08/mac-gitbook%E7%AC%94%E8%AE%B0%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/image-20210708091242739.png" alt="image-20210708091242739"></p>
-<h5 id="ps："><a href="#ps：" class="headerlink" title="ps："></a>ps：</h5><p>还不知道要不要绑到这个博客域名里，毕竟太菜了</p>
-]]></content>
-      <tags>
-        <tag>gitbook</tag>
       </tags>
   </entry>
   <entry>
@@ -2555,6 +2590,82 @@
       </categories>
       <tags>
         <tag>恶意代码</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>破解某思维导图软件</title>
+    <url>/2021/12/09/%E7%A0%B4%E8%A7%A3%E6%9F%90%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E8%BD%AF%E4%BB%B6/</url>
+    <content><![CDATA[<h5 id="0x0-注意"><a href="#0x0-注意" class="headerlink" title="0x0 注意"></a>0x0 注意</h5><p>破解思路仅供学习交流，请大家务必支持正版</p>
+<a id="more"></a>
+
+<h5 id="0x1-起因"><a href="#0x1-起因" class="headerlink" title="0x1 起因"></a>0x1 起因</h5><p>前段时间下载了这个软件，很好用，但是有一些功能限制让人有点难受，所以尝试破解一下，去除功能的限制</p>
+<p>这个软件的桌面端是用Electron开发的。版本是2021年的202111090201</p>
+<blockquote>
+<p>Electron：一个跨平台的、基于 Web 前端技术的桌面 GUI 应用程序开发框架。</p>
+<p>asar：是Electron下一种压缩的工具</p>
+</blockquote>
+<p>试用版和完整版的区别：</p>
+<p><img src="/2021/12/09/%E7%A0%B4%E8%A7%A3%E6%9F%90%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E8%BD%AF%E4%BB%B6/image-20211209223314084.png" alt="image-20211209223314084"></p>
+<h5 id="0x2-去除不想要的按钮"><a href="#0x2-去除不想要的按钮" class="headerlink" title="0x2 去除不想要的按钮"></a>0x2 去除不想要的按钮</h5><p>这个软件的编辑界面是这样的：</p>
+<p><img src="/2021/12/09/%E7%A0%B4%E8%A7%A3%E6%9F%90%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E8%BD%AF%E4%BB%B6/image-20211209173735875.png" alt="image-20211209173735875"></p>
+<p>右上角的试用日期看着不够简洁，放上去的时候还会显示“现在就买它！”</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/%E7%A0%B4%E8%A7%A3%E6%9F%90%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E8%BD%AF%E4%BB%B6/image-20211209174215705.png" alt="image-20211209174215705"></p>
+<h6 id="0x21-右上角购买按钮："><a href="#0x21-右上角购买按钮：" class="headerlink" title="0x21 右上角购买按钮："></a>0x21 右上角购买按钮：</h6><p>先解包：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install -g asar		&#x2F;&#x2F;安装asar	</span><br><span class="line">asar extract app.asar crack		&#x2F;&#x2F;crack是目录名</span><br></pre></td></tr></table></figure>
+
+<p>解完包就可以进入crack目录中进行文件的修改</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/%E7%A0%B4%E8%A7%A3%E6%9F%90%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E8%BD%AF%E4%BB%B6/image-20211209181200433.png" alt="image-20211209181200433"></p>
+<p>打开文件夹，尝试搜索关键字段“days evaluated”，找到了对应文件</p>
+<p>在文件中找到对应字段位置</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/%E7%A0%B4%E8%A7%A3%E6%9F%90%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E8%BD%AF%E4%BB%B6/image-20211209174111561.png" alt="image-20211209174111561"></p>
+<p>虽然不会js，但是能看懂大概的代码流程感觉还是可以试一试</p>
+<p>最终目标是让这个按钮不显示，那只要找到这个按钮的一些功能就可以了</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">shouldShowPromotionButton()&#123;return Boolean(this.promotionButtonText)&amp;&amp;!r.isMasDemo&#125;,</span><br><span class="line">promotionButtonText()&#123;const t&#x3D;b.default(&quot;version&quot;).includes(&quot;beta&quot;);return this.activationStatus&#x3D;&#x3D;&#x3D;r.ACTIVATION_STATUS.VALID?&quot;&quot;:this.hoverPromotionButton?this.$T(&quot;Purchase Now&quot;):t?this.$T(&quot;Beta Version&quot;):this.trialElapsedDays&lt;&#x3D;1?this.$T(&quot;Evaluation Mode&quot;):this.trialElapsedDays&gt;&#x3D;2?this.$T(&quot;$1 Days Evaluated&quot;,this.trialElapsedDays):</span><br></pre></td></tr></table></figure>
+
+<p>一些关键语句：</p>
+<p>this.hoverPromotionButton?this.$T(“Purchase Now”)：理解hover是放上鼠标后会变化的一种样式，感觉PromotionButton这个字段可能和这个按钮的名字相关，搜索，在不远处看到了以下代码：</p>
+<p>shouldShowPromotionButton(){return Boolean(this.promotionButtonText)&amp;&amp;!r.isMasDemo}：很明显这个就是判断是否要显示这个按钮的功能</p>
+<p>那么只要修改代码为：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">shouldShowPromotionButton()&#123;return 0&#125;</span><br></pre></td></tr></table></figure>
+
+<p>让它不做判断，就可以了</p>
+<h6 id="0x22-菜单栏“立即激活”按钮："><a href="#0x22-菜单栏“立即激活”按钮：" class="headerlink" title="0x22 菜单栏“立即激活”按钮："></a>0x22 菜单栏“立即激活”按钮：</h6><p><img src="/Users/kami/Desktop/hexo/source/_posts/%E7%A0%B4%E8%A7%A3%E6%9F%90%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E8%BD%AF%E4%BB%B6/image-20211209225218766.png" alt="image-20211209225218766"></p>
+<p>步骤同上，找到关键字符串的位置：</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/%E7%A0%B4%E8%A7%A3%E6%9F%90%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E8%BD%AF%E4%BB%B6/image-20211209223939302.png" alt="image-20211209223939302"></p>
+<p>可以看出是通过判断是否是试用版和激活的情况来确定按钮是否显示</p>
+<p>可以直接修改按钮的显示情况：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;id:&quot;activate&quot;,label:&quot;Activate Now&quot;,enabled:0&#125;,&#x2F;&#x2F;enabled&#x3D;0即为不显示</span><br></pre></td></tr></table></figure>
+
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/%E7%A0%B4%E8%A7%A3%E6%9F%90%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E8%BD%AF%E4%BB%B6/image-20211209223749064.png" alt="image-20211209223749064"></p>
+<h6 id="0x23-菜单栏“关于”页面中的激活情况和按钮"><a href="#0x23-菜单栏“关于”页面中的激活情况和按钮" class="headerlink" title="0x23 菜单栏“关于”页面中的激活情况和按钮"></a>0x23 菜单栏“关于”页面中的激活情况和按钮</h6><p><img src="/Users/kami/Desktop/hexo/source/_posts/%E7%A0%B4%E8%A7%A3%E6%9F%90%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E8%BD%AF%E4%BB%B6/image-20211209224128193.png" alt="image-20211209224128193"></p>
+<p>步骤同上，找到关键字符串的位置：</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/%E7%A0%B4%E8%A7%A3%E6%9F%90%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E8%BD%AF%E4%BB%B6/image-20211209224307943.png" alt="image-20211209224307943"></p>
+<p>可以看出是通过判断是否是试用版以及激活的情况来确定按钮是否显示</p>
+<p>可以直接修改判断的结果：</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/%E7%A0%B4%E8%A7%A3%E6%9F%90%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E8%BD%AF%E4%BB%B6/image-20211209224221517.png" alt="image-20211209224221517"></p>
+<h6 id="0x24-修改结果"><a href="#0x24-修改结果" class="headerlink" title="0x24 修改结果"></a>0x24 修改结果</h6><p>运行以下语句进行组包：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo asar pack crack app.asar</span><br></pre></td></tr></table></figure>
+
+<p>重新运行，发现成功去除了所有按钮：</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/%E7%A0%B4%E8%A7%A3%E6%9F%90%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E8%BD%AF%E4%BB%B6/image-20211209180958901.png" alt="image-20211209180958901"></p>
+<img src="/Users/kami/Library/Application%2520Support/typora-user-images/image-20211209225147888.png" alt="image-20211209225147888" style="zoom:100%;">
+
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/%E7%A0%B4%E8%A7%A3%E6%9F%90%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E8%BD%AF%E4%BB%B6/image-20211209225328352.png" alt="image-20211209225328352"></p>
+<h5 id="0x03-解除功能的限制"><a href="#0x03-解除功能的限制" class="headerlink" title="0x03 解除功能的限制"></a>0x03 解除功能的限制</h5><p>当这个软件导出pdf的时候，会有水印以及部分文件格式无法导出</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/%E7%A0%B4%E8%A7%A3%E6%9F%90%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E8%BD%AF%E4%BB%B6/image-20211209181428720.png" alt="image-20211209181428720"></p>
+<p>当点击各个限制的功能时，也会跳出购买页面</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/%E7%A0%B4%E8%A7%A3%E6%9F%90%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E8%BD%AF%E4%BB%B6/image-20211209224755090.png" alt="image-20211209224755090"></p>
+<p>找到关键词和一些重点文件</p>
+<p>很明显这里就是限制的功能和不限制的功能</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/%E7%A0%B4%E8%A7%A3%E6%9F%90%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E8%BD%AF%E4%BB%B6/image-20211209224857212.png" alt="image-20211209224857212"></p>
+<p>把限制中的功能都注释掉，重新组包，就可以了</p>
+<h6 id="0x31-修改结果"><a href="#0x31-修改结果" class="headerlink" title="0x31 修改结果"></a>0x31 修改结果</h6><p>已经测试过所有收费功能，都可以实现了</p>
+<p>以下是插入图片功能的例子：</p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/%E7%A0%B4%E8%A7%A3%E6%9F%90%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E8%BD%AF%E4%BB%B6/image-20211209225516346.png" alt="image-20211209225516346"></p>
+<h5 id="0x04-总结"><a href="#0x04-总结" class="headerlink" title="0x04 总结"></a>0x04 总结</h5><p>这个软件破解还是比较容易，因为是用js写（虽然我不会）和一些关键词查找的思路，算是mac下破解的一个小实践</p>
+]]></content>
+      <tags>
+        <tag>crack</tag>
       </tags>
   </entry>
   <entry>
