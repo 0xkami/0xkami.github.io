@@ -251,7 +251,7 @@
 <p>装好之后拷入poc脚本</p>
 <p>之后是导入各种模块和无限的debug…..修改了下脚本</p>
 <p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180942451.png" alt="image-20200915180942451"></p>
-<p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180900178.png" alt="image-20200915180900178"></p>
+<p><img src="/Users/kami/Desktop/hexo/source/_posts/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20240823150648595.png" alt="image-20240823150648595"></p>
 <p>运行脚本，复现成功：</p>
 <p><img src="/2020/09/06/0x02CVE-2020-1472%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/image-20200915180918659.png" alt="image-20200915180918659"></p>
 ]]></content>
